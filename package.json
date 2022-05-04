@@ -1,0 +1,17 @@
+{
+  "name": "betrayal",
+  "version": "1.0.0",
+  "description": "Betrayal game project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-client": "cd client && npm start",
+    "start-server": "cd server && node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-personal:Tpleme/betrayal.git"
+  },
+  "author": "Leandro Melo",
+  "license": "ISC"
+}
