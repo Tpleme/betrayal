@@ -1,18 +1,23 @@
 import './App.css';
-import { io } from 'socket.io-client'
+import { Routes, Route } from 'react-router-dom'
 
-const socket = io('http://localhost:3000')
+// import { io } from 'socket.io-client'
+
+// const socket = io('http://localhost:3000')
+
+import Game from './Pages/Game'
+import Lobby from './Pages/Lobby'
+import Room from './Pages/Room'
 
 function App() {
 
-	const emitMessage = () => {
-		socket.emit('chat message', 'hello there');
-	}
-
 	return (
-		<div className="App">
-			<h1>Hello World</h1>
-			<button onClick={emitMessage}>test</button>
+		<div>
+			<Routes>
+				<Route path='/' element={<Game />} />
+				<Route path='/lobby' element={<Lobby />} />
+				<Route path='/room' element={<Room />} />
+			</Routes>
 		</div>
 	);
 }
