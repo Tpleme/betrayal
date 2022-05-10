@@ -13,11 +13,17 @@ const { Server } = require('socket.io')
 const app = express()
 const server = createServer(app)
 
+const authRoute = require('./Routes/Auth')
+const usersRoute = require('./Routes/Users')
+
+const { LoginLimiter } = require('./middleware/rateLimiter')
+const { BOendPointAuth, FOendPointAuth } = require('./middleware/EndpointAuth')
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
     origin: ['http://localhost:3001'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'key', 'username'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'key'],
     exposedHeaders: ['key']
 }))
 app.use(helmet())
@@ -30,6 +36,20 @@ const startServer = async () => {
     await db.init();
     server.listen(3000)
 }
+
+const makeHandlerAwareOfAsyncError = (handler) => {
+    return async (req, res, next) => {
+        try {
+            await handler(req, res);
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+
+app.post('/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(authRoute.auth))
+app.post('/api/user', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.create))
+
 
 /* const io = new Server(server, {
     cors: {

@@ -38,7 +38,7 @@ const create = async (req, res) => {
             })
         })
 
-        return res.status(201).send(`User successfully ${req.body.email} created`)
+        return res.status(201).send(`User, ${req.body.email}, successfully created`)
 
     } catch (err) {
         console.log(err)

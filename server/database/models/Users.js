@@ -22,6 +22,10 @@ const UsersModel = (database) => {
         },
         password_recovery_key: {
             type: DataTypes.STRING
+        },
+        loggedIn: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     })
 }
