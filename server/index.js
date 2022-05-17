@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cors({
     origin: ['http://localhost:3001'],
     allowedHeaders: ['Content-Type', 'Authorization', 'key'],
-    exposedHeaders: ['key']
+    exposedHeaders: ['key', 'user', 'email', 'id']
 }))
 app.use(helmet())
 app.use(compression())

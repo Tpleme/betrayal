@@ -1,5 +1,6 @@
 import './App.css';
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
+import useToken from './Components/CustomHooks/useToken'
 
 // import { io } from 'socket.io-client'
 
@@ -8,8 +9,16 @@ import { Routes, Route } from 'react-router-dom'
 import Game from './Pages/Game'
 import Lobby from './Pages/Lobby'
 import Room from './Pages/Room'
+import { useEffect } from 'react';
 
 function App() {
+	const { token } = useToken()
+	const navigate = useNavigate()
+	console.log(token)
+
+	useEffect(() => {
+		if (!token) navigate('/login', { replace: true })
+	}, [token])
 
 	return (
 		<div>

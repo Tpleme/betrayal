@@ -1,76 +1,78 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TextField, InputAdornment, IconButton } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { debounce } from '@mui/material'
+import { loginUser } from '../Components/Requests/StandardRequests'
+import { removeCookies, setCookies } from '../Components/User/UserLog'
+import useToken from '../Components/CustomHooks/useToken'
 
-class Login extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            email: 'test',
-            password: '',
-            error: false,
-            showPassword: false
-        }
+export default function Login() {
+    const [showPassword, setShowPassword] = useState(false)
+    const { setToken } = useToken()
+    const navigate = useNavigate()
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        console.log(e.target[0].value)
+        console.log(e.target[2].value)
+        loginUser(e.target[0].value, e.target[2].value).then((res) => {
+            console.log(res)
+            setToken({ token: res.headers.key })
+            setCookies(res.headers.user, res.headers.id, res.headers.email)
+            console.log(res.headers.user, res.headers.id, res.headers.email)
+            navigate('/', { replace: true })
+        }, err => {
+            console.log(err)
+        })
     }
 
-    debouncedHandleOnChange = debounce((e) => {
-        console.log(e.target.name)
-        console.log(e.target.value)
-        this.setState({ [e.target.name]: e.target.value }, () => console.log(this.state))
-    }, 300)
+    useEffect(() => {
+        setToken(null)
+        removeCookies()
+    }, [])
 
-    render() {
-
-        return (
-            <div>
-                <TextField
-                    required
-                    autoFocus
-                    id='email'
-                    name='email'
-                    label='Email'
-                    color='secondary'
-                    fullWidth
-                    size='small'
-                    type='email'
-                    variant='outlined'
-                    value={this.state.email}
-                    onChange={this.debouncedHandleOnChange}
-                    error={this.state.error}
-                />
-                <TextField
-                    variant='outlined'
-                    required
-                    id='password'
-                    label='Password'
-                    name='password'
-                    fullWidth
-                    size='small'
-                    color='secondary'
-                    error={this.state.error}
-                    onCopy={(e) => e.preventDefault()}
-                    onCut={(e) => e.preventDefault()}
-                    onChange={this.debouncedHandleOnChange}
-                    autoComplete='current-password'
-                    type={this.state.showPassword ? 'text' : 'password'}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position='end'>
-                                <IconButton
-                                    tabIndex={-1}
-                                    aria-label='toggle password visibility'
-                                    onClick={() => this.setState({ showPassword: !this.state.showPassword })}
-                                >
-                                    {this.state.showPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                        )
-                    }}
-                />
-            </div>
-        )
-    }
+    return (
+        <form onSubmit={handleSubmit}>
+            <TextField
+                required
+                autoFocus
+                id='email'
+                name='email'
+                label='Email'
+                color='secondary'
+                fullWidth
+                size='small'
+                type='email'
+                variant='outlined'
+            />
+            <TextField
+                variant='outlined'
+                required
+                id='password'
+                label='Password'
+                name='password'
+                fullWidth
+                size='small'
+                color='secondary'
+                onCopy={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
+                autoComplete='current-password'
+                type={showPassword ? 'text' : 'password'}
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position='end'>
+                            <IconButton
+                                tabIndex={-1}
+                                aria-label='toggle password visibility'
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                        </InputAdornment>
+                    )
+                }}
+            />
+            <button type='submit' >Login</button>
+        </form>
+    )
 }
-
-export default Login

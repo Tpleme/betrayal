@@ -8,22 +8,22 @@ const auth = async (req, res) => {
 
     if (email && password) {
         await models.users.findOne({ where: { email: email } }).then(user => {
-            if (!user) return res.status(404).send('User nor found');
+            if (!user) return res.status(404).send('User not found');
 
             bcrypt.compare(password, user.password).then(valid => {
+
                 if (!valid) return res.status(401).send('Wrong Password')
+
+                models.users.update({ last_login: Date.now(), loggedIn: true }, { where: { id: user.id } })
+
+                const key = getApiKey(user.id)
+
+                res.set({ 'key': key, 'email': user.email, 'user': user.name, 'id': user.id })
+
+                addKeyToBeingUsed(key)
+
+                res.status(200).send("Login successful")
             })
-
-            models.users.update({ last_login: Date.now(), loggedIn: true }, { where: { id: user.id } })
-
-            const key = getApiKey(user.id)
-
-            res.set({ 'key': key })
-
-            addKeyToBeingUsed(key)
-
-            res.status(200).send("Login successful")
-
         })
     } else {
         res.status(401).send('Missing login information')
