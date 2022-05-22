@@ -1,10 +1,6 @@
 import './App.css';
 import { Routes, Route, useNavigate } from 'react-router-dom'
-import useToken from './Components/CustomHooks/useToken'
-
-// import { io } from 'socket.io-client'
-
-// const socket = io('http://localhost:3000')
+import useToken from './Components/Hooks/useToken'
 
 import Game from './Pages/Game'
 import Lobby from './Pages/Lobby'
@@ -14,10 +10,10 @@ import { useEffect } from 'react';
 function App() {
 	const { token } = useToken()
 	const navigate = useNavigate()
-	console.log(token)
 
 	useEffect(() => {
 		if (!token) navigate('/login', { replace: true })
+		return;
 	}, [token])
 
 	return (

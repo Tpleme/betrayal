@@ -10,6 +10,8 @@ require('dotenv').config()
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 
+const { handleWS } = require('./WS')
+
 const app = express()
 const server = createServer(app)
 
@@ -51,25 +53,12 @@ app.post('/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(auth
 app.post('/api/user', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.create))
 
 
-/* const io = new Server(server, {
+const io = new Server(server, {
     cors: {
         origin: 'http://localhost:3001'
     }
 })
 
-io.on('connection', socket => {
-    console.log(socket);
-    console.log('user connected')
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-
-    socket.on('chat message', msg => {
-        console.log(msg)
-    })
-}) */
-
-
+io.on('connection', socket => handleWS(socket))
 
 startServer()
