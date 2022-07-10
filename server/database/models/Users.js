@@ -26,7 +26,7 @@ const UsersModel = (database) => {
         loggedIn: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
-        }
+        },
     })
 }
 

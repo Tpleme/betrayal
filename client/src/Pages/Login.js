@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TextField, InputAdornment, IconButton } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { loginUser } from '../Components/Requests/StandardRequests'
-import { removeCookies, setCookies } from '../Components/User/UserLog'
-import useToken from '../Components/Hooks/useToken'
-import useGlobalSnackbar from '../Components/Hooks/useGlobalSnackbar'
+import { loginUser } from '../API/requests'
+import useToken from '../Hooks/useToken'
+import useGlobalSnackbar from '../Hooks/useGlobalSnackbar'
+
+import { SocketContext } from '../Context/socket/socket'
 
 import './css/Login.css'
+
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false)
@@ -16,6 +18,7 @@ export default function Login() {
     const { setToken } = useToken()
     const navigate = useNavigate()
     const { triggerSnackbar } = useGlobalSnackbar()
+    const socket = useContext(SocketContext)
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -24,20 +27,21 @@ export default function Login() {
 
         loginUser(e.target[0].value, e.target[2].value).then((res) => {
             setToken({ token: res.headers.key })
-            setCookies(res.headers.user, res.headers.id, res.headers.email)
+            socket.auth = { uuid: res.headers.id, name: res.headers.username, token: res.headers.key }
+            socket.connect()
             setSubmitting(false)
             navigate('/', { replace: true })
         }, err => {
             console.log(err)
             setSubmitting(false)
-            triggerSnackbar(err.response ? err.response.data : 'Cannot communicate with the server, please try again later', '', "error", { vertical: 'bottom', horizontal: 'center' }, false)
-
+            triggerSnackbar(err.response ? err.response.data : 'Cannot communicate with the server, please try again later', '', "error", { vertical: 'bottom', horizontal: 'center' }, false )
         })
     }
 
+
     useEffect(() => {
+        sessionStorage.removeItem('token')
         setToken(null)
-        removeCookies()
     }, [])
 
     return (

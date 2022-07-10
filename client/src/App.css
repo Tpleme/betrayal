@@ -1,1 +1,18 @@
-
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Assistant', sans-serif;
+    /* overflow-x: hidden; */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  ::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+  
+  :root {
+    --light-red: #b41616;
+  }

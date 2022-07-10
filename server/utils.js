@@ -17,7 +17,7 @@ const getApiKey = (id) => {
 
 const addKeyToBeingUsed = (key) => {
     keysBeingUsed.push(key)
-    console.log(key)
+    // console.log(key)
 }
 
 const popKeyBeingUsed = (id) => {
@@ -30,7 +30,7 @@ const popKeyBeingUsed = (id) => {
 }
 
 const checkKeyBeingUsed = (key) => {
-    console.log(keysBeingUsed)
+    // console.log(keysBeingUsed)
     return keysBeingUsed.includes(key)
 }
 

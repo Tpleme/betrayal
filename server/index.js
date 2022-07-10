@@ -49,9 +49,10 @@ const makeHandlerAwareOfAsyncError = (handler) => {
     }
 }
 
-app.post('/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(authRoute.auth))
+app.post('/api/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(authRoute.auth))
 app.post('/api/user', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.create))
-
+app.get('/api/users/', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.getAll))
+app.get('/api/users/:id', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.getByID))
 
 const io = new Server(server, {
     cors: {
@@ -59,6 +60,6 @@ const io = new Server(server, {
     }
 })
 
-io.on('connection', socket => handleWS(socket))
+io.on('connection', socket => handleWS(socket, io))
 
 startServer()
