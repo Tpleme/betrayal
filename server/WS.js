@@ -7,7 +7,7 @@ const handleWS = (socket, io) => {
     connectUser(socket)
 
     socket.on('disconnect', () => onDisconnect(socket));
-    socket.on('message', () => onMessage(socket))
+    socket.on('message', (msg) => onMessage(io, socket, msg))
     socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -18,6 +18,7 @@ const connectUser = async (socket) => {
     }
 
     console.log('user connected ' + socket.id)
+    socket.join('global')
     connectedUsers.push({ userId: socket.handshake.auth.uuid, socket: socket })
 
     await models.users.update({ loggedIn: true, last_login: Date.now() }, { where: { id: socket.handshake.auth.uuid } })
@@ -26,19 +27,20 @@ const connectUser = async (socket) => {
 }
 
 const onDisconnect = async (socket) => {
-    connectedUsers.filter(user => user.socket.id !== socket.id)
+    const socketIndex = connectedUsers.findIndex(x => x.socket.id === socket.id)
+    connectedUsers.splice(socketIndex, socketIndex >= 0 ? 1 : 0)
 
-    
     console.log('User disconnected ' + socket.id)
-    
+
     await models.users.update({ loggedIn: false }, { where: { id: socket.handshake.auth.uuid } })
 }
 
-const onMessage = (io, socket, msg) => {
-    console.log(msg)
+const onMessage = (io, socket, data) => {
+    console.log(data)
     console.log(socket.id)
-    // io.to(socket.id).emit('message', 'hello client') para mandar mensagem para um socket especifico
-    //socket.emit('message', 'hello client') para enviar mensagem para o socket
+    console.log(socket.rooms)
+    io.emit('chat_message', data)
+    // io.in(msg.chat).emit('chat_message', msg)
 }
 
 module.exports = {

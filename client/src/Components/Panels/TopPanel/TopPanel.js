@@ -11,7 +11,8 @@ import { ExitToApp as LogoutIcon, PersonOutlined as ProfileIcon, Settings as Set
 
 import { SocketContext } from '../../../Context/socket/socket'
 
-// import Logo from '../../assets/logos/simple_logo.png'
+import portraitPlaceholder from '../../../Assets/placeholders/portrait.jpg'
+import Logo from '../../../Assets/logos/betrayal_logo.png'
 import './TopPanel.css'
 
 const errorDialogInfo = {
@@ -49,6 +50,11 @@ function TopPanel() {
 
     useEffect(() => {
         if (userInfo.id) {
+            if(!socket.connected) {
+                socket.auth = { uuid: userInfo.id, name: userInfo.name, token: userInfo.token }
+                socket.connect();
+            }
+
             socket.on('connect_error', (args) => onConnectionError(args))
             socket.on('server_message_warning', (data) => displayServerMessage(data))
             socket.on('user_logged', (data) => displayUserLogged(data))
@@ -91,9 +97,9 @@ function TopPanel() {
     return (
         <>
             <div className='top-bar-main-div'>
-                {/* <img alt='lugar' src={Logo} height='60%' width='auto' style={{ filter: 'invert(1)' }} /> */}
+                <img alt='game icon' src={Logo} className='top-bar-logo'/>
                 <div className='top-panel-user-display' onClick={(e) => setAnchorEl(e.currentTarget)}>
-                    <Avatar alt={userInfo.name} src={userInfo.picture ? `${process.env.REACT_APP_SERVER_URL}/resources/images/users/${userInfo.picture}` : null} sx={{ width: '30px', height: '30px', margin: '5px 10px 5px 5px' }} />
+                    <Avatar alt={userInfo.name} src={userInfo.picture ? `${process.env.REACT_APP_SERVER_URL}/resources/images/users/${userInfo.picture}` : portraitPlaceholder} sx={{ width: '30px', height: '30px', margin: '5px 10px 5px 5px' }} />
                     <p>{userInfo.name}</p>
                 </div>
             </div>

@@ -1,16 +1,21 @@
 .top-bar-main-div {
-    width: calc(100vw - 75px);
+    width: calc(100vw);
     right: 0;
-    height: 75px;
-    background: linear-gradient(270deg, black, var(--dark-blue));
+    height: var(--top-bar-height);
+    /* background: linear-gradient(270deg, black, var(--dark-green)); */
+    background-color: rgba(0,0,0,0.3);
     position: fixed;
     display: flex;
     align-items: center;
     padding: 0 25px;
     justify-content: space-between;
     z-index: 500;
+    transition: all 0.5s ease-in-out;
 }
 
+.top-bar-main-div:hover {
+    background-color: rgba(0,0,0,0.8); 
+}
 
 .top-panel-user-display {
     min-height: 40px;
@@ -18,7 +23,7 @@
     width: fit-content;
     justify-content: space-between;
     color: white;
-    box-shadow: 0px 0px 0px 2px white;
+    box-shadow: 0px 0px 0px 2px var(--dark-green);
     display: flex;
     align-items: center;
     padding-right: 15px;
@@ -28,7 +33,17 @@
     transition: all 0.2s ease-in-out;
 }
 
-.top-panel-user-display:hover {
-    box-shadow: 0px 0px 5px 5px white;
+.top-panel-user-display > p {
+    font-family: 'alloha';
+    font-size: 22px;
+    text-transform: uppercase;
 }
 
+.top-panel-user-display:hover {
+    box-shadow: 0px 0px 5px 5px var(--dark-green);
+}
+
+.top-bar-logo {
+    height: 75px;
+    width: auto;
+}

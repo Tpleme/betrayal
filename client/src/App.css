@@ -14,5 +14,19 @@
   }
   
   :root {
-    --light-red: #b41616;
+    --top-bar-height: 75px;
+
+    --common-font: 'Taviraj', serif;
+
+
+    --light-yellow: #ffff16;
+    --dark-yellow: #af8818;
+    --light-green: #37a36e;
+    --dark-green: #134b34;
+    --purple: #241c3c;
+  }
+
+  @font-face {
+    font-family: alloha;
+    src: url('./Assets/fonts/alloha.regular.ttf');
   }

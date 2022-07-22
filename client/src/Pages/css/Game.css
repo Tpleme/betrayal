@@ -1,0 +1,8 @@
+.game-main-div {
+    padding-top: var(--top-bar-height);
+    height: 100vh;
+    background-image: url(../../Assets/backgrounds/main.jpg);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
