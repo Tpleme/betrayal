@@ -19,7 +19,7 @@
     --common-font: 'Taviraj', serif;
 
 
-    --light-yellow: #ffff16;
+    --light-yellow: #d1d13d;
     --dark-yellow: #af8818;
     --light-green: #37a36e;
     --dark-green: #134b34;
@@ -29,4 +29,9 @@
   @font-face {
     font-family: alloha;
     src: url('./Assets/fonts/alloha.regular.ttf');
+  }
+
+  @font-face {
+    font-family: xerox;
+    src: url('./Assets/fonts/xerox.ttf');
   }

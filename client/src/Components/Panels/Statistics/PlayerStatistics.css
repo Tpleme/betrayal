@@ -1,0 +1,30 @@
+.statistics-content {
+    margin-top: 15px;
+    padding: 25px;
+    flex: 1 1;
+    width: 100%;
+}
+
+.statistics-div {
+    color: white;
+    display: flex;
+    margin: 10px 0;
+}
+
+.statistics-title {
+    color: var(--light-yellow);
+    font-family: 'alloha';
+    font-size: 36px;
+}
+
+.statistics-label {
+    font-family: 'xerox';
+    font-size: 22px;
+    margin-right: 10px;
+    color: var(--light-yellow);
+}
+
+.statistics-value {
+    font-size: 22px;
+    font-family: 'xerox';
+}

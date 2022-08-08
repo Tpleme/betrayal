@@ -1,0 +1,27 @@
+.main-menu-button {
+    height: 50px;
+    width: 250px;
+    margin: 15px;
+    border: 2px solid var(--light-yellow);
+    background-color: transparent;
+    color: var(--light-yellow);
+    font-family: 'xerox';
+    font-size: 22px;
+    box-shadow: 1px 1px 2px 0px var(--dark-yellow);
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.main-menu-button:focus-visible {
+    outline: none;
+    background-color: var(--dark-yellow);
+    color: var(--dark-green);
+    border: none;
+}
+
+.main-menu-button:hover {
+    outline: none;
+    background-color: var(--light-yellow);
+    color: var(--dark-green);
+    border: none;
+}

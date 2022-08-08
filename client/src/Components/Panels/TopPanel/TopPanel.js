@@ -57,13 +57,11 @@ function TopPanel() {
 
             socket.on('connect_error', (args) => onConnectionError(args))
             socket.on('server_message_warning', (data) => displayServerMessage(data))
-            socket.on('user_logged', (data) => displayUserLogged(data))
         }
 
         return () => {
             socket.off('connect_error', onConnectionError)
             socket.off('server_message_warning', displayServerMessage)
-            socket.off('user_logged', displayUserLogged)
         }
     }, [userInfo])
 
@@ -83,10 +81,6 @@ function TopPanel() {
             logoutUser(false)
         }, 5000)
         setShowErrorDialog(true)
-    }
-
-    const displayUserLogged = (message) => {
-        triggerSnackbar(message, '', 'info', { vertical: 'bottom', horizontal: 'left' })
     }
 
     const displayServerMessage = (message) => {

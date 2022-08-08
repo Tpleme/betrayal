@@ -24,6 +24,10 @@ export const getUser = async (id, key) => {
     return await axios.get(`${SERVER_URL}/api/users/${id}`, { headers: { key: key } })
 }
 
+export const getAllUsers = async () => {
+    return await axios.get(`${SERVER_URL}/api/users/`, { headers: { key: await getApiKey() } })
+}
+
 export const getUserForPassReset = async (id, secret) => {
     return await axios.get(`${SERVER_URL}/api/user/getuserforpassreset/${id}/${secret}`)
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Avatar } from '@mui/material'
 import { Send } from '@mui/icons-material'
+import { getAllUsers } from '../../API/requests'
 
 import { useUserInfo } from '../../Hooks/useUser'
 import { SocketContext } from '../../Context/socket/socket'
@@ -12,6 +13,8 @@ import './Chat.css'
 function Chat(props) {
     const [currentType, setCurrentType] = useState('')
     const [chatMessages, setChatMessages] = useState([])
+    const [onlineUsers, setOnlineUsers] = useState([])
+    const [offlineUsers, setOfflineUsers] = useState([])
 
     const socket = useContext(SocketContext)
     const { userInfo } = useUserInfo()
@@ -19,26 +22,41 @@ function Chat(props) {
 
 
     useEffect(() => {
-        socket.on('chat_message', (args, ...data) => addMessageToChat(args))
+        getAllUsers().then(res => {
+            organizeUsers(res.data)
+        })
+
+        socket.on('chat_message', msg => addMessageToChat(msg))
+        socket.on('users', data => updateUsers(data))
 
         return () => {
             socket.off('chat_message', addMessageToChat)
-        }    
+            socket.off('users', updateUsers())
+        }
     }, [])
 
     useEffect(() => {
         console.log(chatMessages)
-    },[chatMessages])
+    }, [chatMessages])
 
+    const organizeUsers = (data) => {
+        const onlineUsers = data.filter(user => user.loggedIn)
+        const offlineUsers = data.filter(user => !user.loggedIn)
+        setOnlineUsers(onlineUsers)
+        setOfflineUsers(offlineUsers)
+    }
 
-    const addMessageToChat = (data,) => {
+    const updateUsers = (data) => {
+        if (data) organizeUsers(data)
+    }
+
+    const addMessageToChat = (data) => {
         setChatMessages(prev => [...prev, data])
     }
 
     const addSelfMessage = (message) => {
         if (message.length > 0) {
             socket.emit('message', { chat: 'global', user_name: userInfo.name, user_picture: userInfo.picture, message: message })
-            // setChatMessages(prev => [...prev, data])
             setCurrentType('')
             inputRef.current.focus()
         }
@@ -52,7 +70,24 @@ function Chat(props) {
     return (
         <div className='chat-main-div'>
             <div className='chat-users'>
-
+                {onlineUsers.length > 0 && <p className='online-offline-divider'>Online</p>}
+                {onlineUsers.map(user => {
+                    return (
+                        <div key={user.id} className='chat-user-display'>
+                            <div className='chat-user-online-indicator online' />
+                            <p className='chat-list-user'>{user.name}</p>
+                        </div>
+                    )
+                })}
+                {offlineUsers.length > 0 && <p className='online-offline-divider'>Offline</p>}
+                {offlineUsers.map(user => {
+                    return (
+                        <div key={user.id} className='chat-user-display'>
+                            <div className='chat-user-online-indicator offline' />
+                            <p className='chat-list-user'>{user.name}</p>
+                        </div>
+                    )
+                })}
             </div>
             <div className='chat-inner-div'>
                 <div className='chat-history-wrapper'>

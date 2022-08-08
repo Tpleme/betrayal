@@ -1,5 +1,5 @@
 .top-bar-main-div {
-    width: calc(100vw);
+    width: 100vw;
     right: 0;
     height: var(--top-bar-height);
     /* background: linear-gradient(270deg, black, var(--dark-green)); */
@@ -10,7 +10,7 @@
     padding: 0 25px;
     justify-content: space-between;
     z-index: 500;
-    transition: all 0.5s ease-in-out;
+    transition: background-color 0.5s ease-in-out;
 }
 
 .top-bar-main-div:hover {
@@ -34,8 +34,9 @@
 }
 
 .top-panel-user-display > p {
-    font-family: 'alloha';
-    font-size: 22px;
+    font-family: 'xerox';
+    font-size: 18px;
+    margin-top: 3px;
     text-transform: uppercase;
 }
 
