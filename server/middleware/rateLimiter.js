@@ -10,6 +10,16 @@ const LoginLimiter = rateLimit({
     }
 })
 
+const StandardLimiter = rateLimit({
+    windowMs: 30 * 1000,
+    max: 100,
+    message:'To many requests in a short period of time',
+    keyGenerator: (req, res) => {
+        return req.clientIp
+    }
+})
+
 module.exports = {
-    LoginLimiter
+    LoginLimiter,
+    StandardLimiter
 }

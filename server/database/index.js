@@ -1,6 +1,7 @@
 const database = require('./sequelize_index')
 
 const UsersModel = require('./models/Users')
+const KeysModel = require('./models/Keys')
 
 const refreshDatabaseModels = false;
 
@@ -18,7 +19,10 @@ const initializeDatabase = async () => {
 }
 
 const initializeModels = async () => {
-    UsersModel(database)
+    // UsersModel(database)
+
+    UsersModel.hasOne(KeysModel)
+
 }
 
 exports.init = initializeDatabase;

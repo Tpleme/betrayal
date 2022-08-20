@@ -27,6 +27,8 @@ export default function Login() {
 
         loginUser(e.target[0].value, e.target[2].value).then((res) => {
             setToken({ token: res.headers.key })
+            sessionStorage.setItem('name', res.headers.username)
+            sessionStorage.setItem('id', res.headers.id)
             socket.auth = { uuid: res.headers.id, name: res.headers.username, token: res.headers.key }
             socket.connect()
             setSubmitting(false)
@@ -34,7 +36,7 @@ export default function Login() {
         }, err => {
             console.log(err)
             setSubmitting(false)
-            triggerSnackbar(err.response ? err.response.data : 'Cannot communicate with the server, please try again later', '', "error", { vertical: 'bottom', horizontal: 'center' }, false )
+            triggerSnackbar(err.response ? err.response.data : 'Cannot communicate with the server, please try again later', '', "error", { vertical: 'bottom', horizontal: 'center' }, false)
         })
     }
 

@@ -18,14 +18,14 @@ const server = createServer(app)
 const authRoute = require('./Routes/Auth')
 const usersRoute = require('./Routes/Users')
 
-const { LoginLimiter } = require('./middleware/rateLimiter')
-const { BOendPointAuth, FOendPointAuth } = require('./middleware/EndpointAuth')
+const { LoginLimiter, StandardLimiter } = require('./middleware/rateLimiter')
+const { Auth } = require('./middleware/EndpointAuth')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
     origin: ['http://localhost:3001'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'key'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'key', 'requestingUser'],
     exposedHeaders: ['key', 'user', 'email', 'id']
 }))
 app.use(helmet())
@@ -50,10 +50,12 @@ const makeHandlerAwareOfAsyncError = (handler) => {
 }
 
 app.post('/api/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(authRoute.auth))
-app.post('/api/user', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.create))
-app.get('/api/users/', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.getAll))
-app.get('/api/users/:id', [cors(), BOendPointAuth], makeHandlerAwareOfAsyncError(usersRoute.getByID))
+app.post('/api/user', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(usersRoute.create))
+app.get('/api/users/', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(usersRoute.getAll))
+app.get('/api/users/:id', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(usersRoute.getByID))
 
+
+app.get('/api/user/verifyuser/:id', [cors(), StandardLimiter], makeHandlerAwareOfAsyncError(usersRoute.verify))
 const io = new Server(server, {
     cors: {
         origin: 'http://localhost:3001'
