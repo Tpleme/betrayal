@@ -27,7 +27,6 @@ export default function Login() {
 
         loginUser(e.target[0].value, e.target[2].value).then((res) => {
             setToken({ token: res.headers.key })
-            sessionStorage.setItem('name', res.headers.username)
             sessionStorage.setItem('id', res.headers.id)
             socket.auth = { uuid: res.headers.id, name: res.headers.username, token: res.headers.key }
             socket.connect()
@@ -40,14 +39,30 @@ export default function Login() {
         })
     }
 
-
     useEffect(() => {
         sessionStorage.removeItem('token')
         setToken(null)
+        if (socket.connected) socket.disconnect()
     }, [])
+
+
+	const autoLogin = () => { //TODO: Remover antes do deploy
+		handleSubmit(
+			{
+				target: [
+					{ value: 'tpleme@hotmail.com' },
+                    { value: 'asd' },
+					{ value: 'password' },
+				],
+				preventDefault: () => console.log('preventing default')
+			}
+		)
+	}
+
 
     return (
         <div className='login-main-container'>
+            <button onClick={autoLogin}>asdasd</button>
             <form className='login-form' onSubmit={handleSubmit}>
                 <TextField
                     sx={{ margin: '10px' }}

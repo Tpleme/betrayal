@@ -77,10 +77,10 @@ function TopPanel() {
     const onConnectionError = (args) => {
         if (timer) return; //previne a criação de múltiplos timeouts
 
-        timer = setTimeout(() => {
-            logoutUser(false)
-        }, 5000)
-        setShowErrorDialog(true)
+        // timer = setTimeout(() => {
+            // logoutUser(false)
+        // }, 5000)
+        // setShowErrorDialog(true)
     }
 
     const displayServerMessage = (message) => {

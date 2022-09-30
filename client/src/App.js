@@ -3,7 +3,7 @@ import './App.css';
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import useToken from './Hooks/useToken'
 import { useUserInfo } from './Hooks/useUser'
-import { verifyUser } from './API/requests';
+import { getEntity } from './API/requests';
 import ModalProvider from 'mui-modal-provider'
 
 import { SocketContext } from './Context/socket/socket'
@@ -20,47 +20,44 @@ function App() {
 	const [ready, setReady] = useState(false)
 
 	const socket = useContext(SocketContext)
-	const { userInfo, setUserInfo } = useUserInfo()
+	const { setUserInfo } = useUserInfo()
+	let timer;
 
 	useEffect(() => {
-		let timer;
-		console.log(token)
+
 		if (!token) {
 			navigate('/login', { replace: true })
 			return;
 		}
+		connectSocket()
 
-		async function connectSocket() {
-			if (socket.connected) return
-			socket.auth = { uuid: sessionStorage.getItem('id'), name: sessionStorage.getItem('name'), token: token }
-			socket.connect();
-		}
 
-		connectSocket().then(() => {
-			timer = setTimeout(() => setPageReady(), 1000)
-		})
-
-		verifyUser(token.split('/')[0], token).then(res => {
-			const { name, id, email, picture } = res.data
-			setUserInfo({ name, id, email, picture, token: token })
-		}, err => {
-			console.log(err)
-			navigate('/login', { replace: true });
-		})
-
-		return () => clearTimeout(timer, setPageReady())
+		return () => clearTimeout(timer, getUser)
 	}, [token])
 
-	const setPageReady = () => {
-		setReady(true)
+	const connectSocket = async () => {
+		if (socket.connected) {
+			getUser();
+			return;
+		}
+		socket.auth = { uuid: sessionStorage.getItem('id'), token: token }
+		socket.connect();
+		timer = setTimeout(() => getUser(), 1000)
 	}
 
+	const getUser = () => getEntity('users', sessionStorage.getItem('id')).then(res => {
+		setUserInfo({ ...res.data, token })
+		setReady(true)
+	}, err => {
+		console.log(err)
+		navigate('/login', { replace: true })
+	})
 
 	return (
 		<div>
 			{ready ?
 				<ModalProvider>
-					{userInfo.id && <TopPanel />}
+					<TopPanel />
 					<Routes>
 						<Route path='/' element={<Game />} />
 						<Route path='/lobby' element={<Lobby />} />

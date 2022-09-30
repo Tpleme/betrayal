@@ -27,12 +27,9 @@ const verifyKey = async (key, userId) => {
     
     try {
         const foundKey = await models.keys.findOne({ where: { key } })
-        console.log(foundKey)
-        console.log(key)
-        console.log(userId)
-        console.log(foundKey.userId.toString() === userId.toString())
+
         if (foundKey && key && userId) {
-            if (foundKey.userId.toString() === userId.toString() || foundKey.userId === null) {
+            if (foundKey.userId.toString() === userId.toString()) {
                 return true
             } else {
                 return false

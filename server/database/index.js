@@ -2,8 +2,10 @@ const database = require('./sequelize_index')
 
 const UsersModel = require('./models/Users')
 const KeysModel = require('./models/Keys')
+const GameRoomModel = require('./models/GameRoomModel')
+const MainChatsModel = require('./models/MainChatModel')
 
-const refreshDatabaseModels = false;
+const refreshDatabaseModels = true;
 
 const initializeDatabase = async () => {
 
@@ -19,9 +21,11 @@ const initializeDatabase = async () => {
 }
 
 const initializeModels = async () => {
-    // UsersModel(database)
 
     UsersModel.hasOne(KeysModel)
+    GameRoomModel.hasMany(UsersModel, { foreignKey : 'game_room'})
+
+    MainChatsModel(database)
 
 }
 

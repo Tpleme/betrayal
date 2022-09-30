@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Avatar } from '@mui/material'
 import { Send } from '@mui/icons-material'
-import { getAllUsers } from '../../API/requests'
+import { getChatMessages, getEntity } from '../../API/requests'
+import { msToMinutesAndSeconds } from '../../utils'
 
 import { useUserInfo } from '../../Hooks/useUser'
 import { SocketContext } from '../../Context/socket/socket'
@@ -15,29 +16,48 @@ function Chat(props) {
     const [chatMessages, setChatMessages] = useState([])
     const [onlineUsers, setOnlineUsers] = useState([])
     const [offlineUsers, setOfflineUsers] = useState([])
+    const [blocked, setBlocked] = useState({ blocked: false, timer: null })
 
     const socket = useContext(SocketContext)
     const { userInfo } = useUserInfo()
     const inputRef = useRef(null)
+    let blockedTimer = null;
 
 
     useEffect(() => {
-        getAllUsers().then(res => {
+        getEntity('users').then(res => {
             organizeUsers(res.data)
+        })
+
+        getChatMessages('global').then(res => {
+            console.log(res)
+            setChatMessages(res.data)
         })
 
         socket.on('chat_message', msg => addMessageToChat(msg))
         socket.on('users', data => updateUsers(data))
+        socket.on('blocked', data => handleBlocked(data))
 
         return () => {
             socket.off('chat_message', addMessageToChat)
-            socket.off('users', updateUsers())
+            socket.off('users', updateUsers)
+            socket.off('blocked', handleBlocked)
         }
     }, [])
 
-    useEffect(() => {
-        console.log(chatMessages)
-    }, [chatMessages])
+    const handleBlocked = (data) => {
+        if (blockedTimer) return;
+        setBlocked({ blocked: true, timer: data["retry-ms"] })
+        blockedTimer = setTimeout(() => {
+            setChatBlocked()
+        }, data["retry-ms"])
+    }
+
+    const setChatBlocked = () => {
+        setBlocked({ blocked: false, timer: null })
+        clearTimeout(blockedTimer, setChatBlocked)
+        blockedTimer = null
+    }
 
     const organizeUsers = (data) => {
         const onlineUsers = data.filter(user => user.loggedIn)
@@ -51,12 +71,13 @@ function Chat(props) {
     }
 
     const addMessageToChat = (data) => {
+        console.log(data)
         setChatMessages(prev => [...prev, data])
     }
 
     const addSelfMessage = (message) => {
         if (message.length > 0) {
-            socket.emit('message', { chat: 'global', user_name: userInfo.name, user_picture: userInfo.picture, message: message })
+            socket.emit('message', { chat: 'global', user_id: userInfo.id, user_name: userInfo.name, user_picture: userInfo.picture, message: message })
             setCurrentType('')
             inputRef.current.focus()
         }
@@ -100,16 +121,24 @@ function Chat(props) {
                     </div>
                 </div>
                 <div className='chat-input-div'>
-                    <input
-                        placeholder='Type your message'
-                        className='chat-input'
-                        type='text'
-                        onChange={handleInput}
-                        value={currentType}
-                        ref={inputRef}
-                        onKeyPress={e => { if (e.key === 'Enter') addSelfMessage(currentType) }}
-                    />
-                    <Send htmlColor='var(--dark-green)' className='chat-input-submit-btn' onClick={() => addSelfMessage(currentType)} />
+                    {blocked.blocked ?
+                        <p style={{ color: 'white', textAlign: 'center' }}>
+                            {`You have been restricted from sending more message for ${msToMinutesAndSeconds(blocked.timer)} seconds`}
+                        </p>
+                        :
+                        <>
+                            <input
+                                placeholder='Type your message'
+                                className='chat-input'
+                                type='text'
+                                onChange={handleInput}
+                                value={currentType}
+                                ref={inputRef}
+                                onKeyPress={e => { if (e.key === 'Enter') addSelfMessage(currentType) }}
+                            />
+                            <Send htmlColor='var(--dark-green)' className='chat-input-submit-btn' onClick={() => addSelfMessage(currentType)} />
+                        </>
+                    }
                 </div>
             </div>
         </div>

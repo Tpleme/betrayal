@@ -5,8 +5,7 @@ const Auth = (req, res, next) => {
     if (req.headers['key']) {
         try {
             const auth = req.headers['key'];
-            const requestingUser = req.headers['requestinguser']
-            console.log(req.headers)
+            const requestingUser = req.headers['requesting-user']
 
             if (!verifyKey(auth, requestingUser)) {
                 return res.status(401).send("Wrong authorization credentials")

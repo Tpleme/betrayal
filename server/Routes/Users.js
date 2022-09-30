@@ -24,21 +24,6 @@ const getByID = async (req, res) => {
     })
 }
 
-const verify = async (req, res) => {
-    const id = getIdParam(req);
-
-    const user = await models.users.findOne({
-        where: { id: id },
-        attributes: { exclude: ['password', 'pass_recovery_key'] },
-    });
-
-    if (user) {
-        res.status(200).json(user)
-    } else {
-        res.status(401).send('User user does not exists')
-    }
-}
-
 const create = async (req, res) => {
 
     try {
@@ -111,5 +96,4 @@ module.exports = {
     create,
     update,
     remove,
-    verify
 }

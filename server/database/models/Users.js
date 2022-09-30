@@ -27,6 +27,9 @@ const UsersModel = database.define('users', {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    socket_id: {
+        type: DataTypes.STRING
+    }
 })
 
 module.exports = UsersModel

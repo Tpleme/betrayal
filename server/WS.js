@@ -1,31 +1,37 @@
 const { models } = require('./database/index')
+const { RateLimiterMemory } = require('rate-limiter-flexible')
+const { v4: uuidv4 } = require('uuid')
+
+const rateLimiter = new RateLimiterMemory(
+    {
+        points: 8, // requests
+        duration: 10, // per second
+        blockDuration: 30
+    });
+
 
 const handleWS = (socket, io) => {
     connectUser(io, socket)
 
     socket.on('disconnect', () => onDisconnect(socket));
-    socket.on('message', (msg) => onMessage(io, socket, msg))
-    socket.onAny((event, ...args) => console.log(event, args));
+    socket.on('message', (msg) => onMessage(socket, msg))
+    socket.on('create-room', (data) => createRoom(socket, data))
+    socket.on('join-room', (data) => joinRoom(socket, data))
+    // socket.onAny((event, ...args) => console.log(event, args));
 }
 
 const connectUser = async (io, socket) => {
 
-    // const verifyUser = await verifyKey(socket.handshake.auth.token, socket.handshake.auth.uuid);
-    // if (!verifyUser) {
-    //     socket.emit('server_message_warning', 'Server thrown a socket authentication error with the provided token')
-    //     return;
-    // }
-
-    //Because refreshing a page closes the socket and by closing the socket it logs out the user 
-    //removing the key from the database so we need to add the key again if non existent
     await models.keys.findOrCreate({
         where: { key: socket.handshake.auth.token, userId: socket.handshake.auth.uuid },
     })
 
+    //TODO: Aqui vai ser preciso ver se o user está em algum game room, se sim, faz-se join outra vez
+
     console.log('user connected ' + socket.id)
     socket.join('global')
 
-    await models.users.update({ loggedIn: true, last_login: Date.now() }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
+    await models.users.update({ loggedIn: true, last_login: Date.now(), socket_id: socket.id }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
         await models.users.findAll().then(users => {
             io.in('global').emit('users', users)
         })
@@ -44,11 +50,32 @@ const onDisconnect = async (socket) => {
     })
 }
 
-const onMessage = (io, socket, data) => {
-    console.log(data)
-    console.log(socket.id)
-    console.log(socket.rooms)
-    io.in(data.chat).emit('chat_message', data)
+const onMessage = async (socket, data) => {
+    
+    try {
+        await rateLimiter.consume(data.user_id);
+        await models.main_chats.create(data);
+        socket.nsp.to(data.chat).emit('chat_message', data)
+    } catch (rejRes) {
+        socket.emit('blocked', { 'retry-ms': rejRes.msBeforeNext });
+    }
+}
+
+const createRoom = async (socket, data) => {
+    const room_id = uuidv4();
+
+    socket.leave('global')
+    socket.join(room_id)
+
+    //TODO: Aqui ja pode receber users e assim fazer broadcast para esses users para fazerem join
+
+    models.game_room.create({ room_id }).then(() => {
+        socket.nsp.to(socket.id).emit('room_reacted', { room_id })
+    })
+}
+
+const joinRoom = async (socket, data) => {
+    socket.leave('global') 
 }
 
 module.exports = {

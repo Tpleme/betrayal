@@ -5,9 +5,10 @@ const { generateKey, revokeKey } = require('../keyManager')
 const auth = async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-
+    
     if (email && password) {
         await models.users.findOne({ where: { email: email } }).then(user => {
+
             if (!user) return res.status(404).send('User not found');
 
             bcrypt.compare(password, user.password).then(async valid => {
@@ -29,8 +30,8 @@ const auth = async (req, res) => {
 }
 
 const logoutUser = async (userId) => {
-    await models.users.update({ loggedIn: false }, { where: { id: id } })
-    revokeKey(id)
+    await models.users.update({ loggedIn: false }, { where: { id: userId } })
+    revokeKey(userId)
 }
 
 module.exports = {

@@ -17,6 +17,7 @@ const server = createServer(app)
 
 const authRoute = require('./Routes/Auth')
 const usersRoute = require('./Routes/Users')
+const chatMessagesRoute = require('./Routes/ChatsMessages')
 
 const { LoginLimiter, StandardLimiter } = require('./middleware/rateLimiter')
 const { Auth } = require('./middleware/EndpointAuth')
@@ -25,7 +26,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
     origin: ['http://localhost:3001'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'key', 'requestingUser'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'key', 'requesting-user'],
     exposedHeaders: ['key', 'user', 'email', 'id']
 }))
 app.use(helmet())
@@ -33,6 +34,10 @@ app.use(compression())
 app.use(morgan('common'))
 app.use('/resources', express.static('resources'))
 app.use(requestIp.mw())
+
+const routes = {
+    users: usersRoute,
+}
 
 const startServer = async () => {
     await db.init();
@@ -49,13 +54,37 @@ const makeHandlerAwareOfAsyncError = (handler) => {
     }
 }
 
+app.get('/', (req, res) => {
+    res.status(200).send('Server is up and running')
+})
+
 app.post('/api/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(authRoute.auth))
-app.post('/api/user', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(usersRoute.create))
-app.get('/api/users/', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(usersRoute.getAll))
-app.get('/api/users/:id', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(usersRoute.getByID))
+
+app.get('/api/chat_messages/:chat', [cors(), StandardLimiter], makeHandlerAwareOfAsyncError(chatMessagesRoute.getAll))
 
 
-app.get('/api/user/verifyuser/:id', [cors(), StandardLimiter], makeHandlerAwareOfAsyncError(usersRoute.verify))
+for (const [routeName, routeController] of Object.entries(routes)) {
+    if (routeController.getAll) {
+        app.get(`/api/${routeName}`, [cors(), Auth, StandardLimiter], makeHandlerAwareOfAsyncError(routeController.getAll))
+    }
+
+    if (routeController.getByID) {
+        app.get(`/api/${routeName}/:id`, [cors(), Auth, StandardLimiter], makeHandlerAwareOfAsyncError(routeController.getByID))
+    }
+
+    if (routeController.create) {
+        app.post(`/api/${routeName}`, [cors(), Auth, StandardLimiter], makeHandlerAwareOfAsyncError(routeController.create))
+    }
+
+    if (routeController.update) {
+        app.put(`/api/${routeName}/:id`, [cors(), Auth, StandardLimiter], makeHandlerAwareOfAsyncError(routeController.update))
+    }
+
+    if (routeController.remove) {
+        app.delete(`/api/${routeName}/:id`, [cors(), Auth, StandardLimiter], makeHandlerAwareOfAsyncError(routeController.remove))
+    }
+}
+
 const io = new Server(server, {
     cors: {
         origin: 'http://localhost:3001'
