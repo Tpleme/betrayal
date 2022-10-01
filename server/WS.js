@@ -43,7 +43,7 @@ const onDisconnect = async (socket) => {
 
     console.log('User disconnected ' + socket.id)
 
-    await models.users.update({ loggedIn: false }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
+    await models.users.update({ loggedIn: false, socket_id: null }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
         await models.users.findAll().then(users => {
             socket.broadcast.emit('users', users)
         })
@@ -51,7 +51,7 @@ const onDisconnect = async (socket) => {
 }
 
 const onMessage = async (socket, data) => {
-    
+
     try {
         await rateLimiter.consume(data.user_id);
         await models.main_chats.create(data);
@@ -64,18 +64,19 @@ const onMessage = async (socket, data) => {
 const createRoom = async (socket, data) => {
     const room_id = uuidv4();
 
-    socket.leave('global')
     socket.join(room_id)
 
     //TODO: Aqui ja pode receber users e assim fazer broadcast para esses users para fazerem join
 
-    models.game_room.create({ room_id }).then(() => {
-        socket.nsp.to(socket.id).emit('room_reacted', { room_id })
+    models.game_rooms.create({ room_id }).then((room) => {
+        models.users.update({ game_room: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
+            socket.nsp.to(socket.id).emit('room_created', { room_id })
+        })
     })
 }
 
 const joinRoom = async (socket, data) => {
-    socket.leave('global') 
+
 }
 
 module.exports = {

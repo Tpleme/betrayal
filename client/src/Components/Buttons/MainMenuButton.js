@@ -1,9 +1,9 @@
 import React from 'react'
 import './MainMenuButton.css'
 
-function MainMenuButton({label}) {
+function MainMenuButton({label, ...props}) {
     return (
-        <button className='main-menu-button'>
+        <button className='main-menu-button' {...props}>
             {label}
         </button>
     )

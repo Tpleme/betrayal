@@ -27,17 +27,7 @@ function DialogPrefab({ children, open, close, maxWidth, title, ...props }) {
             maxWidth={maxWidth}
             className='dialog-outer-div'
         >
-            <div className='dialog-content-div'>
-                <div style={props.error ? { backgroundColor: 'var(--dark-red)' } : { backgroundColor: 'var(--dark-blue' }} className='dialog-top-bar'>
-                    <p>{title}</p>
-                    <Tooltip disableInteractive title='Fechar Janela'>
-                        <Close htmlColor='white' className='dialog-close-icon' onClick={close} />
-                    </Tooltip>
-                </div>
-                <div className='dialog-inner-content' style={props.margin ? { margin: props.margin } : { margin: '20px' }}>
-                    {children}
-                </div>
-            </div>
+            {children}
         </Dialog>
     )
 }

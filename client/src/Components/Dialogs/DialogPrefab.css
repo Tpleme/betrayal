@@ -34,8 +34,5 @@
 }
 
 .dialog-outer-div .MuiPaper-root {
-    border-top-left-radius: 9px;
-    border-top-right-radius: 9px;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-radius: 10px;
 }

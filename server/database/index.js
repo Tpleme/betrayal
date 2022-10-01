@@ -5,7 +5,7 @@ const KeysModel = require('./models/Keys')
 const GameRoomModel = require('./models/GameRoomModel')
 const MainChatsModel = require('./models/MainChatModel')
 
-const refreshDatabaseModels = true;
+const refreshDatabaseModels = false;
 
 const initializeDatabase = async () => {
 
@@ -23,7 +23,8 @@ const initializeDatabase = async () => {
 const initializeModels = async () => {
 
     UsersModel.hasOne(KeysModel)
-    GameRoomModel.hasMany(UsersModel, { foreignKey : 'game_room'})
+    GameRoomModel.hasMany(UsersModel, { foreignKey: 'game_room' })
+    GameRoomModel.hasOne(UsersModel, { foreignKey: 'hosting' })
 
     MainChatsModel(database)
 
