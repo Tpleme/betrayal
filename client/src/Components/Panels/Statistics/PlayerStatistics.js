@@ -31,7 +31,7 @@ const PlayerStatistics = props => {
 				<p className='statistics-value'>Father Rhinehardt</p>
 			</div>
 			<div className='statistics-div'>
-				<p className='statistics-label'>Most times haunt revealer:</p>
+				<p className='statistics-label'>Total times haunt revealer:</p>
 				<p className='statistics-value'>2</p>
 			</div>
 			<div className='statistics-div'>

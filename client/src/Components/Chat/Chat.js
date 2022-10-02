@@ -71,7 +71,6 @@ function Chat(props) {
     }
 
     const addMessageToChat = (data) => {
-        console.log(data)
         setChatMessages(prev => [...prev, data])
     }
 

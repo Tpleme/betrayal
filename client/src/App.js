@@ -12,6 +12,7 @@ import TopPanel from './Components/Panels/TopPanel/TopPanel';
 import Game from './Pages/Game'
 import Lobby from './Pages/Lobby'
 import Room from './Pages/Room'
+import Loading from './Pages/Loading';
 
 
 function App() {
@@ -65,11 +66,7 @@ function App() {
 					</Routes>
 				</ModalProvider>
 				:
-				<div className='loading-page'>
-					{/* <img alt='SalesShaker Logo' src={Logo} className='loading-logo' /> */}
-					<p>Loading</p>
-					{/* <Bars height='50px' fill='var(--dark-' /> */}
-				</div>
+				<Loading />
 			}
 		</div>
 	);

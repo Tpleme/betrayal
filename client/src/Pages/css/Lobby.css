@@ -1,0 +1,84 @@
+.lobby-main-div {
+    padding-top: var(--top-bar-height);
+    height: 100vh;
+    min-height: 550px;
+    min-width: 1050px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle, rgba(19,75,52,1) 0%, rgba(0,0,0,1) 40%);
+    background-size: 200%;
+    background-position: center;
+    animation: lobby-background 15s ease-in-out infinite;
+}
+
+.lobby-characters-div {
+    border: 1px solid red;
+    height: 250px;
+    width: 100%;
+}
+
+.lobby-bottom-div {
+    border: 1px solid blue;
+    flex: 1 1;
+    display: flex;
+    justify-content: space-between;
+}
+
+.lobby-settings-div {
+    width: 30%;
+    height: 100%;
+    border: 1px solid red;
+}
+
+.lobby-information {
+    width: 30%;
+    height: 100%;
+    border: 1px solid yellow;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    gap: 30px;
+}
+
+.lobby-chat-div {
+    width: 30%;
+    border: 1px solid green;
+}
+
+.lobby-info-title {
+    font-size: 32px;
+    color: var(--light-yellow);
+    margin-bottom: 20px;
+}
+
+.lobby-info-text {
+    color: white;
+    font-size: 17px;
+    font-family: 'xerox';
+}
+
+.lobby-info-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.connected-players-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@keyframes lobby-background {
+    0% {
+        background-size: 200%;
+    }
+    50% {
+        background-size: 100%;
+    }
+    100% {
+        background-size: 200%;
+    }
+}

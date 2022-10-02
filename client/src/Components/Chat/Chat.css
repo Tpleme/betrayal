@@ -110,11 +110,14 @@
     color: white;
     margin: 5px;
     cursor: pointer;
+    font-family: 'xerox';
 }
 
 .online-offline-divider {
     color: white;
     font-weight: bold;
+    font-size: 22px;
+    font-weight: 100;
 }
 
 .chat-user-display:hover {
@@ -135,15 +138,18 @@
 
 
 .chat-message-name {
-    font-weight: 600;
-    font-size: 15px;
+    font-size: 18px;
+    font-weight: 100;
     margin-bottom: 3px;
-    color: var(--light-green)
+    color: var(--light-green);
+    font-family: 'xerox';
+    text-shadow: 1px 1px 3px black;
 }
 
 .chat-message-message {
-    font-size: 14px;
-    color: white
+    font-size: 18px;
+    color: white;
+
 }
 
 @keyframes messagePopup {
