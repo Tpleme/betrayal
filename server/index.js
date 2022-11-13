@@ -18,6 +18,7 @@ const server = createServer(app)
 const authRoute = require('./Routes/Auth')
 const usersRoute = require('./Routes/Users')
 const chatMessagesRoute = require('./Routes/ChatsMessages')
+const CharactersRoute = require('./Routes/Characters')
 
 const { LoginLimiter, StandardLimiter } = require('./middleware/rateLimiter')
 const { Auth } = require('./middleware/EndpointAuth')
@@ -30,6 +31,7 @@ app.use(cors({
     exposedHeaders: ['key', 'user', 'email', 'id']
 }))
 app.use(helmet())
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 app.use(compression())
 app.use(morgan('common'))
 app.use('/resources', express.static('resources'))
@@ -61,6 +63,9 @@ app.get('/', (req, res) => {
 app.post('/api/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(authRoute.auth))
 
 app.get('/api/chat_messages/:chat', [cors(), StandardLimiter], makeHandlerAwareOfAsyncError(chatMessagesRoute.getAll))
+
+app.get('/api/characters', [cors(), StandardLimiter], makeHandlerAwareOfAsyncError(CharactersRoute.getAll))
+app.get('/api/characters/:id', [cors(), StandardLimiter], makeHandlerAwareOfAsyncError(CharactersRoute.getByID))
 
 
 for (const [routeName, routeController] of Object.entries(routes)) {

@@ -1,0 +1,29 @@
+.character-card-main-div {
+    height: 250px;
+    width: 250px;
+    color: white;
+    text-align: center;
+    padding: 2px 5px;
+    margin: 0 10px;
+}
+
+.character-lobby-char-portrait {
+    width: 70%;
+    height: 70%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+}
+
+.character-lobby-char-portrait:hover {
+    cursor: pointer;
+    box-shadow: rgb(255 255 255) 0px 0px 10px 1px;
+}
+
+.char-lobby-card-player-name {
+    font-size: 22px;
+    font-family: xerox;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

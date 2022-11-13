@@ -4,6 +4,7 @@ const UsersModel = require('./models/Users')
 const KeysModel = require('./models/Keys')
 const GameRoomModel = require('./models/GameRoomModel')
 const MainChatsModel = require('./models/MainChatModel')
+const CharactersModel = require('./models/CharactersModel')
 
 const refreshDatabaseModels = false;
 
@@ -27,6 +28,7 @@ const initializeModels = async () => {
     GameRoomModel.hasOne(UsersModel, { foreignKey: 'hosting' })
 
     MainChatsModel(database)
+    CharactersModel(database)
 
 }
 
