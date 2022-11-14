@@ -13,12 +13,14 @@
 }
 
 .lobby-characters-div {
-    border: 1px solid red;
-    height: 250px;
+    height: 300px;
     width: 100%;
+    overflow-x: auto;
     display: flex;
     gap: 10px;
+    overflow-y: hidden;
     justify-content: center;
+    position: relative;
 }
 
 .lobby-bottom-div {
@@ -72,6 +74,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.pick-character-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
 }
 
 @keyframes lobby-background {

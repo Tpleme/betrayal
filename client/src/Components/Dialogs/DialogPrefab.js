@@ -7,7 +7,7 @@ import { Close } from '@mui/icons-material'
 import './DialogPrefab.css'
 
 
-function DialogPrefab({ children, open, close, maxWidth, title, ...props }) {
+function DialogPrefab({ children, open, close, maxWidth, ...props }) {
 
     const handleClose = (e, reason) => {
         if (props.preventOutSideClose) {
