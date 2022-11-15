@@ -5,18 +5,27 @@ import DialogPrefab from '../DialogPrefab'
 import './PickCharacterDialog.css'
 
 function PickCharacterDialog(props) {
+
+    const handlePickChar = (char) => {
+        props.close()
+        props.onCharPick(char)
+    }
+
     return (
         <DialogPrefab
             open={props.open}
             close={props.close}
-            maxWidth='md'
+            maxWidth='lg'
         >
             <div className='pick-char-main-div'>
-                {props.data.map(char => {
-                    return (
-                        <PickCharacterCard key={char.id} character={char} onPick={props.onCharPick} />
-                    )
-                })}
+                <p className='pick-char-dialog-title'>Pick a character</p>
+                <div className='pick-char-dialog-content'>
+                    {props.data.map(char => {
+                        return (
+                            <PickCharacterCard key={char.id} character={char} onPick={() => handlePickChar(char)} />
+                        )
+                    })}
+                </div>
             </div>
         </DialogPrefab>
     )

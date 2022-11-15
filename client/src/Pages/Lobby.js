@@ -47,9 +47,9 @@ function Lobby() {
         console.log(data)
     }
 
-    const onCharPick = (data) => {
-        console.log(data)
-        setPicketCharacter(data.character)
+    const onCharPick = (char) => {
+        console.log(char)
+        setPicketCharacter(char)
         //emit here
     }
 

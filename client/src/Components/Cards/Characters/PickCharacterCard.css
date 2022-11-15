@@ -1,31 +1,66 @@
 .pick-character-card-main-div {
     width: 100%;
-    height: 200px;
+    height: 300px;
     display: flex;
-    box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.5);
+    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.5);
     border-radius: 20px;
-    background-color: var(--light-green);
-    border-bottom-left-radius: 100px;
-    border-top-left-radius: 100px;
+    background-color: #41725a61;
+    border-bottom-left-radius: 150px;
+    border-top-left-radius: 150px;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+}
+
+.pick-character-card-main-div:hover {
+    scale: 1.01;
 }
 
 .pick-character-card-image {
-    width: 200px;
-    height: 100%;
-    border-radius: 50%;
+    width: 300px;
+    height: 300px;
+    border-top-left-radius: 50%;
+    border-bottom-left-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.5);
+    box-shadow: 8px 0px 8px -2px rgb(0 0 0 / 50%);
 }
 
 .pick-character-card-info {
     flex: 1 1;
-    padding: 20px 10px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
+    color: white;
+    font-size: 24px;
+    gap: 10px;
+}
+
+.pick-character-card-info > p {
+    font-size: 26px;
+    color: var(--light-yellow);
+}
+
+.pick-character-card-info span { 
+    font-size: 26px;
+    color: white;
+
 }
 
 .pick-character-card-name {
     font-family: xerox;
     font-size: 32px;
+    color: var(--light-yellow);
+}
+
+.pick-character-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.pick-character-stats>p {
+    font-size: 24px;
+}
+
+.pick-character-stats span {
+    font-size: 26px;
     color: var(--light-yellow);
 }
