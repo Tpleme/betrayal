@@ -1,6 +1,7 @@
 const { models } = require('./database/index')
 const { RateLimiterMemory } = require('rate-limiter-flexible')
 const { v4: uuidv4 } = require('uuid')
+const bcrypt = require('bcrypt')
 
 const rateLimiter = new RateLimiterMemory(
     {
@@ -66,13 +67,21 @@ const createRoom = async (socket, data) => {
 
     socket.join(room_id)
 
-    //TODO: Aqui ja pode receber users e assim fazer broadcast para esses users para fazerem join
-
-    models.game_rooms.create({ room_id }).then((room) => {
-        models.users.update({ game_room: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
-            socket.nsp.to(socket.id).emit('room_created', { room_id })
+    if (data.password) {
+        await bcrypt.hash(data.password, 10).then(hash => {
+            models.game_rooms.create({ room_id, password: hash }).then((room) => {
+                models.users.update({ game_room: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
+                    socket.nsp.to(socket.id).emit('room_created', { room_id })
+                })
+            })
         })
-    })
+    } else {
+        models.game_rooms.create({ room_id }).then((room) => {
+            models.users.update({ game_room: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
+                socket.nsp.to(socket.id).emit('room_created', { room_id })
+            })
+        })
+    }
 }
 
 const joinRoom = async (socket, data) => {

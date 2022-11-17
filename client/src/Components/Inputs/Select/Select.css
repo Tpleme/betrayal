@@ -1,0 +1,61 @@
+.custom-select-main-div {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+}
+
+.custom-select {
+    height: 35px;
+    border: none;
+    outline: none;
+    background-color: white;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--dark-grey);
+    padding: 0 10px;
+    letter-spacing: 1px;
+    font-weight: 300;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+}
+
+.custom-select.dark {
+    box-shadow: 0px 0px 4px 0px black;  
+}
+
+.custom-select-label {
+    color: white;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 1px;
+    font-size: 15px;
+    margin-bottom: 3px;
+}
+
+.custom-select-label.dark {
+    color: var(--light-blue);
+}
+
+.select-arrow {
+    rotate: 90deg;
+    scale: 1.4;
+    color: var(--light-blue);
+    position: absolute;
+    right: 7px;
+    top: 25px;
+    pointer-events: none;
+    background-color: transparent;
+    transition: all 0.5s ease-in-out !important;
+}
+
+.custom-select:not([disabled]):focus-visible,
+.custom-select:not([disabled]):hover {
+    box-shadow: 0px 0px 4px 0px black;  
+}
+
+.custom-select:not([disabled]):hover ~ svg {
+    rotate: 450deg;
+}

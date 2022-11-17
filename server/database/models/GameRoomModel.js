@@ -9,6 +9,9 @@ const GameRoomModel = database.define('game_rooms', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    password: {
+        type: DataTypes.STRING,
+    }
 })
 
 module.exports = GameRoomModel

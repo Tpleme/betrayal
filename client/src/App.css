@@ -24,7 +24,9 @@
     --dark-yellow: #af8818;
     --light-green: #37a36e;
     --dark-green: #134b34;
+    --darker-green: #09281b;
     --purple: #241c3c;
+    --dark-red: #690808;
   }
 
   @font-face {

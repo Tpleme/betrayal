@@ -1,0 +1,39 @@
+.custom-checkbox-div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+    position: relative;
+}
+
+.custom-checkbox {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    height: 25px;
+    width: 25px;
+    outline: none;
+    transition-duration: 0.3s;
+    background-color: white;
+    cursor: pointer;
+}
+
+.custom-checkbox:checked::before {
+    content: '\2713';
+    display: block;
+    text-align: center;
+    color: var(--light-blue);
+    position: absolute;
+    scale: 2.1;
+    left: 0.5rem;
+    top: 0.3rem;
+}
+
+.custom-checkbox:focus-visible {
+    box-shadow: 0px 0px 4px 0px black;
+}
+
+.custom-checkbox:disabled {
+    background-color: rgba(255, 255, 255, 0.3);
+    cursor: default;
+}

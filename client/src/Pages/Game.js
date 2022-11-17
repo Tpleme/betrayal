@@ -6,11 +6,13 @@ import MainMenuButton from '../Components/Buttons/MainMenuButton'
 import { SocketContext } from '../Context/socket/socket'
 import { useNavigate } from 'react-router-dom'
 import LoadingDialog from '../Components/Dialogs/LoadingDialog'
+import CreateRoomDialog from '../Components/Dialogs/CreateRoom/CreateRoomDialog'
 
 import './css/Game.css'
 
 function Game() {
 	const [openLoadingDialog, setOpenLoadingDialog] = useState(false)
+	const [openCreateGameRoom, setOpenCreateGameRoom] = useState(false)
 
 	const { userInfo } = useUserInfo()
 	const socket = useContext(SocketContext)
@@ -30,10 +32,11 @@ function Game() {
 		navigate('lobby', { state: data, replace: true })
 	}
 
-	const handleCreateRoom = () => {
+	const handleCreateRoom = (pass) => {
+		setOpenCreateGameRoom(false)
 		setOpenLoadingDialog(true)
 		setTimeout(() => {
-			socket.emit('create-room', { user: userInfo })
+			socket.emit('create-room', { user: userInfo, password: pass })
 		}, 2000)
 	}
 
@@ -53,7 +56,7 @@ function Game() {
 						<p className='game-section-title'>Join or Create Game</p>
 						<div className='game-join-create-buttons'>
 							<div className='button-div first'>
-								<MainMenuButton label='Create Game' onClick={handleCreateRoom} />
+								<MainMenuButton label='Create Game' onClick={() => setOpenCreateGameRoom(true)} />
 								<p className='create-game-description'>
 									Create a new game to play with your friends. Creating a game gives you the possibility to invite people and manage game settings
 								</p>
@@ -72,6 +75,7 @@ function Game() {
 				</div>
 			</div>
 			<LoadingDialog open={openLoadingDialog} close={() => setOpenLoadingDialog} message='Creating room, please wait' />
+			<CreateRoomDialog open={openCreateGameRoom} close={() => setOpenCreateGameRoom(false)} submit={handleCreateRoom} />
 		</div>
 	)
 }
