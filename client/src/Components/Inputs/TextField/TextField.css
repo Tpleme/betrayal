@@ -16,6 +16,7 @@
     font-weight: 500;
     letter-spacing: 2px;
     font-size: 20px;
+    padding-left: 5px;
     text-transform: uppercase;
 }
 
@@ -26,19 +27,20 @@
     font-size: 18px;
     letter-spacing: 1px;
     font-weight: 300;
-    border: 1px solid var(--light-yellow);
-    background-color: transparent;
+    background-color: var(--darker-green);
+    border: none;
+    box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.5);
+    border-radius: 10px;
     outline: none;
     color: var(--light-yellow);
-    transition: box-shadow 0.3s ease-in-out;
-    padding-left: 5px;
+    transition: box-shadow 0.2s ease-in-out;
+    padding-left: 10px;
 }
 
 .password-input-input.error,
 .textfield-input-input.error {
     border: 1px solid var(--dark-red);
-    border-left-width: 10px;
-    box-shadow: 0px 0px 4px 0px var(--dark-red);
+    box-shadow: 2px 2px 4px 0px var(--dark-red);
 }
 
 .password-input-input:disabled,
@@ -93,11 +95,11 @@
 .password-input-input:hover,
 .textarea-input-input:hover {
     /* box-shadow: 0px 0px 4px 0px white; */
-    box-shadow: 0px 0px 4px 0px black;  
+    box-shadow: 2px 2px 4px 0px black;  
 }
 
 .textfield-input-input:focus-visible,
 .password-input-input:focus-visible,
 .textarea-input-input:focus-visible {
-    box-shadow: 0px 0px 4px 0px black;
+    box-shadow: 2px 2px 4px 0px black;
 }

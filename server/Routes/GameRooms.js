@@ -1,7 +1,6 @@
 const { models } = require('../database/index')
 const { getIdParam } = require('../utils')
 
-
 const getAll = async (req, res) => {
     const rooms = await models.game_rooms.findAll()
     res.status(200).json(rooms)
@@ -54,7 +53,4 @@ const getByID = async (req, res) => {
 module.exports = {
     getAll,
     getByID,
-    create,
-    update,
-    remove
 }

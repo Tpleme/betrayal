@@ -13,6 +13,13 @@ const UsersModel = database.define('users', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    picture: {
+        type: DataTypes.STRING
+    },
+    image_id: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false

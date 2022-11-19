@@ -109,7 +109,6 @@
 .chat-list-user {
     color: white;
     margin: 5px;
-    cursor: pointer;
     font-family: 'xerox';
 }
 
@@ -122,6 +121,7 @@
 
 .chat-user-display:hover {
     font-weight: bold;
+    cursor: pointer;
 }
 
 /* ------ Chat messages ----- */

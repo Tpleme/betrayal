@@ -19,7 +19,17 @@ const StandardLimiter = rateLimit({
     }
 })
 
+const ChangePassLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 5,
+    message:'Too many password requests in a short period of time, you can try again in 5 minutes',
+    keyGenerator: (req, res) => {
+        return req.clientIp
+    }
+})
+
 module.exports = {
     LoginLimiter,
-    StandardLimiter
+    StandardLimiter,
+    ChangePassLimiter
 }

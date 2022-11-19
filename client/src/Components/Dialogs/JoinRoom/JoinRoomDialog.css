@@ -1,12 +1,13 @@
-.create-room-dialog {
+.join-room-dialog {
     width: 100%;
     display: flex;
     flex-direction: column;
     padding: 0 20px;
+    border-radius: 10px;
     align-items: center;
 }
 
-.create-room-title {
+.join-room-title {
     color: var(--light-yellow);
     font-size: 24px;
     text-align: center;

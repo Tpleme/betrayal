@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dialog, Tooltip } from '@mui/material'
+import { Dialog } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Close } from '@mui/icons-material'
 
@@ -27,7 +27,11 @@ function DialogPrefab({ children, open, close, maxWidth, ...props }) {
             maxWidth={maxWidth}
             className='dialog-outer-div'
         >
-            {children}
+            <div className='dialog-prefab-wrapper'>
+                <Close className='dialog-prefab-close-icon' htmlColor='var(--light-yellow' onClick={() => close()} />
+                {children}
+                <div className='dialog-prefab-background-div' />
+            </div>
         </Dialog>
     )
 }

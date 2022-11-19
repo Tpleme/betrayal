@@ -15,11 +15,11 @@ function ErrorDialog(props) {
         >
             <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: '20px', whiteSpace: 'pre-wrap' }}>
-                    <div style={{ marginBottom: '30px', textAlign: 'center', fontSize: '20px' }}>
+                    <div style={{ marginBottom: '30px', textAlign: 'center', fontSize: '30px', color: 'var(--light-yellow)' }}>
                         <p>{props.info.status}</p>
                         <p>{props.info.statusText}</p>
                     </div>
-                    <div style={{ fontSize: '14px', color: 'var(--dark-blue)' }}>
+                    <div style={{ fontSize: '20px', color: 'white', textAlign: 'center' }}>
                         {props.info.data ?
                             <p>{props.info.data}</p> :
                             <p>{JSON.stringify(props.info.message)}</p>

@@ -1,7 +1,7 @@
 import React from 'react'
-import './MainMenuButton.css'
+import './BigButton.css'
 
-function MainMenuButton({label, ...props}) {
+function BigButton({label, ...props}) {
     return (
         <button className='main-menu-button' {...props}>
             {label}
@@ -9,4 +9,4 @@ function MainMenuButton({label, ...props}) {
     )
 }
 
-export default MainMenuButton
+export default BigButton

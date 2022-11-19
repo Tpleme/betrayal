@@ -6,6 +6,7 @@ import { msToMinutesAndSeconds } from '../../utils'
 
 import { useUserInfo } from '../../Hooks/useUser'
 import { SocketContext } from '../../Context/socket/socket'
+import UserProfile from '../Dialogs/Users/UserProfile/UserProfile'
 
 import portraitPlaceholder from '../../Assets/placeholders/portrait.jpg'
 
@@ -16,6 +17,8 @@ function Chat(props) {
     const [chatMessages, setChatMessages] = useState([])
     const [onlineUsers, setOnlineUsers] = useState([])
     const [offlineUsers, setOfflineUsers] = useState([])
+    const [openUserProfile, setOpenUserProfile] = useState(false)
+    const [selectedUser, setSelectedUser] = useState(null)
     const [blocked, setBlocked] = useState({ blocked: false, timer: null })
 
     const socket = useContext(SocketContext)
@@ -87,13 +90,18 @@ function Chat(props) {
         setCurrentType(e.target.value)
     }
 
+    const handleOpenUser = (user) => {
+        setSelectedUser(user)
+        setOpenUserProfile(true)
+    }
+
     return (
         <div className='chat-main-div'>
             <div className='chat-users'>
                 {onlineUsers.length > 0 && <p className='online-offline-divider'>Online</p>}
                 {onlineUsers.map(user => {
                     return (
-                        <div key={user.id} className='chat-user-display'>
+                        <div key={user.id} className='chat-user-display' onClick={() => handleOpenUser(user)}>
                             <div className='chat-user-online-indicator online' />
                             <p className='chat-list-user'>{user.name}</p>
                         </div>
@@ -102,7 +110,7 @@ function Chat(props) {
                 {offlineUsers.length > 0 && <p className='online-offline-divider'>Offline</p>}
                 {offlineUsers.map(user => {
                     return (
-                        <div key={user.id} className='chat-user-display'>
+                        <div key={user.id} className='chat-user-display' onClick={() => handleOpenUser(user)}>
                             <div className='chat-user-online-indicator offline' />
                             <p className='chat-list-user'>{user.name}</p>
                         </div>
@@ -140,6 +148,9 @@ function Chat(props) {
                     }
                 </div>
             </div>
+            {selectedUser &&
+                <UserProfile open={openUserProfile} close={() => setOpenUserProfile(false)} user={selectedUser} />
+            }
         </div>
     )
 }

@@ -1,39 +1,36 @@
-.dialog-content-div {
-    display: flex;
-    flex-direction: column;
-}
-
-.dialog-top-bar {
-    height: 35px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px;
-    user-select: none;
-}
-
-.dialog-inner-content {
-    margin: 20px;
-    flex: 1 1;
-}
-
-.dialog-top-bar > p {
-    color: white;
-    letter-spacing: 2px;    
-    text-transform: capitalize;
-    font-weight: 600;
-}
-
-.dialog-close-icon {
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-.dialog-close-icon:hover {
-    transform: scale(1.1);
+.dialog-prefab-wrapper {
+    width: 100%;
+    /* background: linear-gradient(180deg, var(--dark-green), var(--darker-green)); */
+    border-radius: 10px;
+    position: relative;
+    padding-top: 33px;
 }
 
 .dialog-outer-div .MuiPaper-root {
     border-radius: 10px;
     background-color: transparent;
+}
+
+.dialog-prefab-close-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.dialog-prefab-close-icon:hover {
+    scale: 1.1;
+}
+
+.dialog-prefab-background-div {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    z-index: -1;
+    opacity: 0.9;
+    /* background: var(--darker-green); */
+    background-color: #133426;
+    backdrop-filter: blur(3px);
 }

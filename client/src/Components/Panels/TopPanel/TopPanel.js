@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import useToken from '../../../Hooks/useToken'
 import useGlobalSnackbar from '../../../Hooks/useGlobalSnackbar'
 import ErrorDialog from '../../Dialogs/ErrorDialog'
+import MyProfile from '../../Dialogs/Users/MyProfile/MyProfile'
 
 import { ExitToApp as LogoutIcon, PersonOutlined as ProfileIcon, Settings as SettingsIcon } from '@mui/icons-material'
 
@@ -23,11 +24,15 @@ const errorDialogInfo = {
 
 const StyledMenu = styled(Menu)(({ theme }) => ({
     '& .MuiPaper-root': {
-        transform: 'translateY(20px) !important',
-        color: 'var(--dark-blue)',
+        transform: 'translate(25px, 10px) !important',
+        color: 'var(--light-yellow)',
+        backgroundColor: 'var(--dark-green)',
+        '& li': {
+            fontFamily: 'xerox',
+            textTransform: 'uppercase'
+        },
         '& li:hover': {
             backgroundColor: 'rgb(0,0,0,10%)',
-
         }
     }
 }))
@@ -99,6 +104,7 @@ function TopPanel() {
             </div>
             <UserMenu anchorEl={anchorEl} setAnchorEl={setAnchorEl} logout={logoutUser} openProfile={() => setOpenProfile(true)} openSettings={() => setOpenSettings(true)} />
             <ErrorDialog open={showErrorDialog} close={() => setShowErrorDialog(false)} info={errorDialogInfo} ocb={logoutUser} />
+            <MyProfile open={openProfile} close={() => setOpenProfile(false)} />
         </>
     )
 }
@@ -116,19 +122,19 @@ const UserMenu = (props) => {
         >
             <MenuItem onClick={() => { props.setAnchorEl(null); props.openProfile() }}>
                 <ListItemIcon >
-                    <ProfileIcon htmlColor='var(--dark-blue)' />
+                    <ProfileIcon htmlColor='var(--light-yellow)' />
                 </ListItemIcon>
-                Perfil
+                My Profile
             </MenuItem>
             <MenuItem onClick={() => { props.setAnchorEl(null); props.openSettings() }}>
                 <ListItemIcon >
-                    <SettingsIcon htmlColor='var(--dark-blue)' />
+                    <SettingsIcon htmlColor='var(--light-yellow)' />
                 </ListItemIcon>
-                Preferências
+                Settings
             </MenuItem>
             <MenuItem onClick={props.logout}>
                 <ListItemIcon>
-                    <LogoutIcon htmlColor='var(--dark-blue)' />
+                    <LogoutIcon htmlColor='var(--light-yellow)' />
                 </ListItemIcon>
                 Log Out
             </MenuItem>

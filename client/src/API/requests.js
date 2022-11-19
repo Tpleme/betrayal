@@ -3,7 +3,10 @@ import axios from 'axios'
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 
 const getHeaders = async () => {
-    return { key: JSON.parse(sessionStorage.getItem('token'))?.token, 'requesting-user': sessionStorage.getItem('id') }
+    return {
+        key: JSON.parse(sessionStorage.getItem('token'))?.token,
+        'requesting-user': sessionStorage.getItem('id')
+    }
 }
 
 export const loginUser = async (email, password) => {
@@ -28,4 +31,8 @@ export const getEntity = async (entity, id) => {
 
 export const getChatMessages = async (chat) => {
     return await axios.get(`${SERVER_URL}/api/chat_messages/${chat}`, { headers: await getHeaders() })
+}
+
+export const joinRoom = async (roomId) => {
+    return await axios.post(`${SERVER_URL}/api/game-room/join/`, { roomId }, { headers: await getHeaders() })
 }

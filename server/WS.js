@@ -1,7 +1,11 @@
 const { models } = require('./database/index')
-const { RateLimiterMemory } = require('rate-limiter-flexible')
 const { v4: uuidv4 } = require('uuid')
 const bcrypt = require('bcrypt')
+const EventEmitter = require('./EventEmitter')
+const { RateLimiterMemory } = require('rate-limiter-flexible')
+
+let global_io;
+
 
 const rateLimiter = new RateLimiterMemory(
     {
@@ -10,8 +14,8 @@ const rateLimiter = new RateLimiterMemory(
         blockDuration: 30
     });
 
-
 const handleWS = (socket, io) => {
+    global_io = io
     connectUser(io, socket)
 
     socket.on('disconnect', () => onDisconnect(socket));
@@ -85,7 +89,38 @@ const createRoom = async (socket, data) => {
 }
 
 const joinRoom = async (socket, data) => {
+    const roomId = data.roomId
+    const userId = data.userId
+    const pass = data.password
 
+    const room = await models.game_rooms.findOne({ where: { room_id: roomId } })
+
+    if (room) {
+        if (pass) {
+            await bcrypt.compare(pass, room.password).then(valid => {
+                if (valid) {
+                    models.users.update({ game_room: room.id }, { where: { id: userId } }).then(() => {
+                        socket.join(roomId)
+                        socket.emit('join-room-response', { code: 0, message: 'go to room', room_id: roomId });
+                    })
+                } else {
+                    socket.emit('join-room-response', { code: 3, message: 'Incorrect password' });
+                }
+            })
+        } else {
+            if (room.password) {
+                socket.emit('join-room-response', { code: 1, message: 'password required', roomId });
+                return
+            } else {
+                models.users.update({ game_room: room.id }, { where: { id: userId } }).then(() => {
+                    socket.join(roomId)
+                    socket.emit('join-room-response', { code: 0, message: 'go to room', room_id: roomId });
+                })
+            }
+        }
+    } else {
+        socket.emit('join-room-response', { code: 2, message: 'Game Room not found' });
+    }
 }
 
 module.exports = {

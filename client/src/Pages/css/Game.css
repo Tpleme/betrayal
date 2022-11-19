@@ -20,7 +20,6 @@
 }
 
 .game-content-div {
-    margin: 25px;
     height: 80%;
     display: flex;
     justify-content: flex-start;
@@ -141,5 +140,12 @@
 
     .game-content-div {
         height: 85%;
+    }
+    
+    .statistics-content {
+        margin-top: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 }

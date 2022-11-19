@@ -1,0 +1,100 @@
+.my-profile-main-div {
+    height: 500px;
+    width: 100%; 
+    display: flex;
+    overflow: hidden;
+}
+
+.my-profile-info-div {
+    height: 100%;
+    flex: 1 1;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.my-profile-image-div {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.my-profile-portrait-image {
+    height: 175px;
+    width: 175px;
+    object-fit: cover;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px 0px rgb(0 0 0 / 50%);
+    transition: all 0.2s ease-in-out;
+}
+
+.my-profile-image-upload-info {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    top: 50px;
+    font-size: 24px;
+    color: white;
+    padding: 5px 20px;
+    text-align: center;
+    text-shadow: 1px 1px 3px black;
+    transition: all 0.2s ease-in-out;
+}
+
+.remove-picture-btn {
+    position: absolute;
+    pointer-events: visible;
+    opacity: 0;
+    bottom: 20px;
+    cursor: pointer;
+    filter: drop-shadow(0px 0px 6px black);
+    transition: all 0.3s ease-in-out;
+}
+
+.remove-picture-btn:hover {
+    scale: 1.1;
+}
+
+.my-profile-portrait-image:hover ~ .my-profile-image-upload-info,
+.my-profile-portrait-image:hover ~ .remove-picture-btn {
+    opacity: 1;
+}
+
+.my-profile-portrait-image ~ .remove-picture-btn:hover {
+    opacity: 1;
+    scale: 1.1;
+}
+
+.my-profile-portrait-image:hover {
+    scale: 1.05;
+    opacity: 0.7;
+}
+
+.my-profile-image-div.dragging > .my-profile-portrait-image {
+    scale: 1.05;
+    opacity: 0.7;
+}
+
+.my-profile-image-div.dragging > .my-profile-image-upload-info {
+    opacity: 1;
+}
+
+.my-profile-edit-div.show {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.my-profile-edit-div.hide {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.my-profile-badges {
+    flex: 1 1;
+}

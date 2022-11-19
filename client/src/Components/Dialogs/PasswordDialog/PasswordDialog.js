@@ -1,21 +1,17 @@
 import React, { useState } from 'react'
 import DialogPrefab from '../DialogPrefab'
 import { PasswordTextField } from '../../Inputs/TextField/TextField'
-import BigButton from '../../Buttons/BigButton'
+import MainMenuButton from '../../Buttons/BigButton'
 
-import './CreateRoomDialog.css'
-
-function CreateRoomDialog(props) {
+function PasswordDialog(props) {
     const [password, setPassword] = useState('')
 
     const onSubmit = () => {
         if (password.length > 0) {
-            props.submit(password)
+            props.submit(props.savedRoomId, password)
             return;
         }
-        props.submit(null)
     }
-
 
     return (
         <DialogPrefab
@@ -24,12 +20,11 @@ function CreateRoomDialog(props) {
             maxWidth='xs'
         >
             <div className='create-room-dialog'>
-                <p className='create-room-title'>Protect your game room with a password. If you don't want to, just leave it blank</p>
                 <PasswordTextField autoFocus value={password} onChange={(e) => setPassword(e.target.value)} onEnter={() => onSubmit()} />
-                <BigButton label='Create room' onClick={onSubmit} />
+                <MainMenuButton disabled={password.length === 0} label='Join room' onClick={onSubmit} />
             </div>
         </DialogPrefab>
     )
 }
 
-export default CreateRoomDialog
+export default PasswordDialog

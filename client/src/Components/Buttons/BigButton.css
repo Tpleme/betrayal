@@ -12,16 +12,17 @@
     cursor: pointer;
 }
 
-.main-menu-button:focus-visible {
-    outline: none;
-    background-color: var(--dark-yellow);
-    color: var(--dark-green);
-    border: none;
-}
 
-.main-menu-button:hover {
+.main-menu-button:not([disabled]):hover,
+.main-menu-button:not([disabled]):focus-visible,
+.main-menu-button:not([disabled]):active  {
     outline: none;
     background-color: var(--light-yellow);
     color: var(--dark-green);
     border: none;
+}
+
+.main-menu-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
 }
