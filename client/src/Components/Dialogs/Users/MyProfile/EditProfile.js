@@ -90,7 +90,7 @@ function EditProfile(props) {
                 render={({ field: { value, onChange } }) => (
                     <PasswordTextField
                         style={{ marginTop: 'auto' }}
-                        name='authPpassword'
+                        name='authPassword'
                         onChange={onChange}
                         value={value}
                         error={errors.authPassword}

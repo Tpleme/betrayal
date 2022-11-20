@@ -1,0 +1,20 @@
+.default-snackbar-div {
+    min-width: 350px;
+    display: flex;
+    padding: 2px 20px;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    height: 50px;
+    box-shadow: 5px 5px 2px 0 rgb(0 0 0 / 75%);
+}
+
+.default-snackbar-div > p {
+    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.default-snackbar-close-btn {
+    cursor: pointer;
+}

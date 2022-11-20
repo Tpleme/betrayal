@@ -5,7 +5,6 @@ import Image from '../../../Misc/Image'
 import './UserProfile.css'
 
 function UserProfile(props) {
-    console.log(props)
     return (
         <DialogPrefab
             open={props.open}

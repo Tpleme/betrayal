@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { TextField, InputAdornment, IconButton } from '@mui/material'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { loginUser } from '../API/requests'
 import useToken from '../Hooks/useToken'
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar'
+import { TextField, PasswordTextField } from '../Components/Inputs/TextField/TextField'
+import { Controller, useForm } from 'react-hook-form'
+import Button from '../Components/Buttons/Button'
 
 import { SocketContext } from '../Context/socket/socket'
 
@@ -12,20 +13,18 @@ import './css/Login.css'
 
 
 export default function Login() {
-    const [showPassword, setShowPassword] = useState(false)
     const [submitting, setSubmitting] = useState(false)
 
     const { setToken } = useToken()
     const navigate = useNavigate()
     const { triggerSnackbar } = useGlobalSnackbar()
     const socket = useContext(SocketContext)
+    const { control, handleSubmit, formState: { errors } } = useForm();
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-
+    const submit = (data) => {
         setSubmitting(true)
 
-        loginUser(e.target[0].value, e.target[2].value).then((res) => {
+        loginUser(data.email, data.password).then((res) => {
             setToken({ token: res.headers.key })
             sessionStorage.setItem('id', res.headers.id)
             socket.auth = { uuid: res.headers.id, name: res.headers.username, token: res.headers.key }
@@ -46,66 +45,66 @@ export default function Login() {
     }, [])
 
 
-	const autoLogin = () => { //TODO: Remover antes do deploy
-		handleSubmit(
-			{
-				target: [
-					{ value: 'tpleme@hotmail.com' },
+    const autoLogin = () => { //TODO: Remover antes do deploy
+        handleSubmit(
+            {
+                target: [
+                    { value: 'tpleme@hotmail.com' },
                     { value: 'asd' },
-					{ value: 'passWORD123' },
-				],
-				preventDefault: () => console.log('preventing default')
-			}
-		)
-	}
+                    { value: 'passWORD123' },
+                ],
+                preventDefault: () => console.log('preventing default')
+            }
+        )
+    }
 
 
     return (
         <div className='login-main-container'>
-            <button onClick={autoLogin}>asdasd</button>
-            <form className='login-form' onSubmit={handleSubmit}>
-                <TextField
-                    sx={{ margin: '10px' }}
-                    required
-                    autoFocus
-                    id='email'
+            <form className='login-form' onSubmit={handleSubmit(submit)}>
+                <Controller
+                    control={control}
                     name='email'
-                    label='Email'
-                    color='secondary'
-                    fullWidth
-                    size='small'
-                    type='email'
-                    variant='outlined'
-                />
-                <TextField
-                    sx={{ margin: '10px' }}
-                    variant='outlined'
-                    required
-                    id='password'
-                    label='Password'
-                    name='password'
-                    fullWidth
-                    size='small'
-                    color='secondary'
-                    onCopy={(e) => e.preventDefault()}
-                    onCut={(e) => e.preventDefault()}
-                    autoComplete='current-password'
-                    type={showPassword ? 'text' : 'password'}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position='end'>
-                                <IconButton
-                                    tabIndex={-1}
-                                    aria-label='toggle password visibility'
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                        )
+                    defaultValue=''
+                    rules={{
+                        required: 'Email required',
+                        pattern: { value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, message: 'Invalid Email' }
                     }}
+                    render={({ field: { value, onChange } }) => (
+                        <TextField
+                            autoFocus={true}
+                            label='Email'
+                            name='email'
+                            onChange={onChange}
+                            value={value}
+                            error={errors.email}
+                            helperText={errors.email && errors.email?.message}
+                        />
+                    )}
                 />
-                <button disabled={submitting} className='login-button' type='submit'>Login</button>
+                <Controller
+                    control={control}
+                    name='password'
+                    defaultValue=''
+                    rules={{
+                        required: 'Password required',
+                    }}
+                    render={({ field: { value, onChange } }) => (
+                        <PasswordTextField
+
+                            style={{ marginTop: 'auto' }}
+                            name='password'
+                            onChange={onChange}
+                            value={value}
+                            error={errors.password}
+                            helperText={errors.password && errors.password?.message}
+                        />
+                    )}
+                />
+                <button type='button' onClick={autoLogin}>asdasd</button>
+                <div className='login-btn'>
+                    <Button label='Login' type='submit' loading={submitting} />
+                </div>
             </form>
         </div>
     )
