@@ -1,6 +1,6 @@
-import { Button } from '@mui/material'
 import React from 'react'
 import DialogPrefab from './DialogPrefab'
+import Button from '../Buttons/Button'
 
 function ErrorDialog(props) {
 
@@ -26,10 +26,8 @@ function ErrorDialog(props) {
                         }
                     </div>
                 </div>
-                <div style={{ alignSelf: 'flex-end' }}>
-                    <Button size='small' color='error' onClick={props.ocb}>
-                        ok
-                    </Button>
+                <div style={{ alignSelf: 'center' }}>
+                    <Button label='OK' size='small' onClick={props.ocb} />
                 </div>
             </div>
         </DialogPrefab>

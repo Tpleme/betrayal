@@ -39,8 +39,8 @@
 
 .password-input-input.error,
 .textfield-input-input.error {
-    border: 1px solid var(--dark-red);
-    box-shadow: 2px 2px 4px 0px var(--dark-red);
+    border: 1px solid var(--light-red);
+    box-shadow: 0px 0px 4px 0px var(--light-red);
 }
 
 .password-input-input:disabled,
@@ -56,8 +56,10 @@
 }
 
 .helper-text-p {
-    color: var(--dark-red);
+    color: var(--light-red);
     min-height: 20px;
+    padding-left: 10px;
+    margin-top: 2px;
 }
 
 .helper-text-action {

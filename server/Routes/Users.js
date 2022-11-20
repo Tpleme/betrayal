@@ -72,27 +72,35 @@ const create = async (req, res) => {
 }
 
 const update = async (req, res) => {
-    const id = getIdParam(req)
+    const id = getIdParam(req);
+    const authPassword = req.body.authPassword;
+    const requestingUserID = req.headers['requesting-user']
+
+    if (requestingUserID.toString() !== id.toString()) return res.status(401).send('You can only update your own profile')
+
+    if (Object.keys(req.body).length === 0) return res.status(400).send('Malformed request')
 
     try {
         const user = await models.users.findOne({ where: { id: id } })
 
         if (!user) throw 'User does not exists'
 
-        if (req.body.password === undefined || req.body.password === '') throw 'Must provide password'
+        if (req.body.authPassword === undefined || req.body.authPassword === '') throw { code: 401, message: 'Missing password' }
 
-        const modifyBody = async () => {
-            delete req.body.password
-        }
 
-        await modifyBody();
-        await models.users.update(req.body, { where: { id: id } })
-
-        return res.status(200).send(`User was updated successfully`)
+        await bcrypt.compare(authPassword, user.password).then(async valid => {
+            if (valid) {        
+                await models.users.update(req.body, { where: { id: id } })
+                res.status(200).send(`Your info was updated`)
+            } else {
+                res.status(401).send(`Incorrect credentials`)
+            }
+        })
+        
 
     } catch (err) {
-        console.log(err)
-        res.status(500).send('Error: ' + err)
+        console.log(`Error: ${err.message ? err.message : err}`);
+        err.code ? res.status(err.code).send(err.message) : res.status(500).send('Error: ' + err)
     }
 }
 
@@ -190,6 +198,9 @@ const removePicture = async (req, res) => {
 
 const changePassword = async (req, res) => {
     const id = getIdParam(req);
+    const requestingUserID = req.headers['requesting-user']
+
+    if (requestingUserID.toString() !== id.toString()) return res.status(401).send('Unauthorized')
 
     try {
         if (!req.body.authPassword || !req.body.newPassword) throw { code: 400, message: 'Missing password' }

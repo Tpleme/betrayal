@@ -1,0 +1,50 @@
+.main-menu-button {
+    max-width: 250px;
+    margin: 15px;
+    border: 2px solid var(--light-yellow);
+    background-color: transparent;
+    color: var(--light-yellow);
+    font-family: 'xerox';
+    box-shadow: 1px 1px 2px 0px var(--dark-yellow);
+    transition: background-color 0.2s ease-in-out, width 0.5s ease-in-out, border-radius 0.5s ease-in-out, color 0.2s ease-in-out;;
+    cursor: pointer;
+}
+
+.main-menu-button.big {
+    height: 50px;
+    min-width: 250px;
+    font-size: 22px;
+}
+
+.main-menu-button.medium {
+    height: 40px;
+    min-width: 200px;
+    font-size: 20px;
+}
+
+.main-menu-button.small {
+    height: 30px;
+    min-width: 100px;
+    padding: 0 10px;
+}
+
+.main-menu-button.loading {
+    cursor:not-allowed;
+    min-width: 100px;
+    padding: 0 10px;
+    border-radius: 20px;
+}
+
+.main-menu-button:not([disabled]):hover,
+.main-menu-button:not([disabled]):focus-visible,
+.main-menu-button:not([disabled]):active  {
+    outline: none;
+    background-color: var(--light-yellow);
+    color: var(--dark-green);
+    border-radius: 10px;
+}
+
+.main-menu-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

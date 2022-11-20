@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from '../../Misc/Image'
-import BigButton from '../../Buttons/BigButton'
+import Button from '../../Buttons/Button'
 import { Divider } from '@mui/material'
 
 import './PickCharacterCard.css'
@@ -24,7 +24,7 @@ function PickCharacterCard({ character, ...props }) {
                 <p>Fears: <span>{character.fears}</span></p>
                 <span>{character.description}</span>
             </div>
-            <BigButton
+            <Button
                 style={{ position: 'absolute', top: '15px', right: '10px' }}
                 label={`Pick ${character.name}`}
                 onClick={props.onPick}

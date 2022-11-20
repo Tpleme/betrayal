@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import DialogPrefab from '../../DialogPrefab'
-import Image from '../../../Misc/Image'
 import { useDropzone } from 'react-dropzone'
 import { useUserInfo } from '../../../../Hooks/useUser'
 import useGlobalSnackbar from '../../../../Hooks/useGlobalSnackbar'
-import BigButton from '../../../Buttons/BigButton'
+import Button from '../../../Buttons/Button'
 import { getEntity } from '../../../../API/requests'
 import CustomTooltip from '../../../Misc/CustomTooltip'
 import { Delete } from '@mui/icons-material'
@@ -123,19 +122,19 @@ function MyProfile(props) {
                     <div className='my-profile-badges'>
                         {/* TODO: put badges of the user here? */}
                     </div>
-                    <BigButton onClick={() => setShowSideView(!showSideView)} label={showSideView ? 'Close Edit' : 'Edit Profile'} />
+                    <Button onClick={() => setShowSideView(!showSideView)} label={showSideView ? 'Close Edit' : 'Edit Profile'} />
                 </div>
                 <div className={`my-profile-edit-div${showSideView ? ' show' : ' hide'}`}>
                     <Tabs
-                        sx={{ '& .MuiTabs-indicator': { backgroundColor: 'var(--light-yellow)' }, '& button': { color: 'var(--light-yellow)' } }}
+                        sx={{ '& .MuiTabs-indicator': { backgroundColor: 'var(--light-yellow)' }, '& button': { color: 'var(--light-yellow)', fontFamily: 'xerox', fontSize:'16px' } }}
                         variant="fullWidth"
                         value={tab}
                         onChange={(e, value) => setTab(value)}
                         textColor='inherit'
                         centered
                     >
-                        <Tab sx={{ color: 'white' }} label='Editar Informação' />
-                        <Tab sx={{ color: 'white' }} label='Alterar Password' />
+                        <Tab label='Edit Info' />
+                        <Tab label='Change Password' />
                     </Tabs>
                     <div style={{ flex: '1 1' }}>
                         <TabPanel value={tab} index={0}>

@@ -52,7 +52,7 @@ export default function Login() {
 				target: [
 					{ value: 'tpleme@hotmail.com' },
                     { value: 'asd' },
-					{ value: 'password' },
+					{ value: 'passWORD123' },
 				],
 				preventDefault: () => console.log('preventing default')
 			}

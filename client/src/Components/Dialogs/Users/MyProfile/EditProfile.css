@@ -1,0 +1,15 @@
+.edit-profile-main-div {
+    width: 80%;
+    padding: 20px 0 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 450px;
+    animation: profile-edit-form 0.3s ease-in-out;
+}
+
+
+@keyframes profile-edit-form {
+    0% { opacity: 0;}
+    100% { opacity: 1;}
+}

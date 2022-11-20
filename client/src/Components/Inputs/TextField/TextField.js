@@ -69,7 +69,7 @@ export function PasswordTextField({ style, helperText, helperTextAction, error, 
                 {...props}
             />
             {helperTextAction ?
-                <p className='helper-text-action' onClick={helperTextAction}>{helperText}</p> : <p style={error ? { color: 'var(--dark-red)' } : { color: 'var(--light-yellow)' }} className='helper-text-p'>{helperText}</p>
+                <p className='helper-text-action' onClick={helperTextAction}>{helperText}</p> : <p style={error ? { color: 'var(--light-red)' } : { color: 'var(--light-yellow)' }} className='helper-text-p'>{helperText}</p>
             }
             <div className='show-pass-button' onClick={() => setShow(!show)}>
                 {show ? <VisibilityOff htmlColor='var(--light-yellow)' /> : <Visibility htmlColor='var(--light-yellow)' />}

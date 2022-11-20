@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import DialogPrefab from '../DialogPrefab'
 import { PasswordTextField } from '../../Inputs/TextField/TextField'
-import MainMenuButton from '../../Buttons/BigButton'
+import MainMenuButton from '../../Buttons/Button'
 
 function PasswordDialog(props) {
     const [password, setPassword] = useState('')

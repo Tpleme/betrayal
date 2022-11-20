@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getEntity } from '../API/requests';
 import { useUserInfo } from '../Hooks/useUser'
-import BigButton from '../Components/Buttons/BigButton';
+import Button from '../Components/Buttons/Button';
 import { SocketContext } from '../Context/socket/socket'
 import PickCharacterDialog from '../Components/Dialogs/PickCharacter/PickCharacterDialog';
 
@@ -62,7 +62,7 @@ function Lobby() {
                             <LobbyCharacter player={userInfo.name} character={pickedCharacter} />
                             :
                             <div className='pick-character-background'>
-                                <BigButton label='Pick a Character' onClick={() => setOpenPickCharacter(true)} />
+                                <Button label='Pick a Character' onClick={() => setOpenPickCharacter(true)} />
                             </div>
                         }
                         <LobbyCharacter player='Ana' character={allCharacters[2]} />

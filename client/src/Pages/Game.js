@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import Chat from '../Components/Chat/Chat'
 import { useUserInfo } from '../Hooks/useUser'
 import PlayerStatistics from '../Components/Panels/Statistics/PlayerStatistics'
-import BigButton from '../Components/Buttons/BigButton'
+import Button from '../Components/Buttons/Button'
 import { SocketContext } from '../Context/socket/socket'
 import { useNavigate } from 'react-router-dom'
 import LoadingDialog from '../Components/Dialogs/LoadingDialog'
@@ -85,13 +85,13 @@ function Game() {
 						<p className='game-section-title'>Join or Create Game</p>
 						<div className='game-join-create-buttons'>
 							<div className='button-div first'>
-								<BigButton label='Create Game' onClick={() => setOpenCreateGameRoom(true)} />
+								<Button size='big' label='Create Game' onClick={() => setOpenCreateGameRoom(true)} />
 								<p className='create-game-description'>
 									Create a new game to play with your friends. Creating a game gives you the possibility to invite people and manage game settings
 								</p>
 							</div>
 							<div className='button-div'>
-								<BigButton label='Join Game' onClick={() => setOpenJoinRoom(true)} />
+								<Button size='big' label='Join Game' onClick={() => setOpenJoinRoom(true)} />
 								<p className='create-game-description'>
 									Join an already existing game, to join a game you need the code that the host the game shared with you.
 								</p>

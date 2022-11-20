@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import DialogPrefab from '../DialogPrefab'
 import { PasswordTextField } from '../../Inputs/TextField/TextField'
-import BigButton from '../../Buttons/BigButton'
+import BigButton from '../../Buttons/Button'
 
 import './CreateRoomDialog.css'
 
