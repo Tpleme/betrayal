@@ -28,6 +28,7 @@ function PickCharacterCard({ character, ...props }) {
                 style={{ position: 'absolute', top: '15px', right: '10px' }}
                 label={`Pick ${character.name}`}
                 onClick={props.onPick}
+                size='big'
             />
         </div>
     )

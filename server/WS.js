@@ -22,7 +22,23 @@ const handleWS = (socket, io) => {
     socket.on('message', (msg) => onMessage(socket, msg))
     socket.on('create-room', (data) => createRoom(socket, data))
     socket.on('join-room', (data) => joinRoom(socket, data))
+    socket.on('onMainPage', data => onMainPage(socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
+}
+
+const onMainPage = async (socket, data) => {
+    const user = await models.users.findOne({
+        where: { id: data.userId },
+        include: [models.game_rooms]
+    })
+
+    if (user.game_room) {
+        await models.users.update({ gameRoomId: null, hosting: null }, { where: { id: data.userId } })
+        socket.nsp.to(user.game_room.room_id).emit('user_disconnected_lobby', { userId: data.userId })
+        socket.leave(user.game_room.room_id)
+    }
+
+    socket.join('global')
 }
 
 const connectUser = async (io, socket) => {
@@ -31,10 +47,19 @@ const connectUser = async (io, socket) => {
         where: { key: socket.handshake.auth.token, userId: socket.handshake.auth.uuid },
     })
 
-    //TODO: Aqui vai ser preciso ver se o user está em algum game room, se sim, faz-se join outra vez
+    const user = await models.users.findOne({
+        where: { id: socket.handshake.auth.uuid },
+        include: [models.game_rooms]
+    })
+
+    if (user.game_room) {
+        socket.join(user.game_room.room_id);
+        socket.leave('global')
+    } else {
+        socket.join('global')
+    }
 
     console.log('user connected ' + socket.id)
-    socket.join('global')
 
     await models.users.update({ loggedIn: true, last_login: Date.now(), socket_id: socket.id }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
         await models.users.findAll().then(users => {
@@ -43,6 +68,7 @@ const connectUser = async (io, socket) => {
     })
 
 }
+
 
 const onDisconnect = async (socket) => {
 
@@ -69,19 +95,20 @@ const onMessage = async (socket, data) => {
 const createRoom = async (socket, data) => {
     const room_id = uuidv4();
 
+    socket.leave('global')
     socket.join(room_id)
 
     if (data.password) {
         await bcrypt.hash(data.password, 10).then(hash => {
-            models.game_rooms.create({ room_id, password: hash }).then((room) => {
-                models.users.update({ game_room: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
+            models.game_rooms.create({ room_id, password: hash }).then(room => {
+                models.users.update({ gameRoomId: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
                     socket.nsp.to(socket.id).emit('room_created', { room_id })
                 })
             })
         })
     } else {
-        models.game_rooms.create({ room_id }).then((room) => {
-            models.users.update({ game_room: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
+        models.game_rooms.create({ room_id }).then(room => {
+            models.users.update({ gameRoomId: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
                 socket.nsp.to(socket.id).emit('room_created', { room_id })
             })
         })
@@ -99,8 +126,10 @@ const joinRoom = async (socket, data) => {
         if (pass) {
             await bcrypt.compare(pass, room.password).then(valid => {
                 if (valid) {
-                    models.users.update({ game_room: room.id }, { where: { id: userId } }).then(() => {
+                    models.users.update({ gameRoomId: room.id }, { where: { id: userId } }).then(() => {
+                        socket.leave('global')
                         socket.join(roomId)
+                        socket.nsp.to(roomId).emit('user_connected_lobby', { userId })
                         socket.emit('join-room-response', { code: 0, message: 'go to room', room_id: roomId });
                     })
                 } else {
@@ -112,8 +141,10 @@ const joinRoom = async (socket, data) => {
                 socket.emit('join-room-response', { code: 1, message: 'password required', roomId });
                 return
             } else {
-                models.users.update({ game_room: room.id }, { where: { id: userId } }).then(() => {
+                models.users.update({ gameRoomId: room.id }, { where: { id: userId } }).then(() => {
+                    socket.leave('global')
                     socket.join(roomId)
+                    socket.nsp.to(roomId).emit('user_connected_lobby', { userId })
                     socket.emit('join-room-response', { code: 0, message: 'go to room', room_id: roomId });
                 })
             }

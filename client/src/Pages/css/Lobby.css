@@ -2,7 +2,7 @@
     padding-top: var(--top-bar-height);
     height: 100vh;
     min-height: 550px;
-    min-width: 1050px;
+    min-width: 1200px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -49,7 +49,7 @@
 
 .lobby-chat-div {
     width: 30%;
-    border: 1px solid green;
+    max-width: 450px;
 }
 
 .lobby-info-title {

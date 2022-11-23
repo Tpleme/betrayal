@@ -24,7 +24,9 @@ const initializeDatabase = async () => {
 const initializeModels = async () => {
 
     UsersModel.hasOne(KeysModel)
-    GameRoomModel.hasMany(UsersModel, { foreignKey: 'game_room' })
+    GameRoomModel.hasMany(UsersModel)
+    UsersModel.belongsTo(GameRoomModel)
+
     GameRoomModel.hasOne(UsersModel, { foreignKey: 'hosting' })
 
     MainChatsModel(database)

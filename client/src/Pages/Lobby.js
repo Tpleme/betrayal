@@ -5,6 +5,8 @@ import { useUserInfo } from '../Hooks/useUser'
 import Button from '../Components/Buttons/Button';
 import { SocketContext } from '../Context/socket/socket'
 import PickCharacterDialog from '../Components/Dialogs/PickCharacter/PickCharacterDialog';
+import LobbyChat from '../Components/Chat/LobbyChat';
+import { useNavigate } from 'react-router-dom';
 
 import LobbyCharacter from '../Components/Cards/Characters/LobbyCharacter';
 
@@ -14,6 +16,7 @@ function Lobby() {
     const { state } = useLocation();
     const { userInfo } = useUserInfo()
     const socket = useContext(SocketContext)
+    const navigate = useNavigate()
 
     const [allCharacters, setAllCharacters] = useState()
     const [pickedCharacter, setPicketCharacter] = useState(null)
@@ -23,10 +26,12 @@ function Lobby() {
 
     useEffect(() => {
         socket.on('user_connected_lobby', data => handleUserConnected(data))
+        socket.on('user_disconnected_lobby', data => handleUserDisconnected(data))
         socket.on('character_picked', data => handleCharacterPicked(data))
 
         return () => {
             socket.off('user_connected_lobby', handleUserConnected)
+            socket.on('user_disconnected_lobby', handleUserDisconnected)
             socket.off('character_picked', handleCharacterPicked)
         }
     }, [])
@@ -40,6 +45,10 @@ function Lobby() {
     }, [])
 
     const handleUserConnected = data => {
+        console.log(data)
+    }
+
+    const handleUserDisconnected = data => {
         console.log(data)
     }
 
@@ -65,8 +74,6 @@ function Lobby() {
                                 <Button label='Pick a Character' onClick={() => setOpenPickCharacter(true)} />
                             </div>
                         }
-                        <LobbyCharacter player='Ana' character={allCharacters[2]} />
-                        <LobbyCharacter player='John' character={allCharacters[10]} />
                     </>
                 }
             </div>
@@ -82,9 +89,10 @@ function Lobby() {
                     <div className='connected-players-div'>
                         <p className='lobby-info-title'>Connected Players</p>
                     </div>
+                    <Button label='Leave room' onClick={() => navigate('/', { replace: true })} />
                 </div>
                 <div className='lobby-chat-div'>
-
+                    <LobbyChat roomId={state.room_id} />
                 </div>
             </div>
             {allCharacters &&

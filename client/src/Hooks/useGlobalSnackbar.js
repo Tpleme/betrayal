@@ -32,7 +32,7 @@ export default function useGlobalSnackbar() {
         enqueueSnackbar(data.message, {
             variant: data.variant ? data.variant : 'success',
             anchorOrigin: data.anchorOrigin ? data.anchorOrigin : { vertical: 'bottom', horizontal: 'center' },
-            persist: data.persist ? data.persist : true,
+            persist: data.persist ? data.variant === 'error' ? true : data.persist : false,
             autoHideDuration: data.autoHideDuration ? data.autoHideDuration : 5000,
             content: (key, message) => getRespectiveComponent(key, message, data.customComponent, data.variant, data.description, <Actions snackbarKey={key} description={data.description} />),
             action: (key) => <Actions snackbarKey={key} description={data.description} />
@@ -41,12 +41,10 @@ export default function useGlobalSnackbar() {
 
     const getRespectiveComponent = (key, message, customComponent, variant, description, actions) => {
         const type = variant ? variant : 'success'
-        //TODO: ver isto melhor
         switch (customComponent) {
             // case 'connection': return <div><NewConnectionsSnackbar id={key} message={message} socket={socket} /></div>
             // case 'chat': return <div><ChatMessageSnackbar id={key} data={message} /></div>
-            default: return <div><DefaultComponent id={key} message={message} type={type} description={description} actions={actions}/></div>
-            // default: return null
+            default: return <div><DefaultComponent id={key} message={message} type={type} description={description} actions={actions} /></div>
         }
     }
 

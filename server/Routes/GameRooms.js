@@ -17,6 +17,9 @@ const getByID = async (req, res) => {
     })
 }
 
+const getRoomUsers = async (req, res) => {
+}
+
 // const create = async (req, res) => {
 //     models.main_chats.create(req.body.data).then(() => 
 //     res.status(201).send('message created'))

@@ -17,7 +17,7 @@ export default function Login() {
 
     const { setToken } = useToken()
     const navigate = useNavigate()
-    const { triggerSnackbar } = useGlobalSnackbar()
+    const { showSnackbar } = useGlobalSnackbar()
     const socket = useContext(SocketContext)
     const { control, handleSubmit, formState: { errors } } = useForm();
 
@@ -34,7 +34,7 @@ export default function Login() {
         }, err => {
             console.log(err)
             setSubmitting(false)
-            triggerSnackbar(err.response ? err.response.data : 'Cannot communicate with the server, please try again later', '', "error", { vertical: 'bottom', horizontal: 'center' }, false)
+            showSnackbar({ message: err.response.data ? err.response.data : 'Cannot communicate with the server, please try again later', variant: 'error', persist: false })
         })
     }
 
@@ -43,20 +43,6 @@ export default function Login() {
         setToken(null)
         if (socket.connected) socket.disconnect()
     }, [])
-
-
-    const autoLogin = () => { //TODO: Remover antes do deploy
-        handleSubmit(
-            {
-                target: [
-                    { value: 'tpleme@hotmail.com' },
-                    { value: 'asd' },
-                    { value: 'passWORD123' },
-                ],
-                preventDefault: () => console.log('preventing default')
-            }
-        )
-    }
 
 
     return (
@@ -101,7 +87,6 @@ export default function Login() {
                         />
                     )}
                 />
-                <button type='button' onClick={autoLogin}>asdasd</button>
                 <div className='login-btn'>
                     <Button label='Login' type='submit' loading={submitting} />
                 </div>

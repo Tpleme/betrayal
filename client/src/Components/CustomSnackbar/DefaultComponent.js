@@ -22,7 +22,7 @@ export default function DefaultComponent(props) {
             {props.description ?
                 props.actions
                 :
-                <Close htmlColor='var(--light-yellow)' className='default-snackbar-close-btn' onClick={() => closeSnackbar(props.d)} />
+                <Close htmlColor='var(--light-yellow)' className='default-snackbar-close-btn' onClick={() => closeSnackbar(props.id)} />
             }
         </div>
     )
