@@ -31,6 +31,10 @@ const getByID = async (req, res) => {
     })
 }
 
+const getUsersFromRoom = async (req, res) => {
+    const roomId = req.body.roomId
+}
+
 const getByIDAndSecret = async (req, res) => {
     const id = getIdParam(req);
 
@@ -89,14 +93,14 @@ const update = async (req, res) => {
 
 
         await bcrypt.compare(authPassword, user.password).then(async valid => {
-            if (valid) {        
+            if (valid) {
                 await models.users.update(req.body, { where: { id: id } })
                 res.status(200).send(`Your info was updated`)
             } else {
                 res.status(401).send(`Incorrect credentials`)
             }
         })
-        
+
 
     } catch (err) {
         console.log(`Error: ${err.message ? err.message : err}`);

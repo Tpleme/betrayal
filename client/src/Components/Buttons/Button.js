@@ -10,7 +10,7 @@ function Button({ label, loading, size, ...props }) {
             {...props}
         >
             {loading ?
-                <PulseLoader cssOverride={{ top: '-10px' }} color='var(--light-yellow)' loading={true} size={20} />
+                <PulseLoader color='var(--light-yellow)' loading={true} size={20} />
                 :
                 label
             }

@@ -27,7 +27,7 @@ function Game() {
 	const { showSnackbar } = useGlobalSnackbar()
 
 	useEffect(() => {
-		socket.emit('onMainPage', { userId: userInfo.id })
+		socket.emit('leave-room', { userId: userInfo.id })
 
 		socket.on('room_created', data => handleRoomCreated(data))
 		socket.on('join-room-response', data => handleJoinRoomResponse(data))

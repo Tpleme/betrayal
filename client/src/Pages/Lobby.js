@@ -36,12 +36,15 @@ function Lobby() {
         }
     }, [])
 
+
     useEffect(() => {
         getEntity('characters').then(res => {
             setAllCharacters(res.data)
         }, err => {
             console.log(err)
         })
+
+        //TODO: get users from this room wid state.roomId
     }, [])
 
     const handleUserConnected = data => {
@@ -84,7 +87,7 @@ function Lobby() {
                 <div className='lobby-information'>
                     <div className='lobby-info-div'>
                         <p className='lobby-info-title'>Lobby info</p>
-                        <p className='lobby-info-text'>{state.room_id}</p>
+                        <p className='lobby-info-text'>{state.roomSocket}</p>
                     </div>
                     <div className='connected-players-div'>
                         <p className='lobby-info-title'>Connected Players</p>
@@ -92,7 +95,7 @@ function Lobby() {
                     <Button label='Leave room' onClick={() => navigate('/', { replace: true })} />
                 </div>
                 <div className='lobby-chat-div'>
-                    <LobbyChat roomId={state.room_id} />
+                    <LobbyChat roomId={state.roomSocket} />
                 </div>
             </div>
             {allCharacters &&
