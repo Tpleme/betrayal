@@ -52,3 +52,7 @@ export const getChatMessages = async (chat) => {
 export const joinRoom = async (roomId) => {
     return await axios.post(`${SERVER_URL}/api/game-room/join/`, { roomId }, { headers: await getHeaders() })
 }
+
+export const getRoomUsers = async room => {
+    return await axios.get(`${SERVER_URL}/api/users/get-room-users/${room}`, { headers: await getHeaders() })
+}

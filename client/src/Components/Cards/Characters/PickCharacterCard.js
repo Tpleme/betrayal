@@ -6,7 +6,7 @@ import { Divider } from '@mui/material'
 import './PickCharacterCard.css'
 
 function PickCharacterCard({ character, ...props }) {
-    console.log(character)
+    
     return (
         <div className='pick-character-card-main-div'>
             <Image

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { useLocation } from 'react-router-dom'
-import { getEntity } from '../API/requests';
+import { getEntity, getRoomUsers } from '../API/requests';
 import { useUserInfo } from '../Hooks/useUser'
 import Button from '../Components/Buttons/Button';
 import { SocketContext } from '../Context/socket/socket'
 import PickCharacterDialog from '../Components/Dialogs/PickCharacter/PickCharacterDialog';
 import LobbyChat from '../Components/Chat/LobbyChat';
 import { useNavigate } from 'react-router-dom';
-
+import Image from '../Components/Misc/Image';
 import LobbyCharacter from '../Components/Cards/Characters/LobbyCharacter';
 
 import './css/Lobby.css'
@@ -44,15 +44,26 @@ function Lobby() {
             console.log(err)
         })
 
-        //TODO: get users from this room wid state.roomId
+        getUsersFromRoom()
     }, [])
+
+    const getUsersFromRoom = () => {
+        getRoomUsers(state.roomId).then(res => {
+            console.log(res)
+            setPlayersConnected(res.data)
+        }, err => {
+            console.log(err)
+        })
+    }
 
     const handleUserConnected = data => {
         console.log(data)
+        getUsersFromRoom()
     }
 
     const handleUserDisconnected = data => {
         console.log(data)
+        getUsersFromRoom()
     }
 
     const handleCharacterPicked = data => {
@@ -91,8 +102,18 @@ function Lobby() {
                     </div>
                     <div className='connected-players-div'>
                         <p className='lobby-info-title'>Connected Players</p>
+                        {playersConnected.map(player => {
+                            return (
+                                <div className='lobby-player-div' key={player.id}>
+                                    <Image alt={player.name} src={player.picture} entity='users' className='lobby-player-image' />
+                                    <p>{player.name}</p>
+                                </div>
+                            )
+                        })}
                     </div>
-                    <Button label='Leave room' onClick={() => navigate('/', { replace: true })} />
+                    <div style={{ marginTop: 'auto' }}>
+                        <Button label='Leave room' onClick={() => navigate('/', { replace: true })} />
+                    </div>
                 </div>
                 <div className='lobby-chat-div'>
                     <LobbyChat roomId={state.roomSocket} />

@@ -32,7 +32,11 @@ const getByID = async (req, res) => {
 }
 
 const getUsersFromRoom = async (req, res) => {
-    const roomId = req.body.roomId
+    const roomId = req.params.roomId
+
+    const users = await models.users.findAll({ where: { gameRoomId: roomId } })
+
+    res.status(200).send(users)
 }
 
 const getByIDAndSecret = async (req, res) => {
@@ -300,5 +304,6 @@ module.exports = {
     requestPassReset,
     resetPassword,
     changePassword,
-    getByIDAndSecret
+    getByIDAndSecret,
+    getUsersFromRoom
 }

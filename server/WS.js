@@ -98,7 +98,8 @@ const onDisconnect = async (socket) => {
 
     console.log('User disconnected ' + socket.id)
 
-    await removeUserFromRoom(socket, { userId: socket.handshake.auth.uuid })
+    //Se remover o user do room quando se disconecta, se for um refresh, depois não dá para ir buscar o room onde estava quando faz reconnect
+    // await removeUserFromRoom(socket, { userId: socket.handshake.auth.uuid })
 
     await models.users.update({ loggedIn: false, socket_id: null }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
         await models.users.findAll().then(users => {
