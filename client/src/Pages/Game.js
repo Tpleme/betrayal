@@ -10,6 +10,7 @@ import CreateRoomDialog from '../Components/Dialogs/CreateRoom/CreateRoomDialog'
 import JoinRoomDialog from '../Components/Dialogs/JoinRoom/JoinRoomDialog'
 import PassWordDialog from '../Components/Dialogs/PasswordDialog/PasswordDialog'
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar'
+import useDialog from '../Hooks/useDialog'
 
 import './css/Game.css'
 
@@ -25,18 +26,45 @@ function Game() {
 	const socket = useContext(SocketContext)
 	const navigate = useNavigate()
 	const { showSnackbar } = useGlobalSnackbar()
+	const { openInfoDialog } = useDialog()
 
 	useEffect(() => {
-		socket.emit('leave-room', { userId: userInfo.id })
+		if (sessionStorage.getItem('room')) {
+			socket.emit('leave-room', { userId: userInfo.id })
+			sessionStorage.removeItem('room')
+		}
 
 		socket.on('room_created', data => handleRoomCreated(data))
 		socket.on('join-room-response', data => handleJoinRoomResponse(data))
+		socket.on('auto_connect_room', data => handleAutoConnect(data))
 
 		return () => {
 			socket.off('room_created', handleRoomCreated)
 			socket.off('join-room-response', handleJoinRoomResponse)
+			socket.off('auto_connect_room', data => handleAutoConnect)
 		}
 	}, [])
+
+	const handleAutoConnect = data => {
+		console.log(data)
+
+		const reconnectToRoom = () => {
+			setOpenJoinLoading(true)
+			setTimeout(() => {
+				setOpenJoinLoading(false)
+				navigate('lobby', { state: data, replace: true })
+			}, 2000)
+		}
+		
+		openInfoDialog({
+			message: 'Your were disconnected from your game room, would you line to reconnect?',
+			type: 'y/n',
+			ycb: () => reconnectToRoom(),
+			ncb: () => socket.emit('leave-room', { userId: userInfo.id }),
+			preventOutSideClose: true,
+			preventClose: true
+		})
+	}
 
 	const handleRoomCreated = (data) => {
 		setOpenLoadingDialog(false)
@@ -94,7 +122,7 @@ function Game() {
 							<div className='button-div'>
 								<Button size='big' label='Join Game' onClick={() => setOpenJoinRoom(true)} />
 								<p className='create-game-description'>
-									Join an already existing game, to join a game you need the code that the host the game shared with you.
+									Join an already existing game. To join a game you need the code that the host the game shared with you.
 								</p>
 							</div>
 						</div>

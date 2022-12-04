@@ -36,6 +36,14 @@ const UsersModel = database.define('users', {
     },
     socket_id: {
         type: DataTypes.STRING
+    },
+    connected_to_room : {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    last_location: {
+        type: DataTypes.STRING,
+        defaultValue: null
     }
 })
 

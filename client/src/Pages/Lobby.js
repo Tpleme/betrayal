@@ -25,6 +25,8 @@ function Lobby() {
     const [openPickCharacter, setOpenPickCharacter] = useState(false)
 
     useEffect(() => {
+        sessionStorage.setItem('room', state.roomId)
+
         socket.on('user_connected_lobby', data => handleUserConnected(data))
         socket.on('user_disconnected_lobby', data => handleUserDisconnected(data))
         socket.on('character_picked', data => handleCharacterPicked(data))
@@ -49,7 +51,7 @@ function Lobby() {
 
     const getUsersFromRoom = () => {
         getRoomUsers(state.roomId).then(res => {
-            console.log(res)
+            // console.log(res)
             setPlayersConnected(res.data)
         }, err => {
             console.log(err)
@@ -74,6 +76,12 @@ function Lobby() {
         console.log(char)
         setPicketCharacter(char)
         //emit here
+    }
+
+    const onLeaveRoom = () => {
+        sessionStorage.removeItem('room')
+        socket.emit('leave-room', { userId: userInfo.id })
+        navigate('/', { replace: true })
     }
 
     return (
@@ -112,7 +120,7 @@ function Lobby() {
                         })}
                     </div>
                     <div style={{ marginTop: 'auto' }}>
-                        <Button label='Leave room' onClick={() => navigate('/', { replace: true })} />
+                        <Button label='Leave room' onClick={onLeaveRoom} />
                     </div>
                 </div>
                 <div className='lobby-chat-div'>

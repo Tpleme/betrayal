@@ -1,33 +1,30 @@
-import { Button } from '@mui/material'
+import Button from '../Buttons/Button'
 import React from 'react'
 import DialogPrefab from './DialogPrefab'
 
-function InfoDialog({ info, ...props }) {
+import './InfoDialog.css'
+
+function InfoDialog(props) {
     return (
         <DialogPrefab
             open={props.open}
             close={props.close}
-            title={info.title}
             maxWidth='xs'
+            preventOutSideClose={props.preventOutSideClose}
+            preventClose={props.preventClose}
         >
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ marginBottom: '20px', whiteSpace: 'pre-wrap', letterSpacing: '1px', fontSize: '15px', lineHeight: '20px' }}>
-                    <p style={{ color: 'var(--dark-beige)' }}>{info.message}</p>
+            <div className='info-dialog-main-div'>
+                <div className='info-dialog-message'>
+                    <p>{props.message}</p>
                 </div>
-                <div style={{ alignSelf: 'flex-end' }}>
+                <div className='info-dialog-actions-div'>
                     {props.type === "y/n" ? (
                         <>
-                            <Button size='small' onClick={props.ycb}>
-                                Sim
-                            </Button>
-                            <Button size='small' color='error' onClick={props.ncb}>
-                                Não
-                            </Button>
+                            <Button size='small' onClick={props.ycb} label='Yes' />
+                            <Button size='small' onClick={props.ncb} label='No' />
                         </>
                     ) : (
-                        <Button size='small' onClick={props.ocb}>
-                            ok
-                        </Button>
+                        <Button size='small' onClick={props.ocb} label='Ok' />
                     )}
                 </div>
             </div>

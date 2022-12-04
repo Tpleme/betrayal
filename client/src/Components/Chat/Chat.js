@@ -33,7 +33,6 @@ function Chat(props) {
         })
 
         getChatMessages('global').then(res => {
-            console.log(res)
             setChatMessages(res.data)
         })
 

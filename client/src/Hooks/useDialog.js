@@ -5,20 +5,27 @@ import InfoDialog from '../Components/Dialogs/InfoDialog'
 export default function useDialog() {
     const { showModal } = useModal()
 
-    const openInfoDialog = (
-        info = { title: '', message: ''},
+    const openInfoDialog = ({
+        title = '',
+        message = '',
         type = 'ok',
         ycb,
         ncb = () => console.log('no ncb provided'),
-        ocb = () => console.log('no ocb provided')
+        ocb = () => console.log('no ocb provided'),
+        preventOutSideClose = false,
+        preventClose = false
+    }
     ) => {
         const modal = showModal(InfoDialog, {
             close: () => modal.hide(),
-            info: info,
-            type: type,
-            ncb: () => { modal.hide(); ncb()},
-            ocb: () => { modal.hide(); ocb()},
-            ycb: () => { modal.hide(); ycb()}
+            title,
+            message,
+            type,
+            ncb: () => { modal.hide(); ncb() },
+            ocb: () => { modal.hide(); ocb() },
+            ycb: () => { modal.hide(); ycb() },
+            preventOutSideClose,
+            preventClose
         })
     }
 

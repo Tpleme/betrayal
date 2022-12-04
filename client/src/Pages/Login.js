@@ -40,6 +40,8 @@ export default function Login() {
 
     useEffect(() => {
         sessionStorage.removeItem('token')
+        sessionStorage.removeItem('id')
+        sessionStorage.removeItem('room')
         setToken(null)
         if (socket.connected) socket.disconnect()
     }, [])

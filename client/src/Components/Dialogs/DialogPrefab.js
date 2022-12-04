@@ -28,7 +28,9 @@ function DialogPrefab({ children, open, close, maxWidth, ...props }) {
             className='dialog-outer-div'
         >
             <div className='dialog-prefab-wrapper'>
-                <Close className='dialog-prefab-close-icon' htmlColor='var(--light-yellow' onClick={() => close()} />
+                {!props.preventClose &&
+                    <Close className='dialog-prefab-close-icon' htmlColor='var(--light-yellow' onClick={() => close()} />
+                }
                 {children}
                 <div className='dialog-prefab-background-div' />
             </div>

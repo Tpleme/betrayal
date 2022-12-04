@@ -41,7 +41,7 @@ function App() {
 			getUser();
 			return;
 		}
-		socket.auth = { uuid: sessionStorage.getItem('id'), token: token }
+		socket.auth = { uuid: sessionStorage.getItem('id'), token: token, room: sessionStorage.getItem('room') }
 		socket.connect();
 		timer = setTimeout(() => getUser(), 1000)
 	}

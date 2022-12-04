@@ -32,40 +32,43 @@ const removeUserFromRoom = async (socket, data) => {
         include: [models.game_rooms]
     })
 
-    //removes user from room and if he is the hosting, the next user becomes de host, if no users left remove room
-    if (user.game_room) {
+    if (!user.connected_to_room) {
+        //removes user from room and if he is the hosting, the next user becomes de host, if no users left remove room
+        if (user.game_room) {
 
-        const roomId = user.gameRoomId
-        const userHostingRoom = user.hosting
-        const roomSocket = user.game_room.room_id
+            const roomId = user.gameRoomId
+            const userHostingRoom = user.hosting
+            const roomSocket = user.game_room.room_id
 
-        await models.users.update({ gameRoomId: null }, { where: { id: user.id } })
+            await models.users.update({ gameRoomId: null }, { where: { id: user.id } })
 
-        if (roomId === userHostingRoom) {
-            await models.users.findAll({ where: { gameRoomId: roomId } }).then(async users => {
-                await models.users.update({ hosting: null }, { where: { id: user.id } })
-                if (users.length > 0) {
-                    await models.users.update({ hosting: roomId }, { where: { id: users[0].id } }).then(el => {
-                        socket.nsp.to(el.socket_id).emit('hosting_now', { roomId: roomId })
-                    })
-                } else {
-                    await models.game_rooms.destroy({ where: { id: roomId } })
-                }
-            })
+            if (roomId === userHostingRoom) {
+                await models.users.findAll({ where: { gameRoomId: roomId } }).then(async users => {
+                    await models.users.update({ hosting: null }, { where: { id: user.id } })
+                    if (users.length > 0) {
+                        await models.users.update({ hosting: roomId }, { where: { id: users[0].id } }).then(el => {
+                            socket.nsp.to(el.socket_id).emit('hosting_now', { roomId: roomId })
+                        })
+                    } else {
+                        await models.game_rooms.destroy({ where: { id: roomId } })
+                    }
+                })
+            }
+
+            socket.nsp.to(roomSocket).emit('user_disconnected_lobby', { userId: user.id })
+            socket.leave(roomSocket)
         }
-
-        socket.nsp.to(roomSocket).emit('user_disconnected_lobby', { userId: user.id })
-        socket.leave(roomSocket)
     }
-
     socket.join('global')
 }
 
 const leaveRoom = async (socket, data) => {
+    await models.users.update({ connected_to_room: false }, { where: { id: data.userId } });
     await removeUserFromRoom(socket, data)
 }
 
 const connectUser = async (io, socket) => {
+    const userRoom = socket.handshake.auth.room
 
     await models.keys.findOrCreate({
         where: { key: socket.handshake.auth.token, userId: socket.handshake.auth.uuid },
@@ -77,8 +80,14 @@ const connectUser = async (io, socket) => {
     })
 
     if (user.game_room) {
-        socket.join(user.game_room.room_id);
-        socket.leave('global')
+        if(userRoom) {
+            await models.users.update({ connected_to_room: true }, { where: { id: user.id } });
+            socket.join(user.game_room.room_id);
+            socket.leave('global')
+        } else {
+            socket.join('global')
+            socket.emit('auto_connect_room', { roomSocket: user.game_room.room_id, roomId: user.game_room.id })
+        }
     } else {
         socket.join('global')
     }
@@ -90,22 +99,23 @@ const connectUser = async (io, socket) => {
             io.in('global').emit('users', users)
         })
     })
-
 }
-
 
 const onDisconnect = async (socket) => {
 
     console.log('User disconnected ' + socket.id)
 
-    //Se remover o user do room quando se disconecta, se for um refresh, depois não dá para ir buscar o room onde estava quando faz reconnect
-    // await removeUserFromRoom(socket, { userId: socket.handshake.auth.uuid })
-
-    await models.users.update({ loggedIn: false, socket_id: null }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
+    await models.users.update({ loggedIn: false, socket_id: null, connected_to_room: false }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
         await models.users.findAll().then(users => {
             socket.broadcast.emit('users', users)
         })
     })
+
+    // //Só faz disconnect ao user passados 10 segundos, pois entretanto pode ter-se re-conectado (refresh)
+    // setTimeout(() => {
+    //     removeUserFromRoom(socket, { userId: socket.handshake.auth.uuid })
+    // }, 10000);
+
 }
 
 const onMessage = async (socket, data) => {
@@ -128,14 +138,14 @@ const createRoom = async (socket, data) => {
     if (data.password) {
         await bcrypt.hash(data.password, 10).then(hash => {
             models.game_rooms.create({ room_id: roomSocket, password: hash }).then(room => {
-                models.users.update({ gameRoomId: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
+                models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
                     socket.nsp.to(socket.id).emit('room_created', { roomSocket, roomId: room.id })
                 })
             })
         })
     } else {
         models.game_rooms.create({ room_id: roomSocket }).then(room => {
-            models.users.update({ gameRoomId: room.id, hosting: room.id }, { where: { id: data.user.id } }).then(() => {
+            models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
                 socket.nsp.to(socket.id).emit('room_created', { roomSocket, roomId: room.id })
             })
         })
@@ -153,7 +163,7 @@ const joinRoom = async (socket, data) => {
         if (pass) {
             await bcrypt.compare(pass, room.password).then(valid => {
                 if (valid) {
-                    models.users.update({ gameRoomId: room.id }, { where: { id: userId } }).then(() => {
+                    models.users.update({ gameRoomId: room.id, connected_to_room: true }, { where: { id: userId } }).then(() => {
                         socket.leave('global')
                         socket.join(roomSocket)
                         socket.nsp.to(roomSocket).emit('user_connected_lobby', { userId })
@@ -168,7 +178,7 @@ const joinRoom = async (socket, data) => {
                 socket.emit('join-room-response', { code: 1, message: 'password required', roomId: roomSocket });
                 return
             } else {
-                models.users.update({ gameRoomId: room.id }, { where: { id: userId } }).then(() => {
+                models.users.update({ gameRoomId: room.id, connected_to_room: true }, { where: { id: userId } }).then(() => {
                     socket.leave('global')
                     socket.join(roomSocket)
                     socket.nsp.to(roomSocket).emit('user_connected_lobby', { userId })
