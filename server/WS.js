@@ -23,6 +23,8 @@ const handleWS = (socket, io) => {
     socket.on('create-room', (data) => createRoom(socket, data))
     socket.on('join-room', (data) => joinRoom(socket, data))
     socket.on('leave-room', data => leaveRoom(socket, data))
+    socket.on('check-auto-connect', data => checkAutoConnect(socket, data))
+    socket.on('auto-connect', data => autoConnect(socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -80,13 +82,10 @@ const connectUser = async (io, socket) => {
     })
 
     if (user.game_room) {
-        if(userRoom) {
+        if (userRoom) {
             await models.users.update({ connected_to_room: true }, { where: { id: user.id } });
             socket.join(user.game_room.room_id);
             socket.leave('global')
-        } else {
-            socket.join('global')
-            socket.emit('auto_connect_room', { roomSocket: user.game_room.room_id, roomId: user.game_room.id })
         }
     } else {
         socket.join('global')
@@ -99,6 +98,26 @@ const connectUser = async (io, socket) => {
             io.in('global').emit('users', users)
         })
     })
+}
+
+const checkAutoConnect = async (socket, data) => {
+
+    const user = await models.users.findOne({
+        where: { id: data.userId },
+        include: [models.game_rooms]
+    })
+
+    if (user.game_room) {
+        socket.join('global')
+        socket.emit('auto-connect-room', { roomSocket: user.game_room.room_id, roomId: user.game_room.id })
+    }
+}
+
+const autoConnect = async (socket, data) => {
+    socket.join(data.roomSocket)
+    socket.leave('global')
+    await models.users.update({ connected_to_room: true }, { where: { id: data.userId } });
+    socket.emit('auto-connect-response', data)
 }
 
 const onDisconnect = async (socket) => {
@@ -139,14 +158,14 @@ const createRoom = async (socket, data) => {
         await bcrypt.hash(data.password, 10).then(hash => {
             models.game_rooms.create({ room_id: roomSocket, password: hash }).then(room => {
                 models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
-                    socket.nsp.to(socket.id).emit('room_created', { roomSocket, roomId: room.id })
+                    socket.nsp.to(socket.id).emit('room-created', { roomSocket, roomId: room.id })
                 })
             })
         })
     } else {
         models.game_rooms.create({ room_id: roomSocket }).then(room => {
             models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
-                socket.nsp.to(socket.id).emit('room_created', { roomSocket, roomId: room.id })
+                socket.nsp.to(socket.id).emit('room-created', { roomSocket, roomId: room.id })
             })
         })
     }

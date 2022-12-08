@@ -34,32 +34,40 @@ function Game() {
 			sessionStorage.removeItem('room')
 		}
 
-		socket.on('room_created', data => handleRoomCreated(data))
+		socket.emit('check-auto-connect', { userId: userInfo.id })
+
+		socket.on('room-created', data => handleRoomCreated(data))
 		socket.on('join-room-response', data => handleJoinRoomResponse(data))
-		socket.on('auto_connect_room', data => handleAutoConnect(data))
+		socket.on('auto-connect-room', data => handleAutoConnect(data))
+		socket.on('auto-connect-response', data => reconnectToRoom(data))
+
 
 		return () => {
-			socket.off('room_created', handleRoomCreated)
+			socket.off('room-created', handleRoomCreated)
 			socket.off('join-room-response', handleJoinRoomResponse)
-			socket.off('auto_connect_room', data => handleAutoConnect)
+			socket.off('auto-connect-room', handleAutoConnect)
+			socket.off('auto-connect-response', reconnectToRoom)
 		}
 	}, [])
 
-	const handleAutoConnect = data => {
-		console.log(data)
+	const reconnectToRoom = data => {
+		setOpenJoinLoading(false)
+		navigate('lobby', { state: data, replace: true })
+	}
 
-		const reconnectToRoom = () => {
+	const handleAutoConnect = data => {
+
+		const reconnect = () => {
 			setOpenJoinLoading(true)
 			setTimeout(() => {
-				setOpenJoinLoading(false)
-				navigate('lobby', { state: data, replace: true })
+				socket.emit('auto-connect', { ...data, userId: userInfo.id })
 			}, 2000)
 		}
-		
+
 		openInfoDialog({
 			message: 'Your were disconnected from your game room, would you line to reconnect?',
 			type: 'y/n',
-			ycb: () => reconnectToRoom(),
+			ycb: () => reconnect(),
 			ncb: () => socket.emit('leave-room', { userId: userInfo.id }),
 			preventOutSideClose: true,
 			preventClose: true
