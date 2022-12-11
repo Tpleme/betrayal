@@ -33,7 +33,7 @@ function Game() {
 			socket.emit('leave-room', { userId: userInfo.id })
 			sessionStorage.removeItem('room')
 		}
-
+		//TODO: meter aqui else? pois se o user alterar o url para aqui temos que retirar o seu room antes do check-auto-connect despolete
 		socket.emit('check-auto-connect', { userId: userInfo.id })
 
 		socket.on('room-created', data => handleRoomCreated(data))

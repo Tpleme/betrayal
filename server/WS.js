@@ -47,6 +47,7 @@ const removeUserFromRoom = async (socket, data) => {
             if (roomId === userHostingRoom) {
                 await models.users.findAll({ where: { gameRoomId: roomId } }).then(async users => {
                     await models.users.update({ hosting: null }, { where: { id: user.id } })
+                    await models.player_character.destroy({ where: { userId: user.id } })
                     if (users.length > 0) {
                         await models.users.update({ hosting: roomId }, { where: { id: users[0].id } }).then(el => {
                             socket.nsp.to(el.socket_id).emit('hosting_now', { roomId: roomId })
@@ -155,16 +156,18 @@ const createRoom = async (socket, data) => {
     socket.join(roomSocket)
 
     if (data.password) {
-        await bcrypt.hash(data.password, 10).then(hash => {
-            models.game_rooms.create({ room_id: roomSocket, password: hash }).then(room => {
-                models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
+        await bcrypt.hash(data.password, 10).then(async hash => {
+            await models.game_rooms.create({ room_id: roomSocket, password: hash }).then(async room => {
+                await models.player_character.create({ userId: data.user.id, gameRoomId: room.id })
+                await models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
                     socket.nsp.to(socket.id).emit('room-created', { roomSocket, roomId: room.id })
                 })
             })
         })
     } else {
-        models.game_rooms.create({ room_id: roomSocket }).then(room => {
-            models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
+        await models.game_rooms.create({ room_id: roomSocket }).then(async room => {
+            await models.player_character.create({ userId: data.user.id, gameRoomId: room.id })
+            await models.users.update({ gameRoomId: room.id, hosting: room.id, connected_to_room: true }, { where: { id: data.user.id } }).then(() => {
                 socket.nsp.to(socket.id).emit('room-created', { roomSocket, roomId: room.id })
             })
         })
@@ -177,15 +180,17 @@ const joinRoom = async (socket, data) => {
     const pass = data.password
 
     const room = await models.game_rooms.findOne({ where: { room_id: roomSocket } })
+    const user = await models.users.findByPk(data.userId)
 
     if (room) {
         if (pass) {
             await bcrypt.compare(pass, room.password).then(valid => {
                 if (valid) {
-                    models.users.update({ gameRoomId: room.id, connected_to_room: true }, { where: { id: userId } }).then(() => {
+                    models.users.update({ gameRoomId: room.id, connected_to_room: true }, { where: { id: userId } }).then(async () => {
+                        await models.player_character.create({ userId, gameRoomId: room.id })
                         socket.leave('global')
                         socket.join(roomSocket)
-                        socket.nsp.to(roomSocket).emit('user_connected_lobby', { userId })
+                        socket.nsp.to(roomSocket).emit('user_connected_lobby', { user })
                         socket.emit('join-room-response', { code: 0, message: 'go to room', roomSocket, roomId: room.id });
                     })
                 } else {
@@ -197,10 +202,11 @@ const joinRoom = async (socket, data) => {
                 socket.emit('join-room-response', { code: 1, message: 'password required', roomId: roomSocket });
                 return
             } else {
-                models.users.update({ gameRoomId: room.id, connected_to_room: true }, { where: { id: userId } }).then(() => {
+                models.users.update({ gameRoomId: room.id, connected_to_room: true }, { where: { id: userId } }).then(async () => {
+                    await models.player_character.create({ userId, gameRoomId: room.id })
                     socket.leave('global')
                     socket.join(roomSocket)
-                    socket.nsp.to(roomSocket).emit('user_connected_lobby', { userId })
+                    socket.nsp.to(roomSocket).emit('user_connected_lobby', { user })
                     socket.emit('join-room-response', { code: 0, message: 'go to room', roomSocket, roomId: room.id });
                 })
             }

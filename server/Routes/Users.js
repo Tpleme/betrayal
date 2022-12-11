@@ -34,7 +34,7 @@ const getByID = async (req, res) => {
 const getUsersFromRoom = async (req, res) => {
     const roomId = req.params.roomId
 
-    const users = await models.users.findAll({ where: { gameRoomId: roomId } })
+    const users = await models.users.findAll({ where: { gameRoomId: roomId }, include: [models.player_character] })
 
     res.status(200).send(users)
 }

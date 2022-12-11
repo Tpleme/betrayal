@@ -41,10 +41,6 @@ const UsersModel = database.define('users', {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
-    last_location: {
-        type: DataTypes.STRING,
-        defaultValue: null
-    }
 })
 
 module.exports = UsersModel

@@ -3,8 +3,9 @@ const database = require('./sequelize_index')
 const UsersModel = require('./models/Users')
 const KeysModel = require('./models/Keys')
 const GameRoomModel = require('./models/GameRoomModel')
-const MainChatsModel = require('./models/MainChatModel')
+const PlayerCharacter = require('./models/PlayerCharacter')
 const CharactersModel = require('./models/CharactersModel')
+const MainChatsModel = require('./models/MainChatModel')
 
 const refreshDatabaseModels = false;
 
@@ -27,10 +28,15 @@ const initializeModels = async () => {
     GameRoomModel.hasMany(UsersModel)
     UsersModel.belongsTo(GameRoomModel)
 
+    UsersModel.hasOne(PlayerCharacter)
+    GameRoomModel.hasOne(PlayerCharacter)
+    CharactersModel.hasOne(PlayerCharacter)
+
+    // GameRoomModel.belongsTo(PlayerCharacter)
+
     GameRoomModel.hasOne(UsersModel, { foreignKey: 'hosting' })
 
     MainChatsModel(database)
-    CharactersModel(database)
 
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getEntity, getRoomUsers } from '../API/requests';
 import { useUserInfo } from '../Hooks/useUser'
@@ -51,21 +51,25 @@ function Lobby() {
 
     const getUsersFromRoom = () => {
         getRoomUsers(state.roomId).then(res => {
-            // console.log(res)
+            console.log(res)
             setPlayersConnected(res.data)
         }, err => {
             console.log(err)
         })
     }
 
-    const handleUserConnected = data => {
+    const handleUserConnected = useCallback((data) => {
         console.log(data)
-        getUsersFromRoom()
-    }
+        console.log(playersConnected)
+        setPlayersConnected(state => ([...state, { user: data.user, state: 'connected', character: null }]))
+        // getUsersFromRoom()
+    }, [playersConnected])
 
     const handleUserDisconnected = data => {
         console.log(data)
-        getUsersFromRoom()
+        console.log(playersConnected)
+        setPlayersConnected(playersConnected.filter(player => player.id !== data.userData))
+        // getUsersFromRoom()
     }
 
     const handleCharacterPicked = data => {
@@ -81,7 +85,10 @@ function Lobby() {
     const onLeaveRoom = () => {
         sessionStorage.removeItem('room')
         socket.emit('leave-room', { userId: userInfo.id })
-        navigate('/', { replace: true })
+        //TODO aqui é preciso receber a resposta do leave-room antes de fazer navigate, para que o user já não tenha room quando fizer load da pagina inicial
+        setTimeout(() => {
+            navigate('/', { replace: true })
+        }, 2000)
     }
 
     return (
