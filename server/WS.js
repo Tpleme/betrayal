@@ -25,6 +25,7 @@ const handleWS = (socket, io) => {
     socket.on('leave-room', data => leaveRoom(socket, data))
     socket.on('check-auto-connect', data => checkAutoConnect(socket, data))
     socket.on('auto-connect', data => autoConnect(socket, data))
+    socket.on('character-picked', data => onCharacterPicked(socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -214,6 +215,13 @@ const joinRoom = async (socket, data) => {
     } else {
         socket.emit('join-room-response', { code: 2, message: 'Game Room not found' });
     }
+}
+
+const onCharacterPicked = async (socket, data) => {
+    await models.player_character.update({ characterId: data.charId }, { where: { userId: data.userId } })
+
+    socket.nsp.to(data.roomSocket).emit('character-picked-response', 'teste')
+
 }
 
 module.exports = {

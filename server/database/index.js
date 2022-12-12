@@ -29,8 +29,13 @@ const initializeModels = async () => {
     UsersModel.belongsTo(GameRoomModel)
 
     UsersModel.hasOne(PlayerCharacter)
+    PlayerCharacter.belongsTo(UsersModel)
+
     GameRoomModel.hasOne(PlayerCharacter)
+    PlayerCharacter.belongsTo(GameRoomModel)
+
     CharactersModel.hasOne(PlayerCharacter)
+    PlayerCharacter.belongsTo(CharactersModel)
 
     // GameRoomModel.belongsTo(PlayerCharacter)
 
