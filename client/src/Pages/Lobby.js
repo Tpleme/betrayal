@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getEntity, getRoomUsers } from '../API/requests';
 import { useUserInfo } from '../Hooks/useUser'
@@ -9,6 +9,7 @@ import LobbyChat from '../Components/Chat/LobbyChat';
 import { useNavigate } from 'react-router-dom';
 import Image from '../Components/Misc/Image';
 import LobbyCharacter from '../Components/Cards/Characters/LobbyCharacter';
+import UserProfile from '../Components/Dialogs/Users/UserProfile/UserProfile';
 
 import './css/Lobby.css'
 
@@ -18,20 +19,22 @@ function Lobby() {
     const socket = useContext(SocketContext)
     const navigate = useNavigate()
 
+    const [openUserProfile, setOpenUserProfile] = useState(false)
+    const [selectedUser, setSelectedUser] = useState(null)
     const [allCharacters, setAllCharacters] = useState()
     const [playersConnected, setPlayersConnected] = useState([])
 
     useEffect(() => {
         sessionStorage.setItem('room', state.roomId)
 
-        socket.on('user_connected_lobby', data => handleUserConnected(data))
-        socket.on('user_disconnected_lobby', data => handleUserDisconnected(data))
-        socket.on('character-picked-response', data => handleCharacterPicked(data))
+        socket.on('user_connected_lobby', () => getUsersFromRoom())
+        socket.on('user_disconnected_lobby', () => getUsersFromRoom())
+        socket.on('character-picked-response', () => getUsersFromRoom())
 
         return () => {
-            socket.off('user_connected_lobby', handleUserConnected)
-            socket.on('user_disconnected_lobby', handleUserDisconnected)
-            socket.off('character-picked-response', handleCharacterPicked)
+            socket.off('user_connected_lobby', getUsersFromRoom)
+            socket.on('user_disconnected_lobby', getUsersFromRoom)
+            socket.off('character-picked-response', getUsersFromRoom)
         }
     }, [])
 
@@ -55,20 +58,6 @@ function Lobby() {
         })
     }
 
-    const handleUserConnected = () => {
-        getUsersFromRoom()
-    }
-
-    const handleUserDisconnected = data => {
-        console.log(data)
-        getUsersFromRoom()
-    }
-
-    const handleCharacterPicked = data => {
-        console.log(data)
-        getUsersFromRoom()
-    }
-
     const onCharPick = (userId, charId) => {
         socket.emit('character-picked', { userId, charId, roomSocket: state.roomSocket })
     }
@@ -77,6 +66,11 @@ function Lobby() {
         sessionStorage.removeItem('room')
         socket.emit('leave-room', { userId: userInfo.id })
         navigate('/', { replace: true })
+    }
+
+    const openProfile = user => {
+        setSelectedUser(user)
+        setOpenUserProfile(true)
     }
 
     return (
@@ -102,9 +96,12 @@ function Lobby() {
                         <p className='lobby-info-title'>Connected Players</p>
                         {playersConnected.map(player => {
                             return (
-                                <div className='lobby-player-div' key={player.id}>
+                                <div className='lobby-player-div' key={player.id} onClick={() => openProfile(player.user)}>
                                     <Image alt={player.name} src={player.user.picture} entity='users' className='lobby-player-image' />
                                     <p>{player.user.name}</p>
+                                    {!player.user.connected_to_room &&
+                                        <p style={{fontSize: '16px'}}>{`(Disconnected)`}</p>
+                                    }
                                 </div>
                             )
                         })}
@@ -117,6 +114,9 @@ function Lobby() {
                     <LobbyChat roomId={state.roomSocket} />
                 </div>
             </div>
+            {selectedUser &&
+                <UserProfile open={openUserProfile} close={() => setOpenUserProfile(false)} user={selectedUser} />
+            }
         </div>
     )
 }
@@ -128,24 +128,27 @@ const UpperCharacterDisplay = ({ players, me, allCharacters, onCharPick }) => {
 
     const myInfo = players.filter(player => player.user.id === me.id)[0]
 
+    const repickCharacter = player => {
+        if (player.user.id === myInfo.user.id) {
+            setOpenPickCharacter(true)
+        }
+    }
+
     return (
         <>
-            {myInfo?.character ?
-                players.map(player => {
-                    if (player.character) {
-                        return (
-                            <LobbyCharacter key={player.user.id} player={player.user.name} character={player.character} />
-                        )
-                    }
-                })
-                :
-                <>
-                    <div className='pick-character-background'>
-                        <Button label='Pick a Character' onClick={() => setOpenPickCharacter(true)} />
-                    </div>
-                    <PickCharacterDialog open={openPickCharacter} close={() => setOpenPickCharacter(false)} data={allCharacters} onCharPick={char => onCharPick(me.id, char.id)} />
-                </>
+            {players.map(player => {
+                return (
+                    player.character &&
+                    <LobbyCharacter key={player.user.id} player={player.user} character={player.character} onClick={() => repickCharacter(player)} myInfo={myInfo} />
+
+                )
+            })}
+            {!myInfo?.character &&
+                <div className='pick-character-background'>
+                    <Button label='Pick a Character' onClick={() => setOpenPickCharacter(true)} />
+                </div>
             }
+            <PickCharacterDialog open={openPickCharacter} close={() => setOpenPickCharacter(false)} data={allCharacters} onCharPick={char => onCharPick(me.id, char.id)} players={players} />
         </>
     )
 }

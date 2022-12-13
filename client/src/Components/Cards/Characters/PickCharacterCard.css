@@ -7,12 +7,7 @@
     background-color: #41725a61;
     border-bottom-left-radius: 150px;
     border-top-left-radius: 150px;
-    transition: all 0.2s ease-in-out;
     position: relative;
-}
-
-.pick-character-card-main-div:hover {
-    scale: 1.01;
 }
 
 .pick-character-card-image {
@@ -63,4 +58,14 @@
 .pick-character-stats span {
     font-size: 26px;
     color: var(--light-yellow);
+}
+
+.character-picked-user-name {
+    position: absolute;
+    top: 84px;
+    right: 25px;
+    color: white;
+    font-size: 22px;
+    max-width: 250px;
+    text-align: center;
 }

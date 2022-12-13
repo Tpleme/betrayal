@@ -3,9 +3,9 @@ const { v4: uuidv4 } = require('uuid')
 const bcrypt = require('bcrypt')
 const EventEmitter = require('./EventEmitter')
 const { RateLimiterMemory } = require('rate-limiter-flexible')
+const generator = require('generate-password')
 
 let global_io;
-
 
 const rateLimiter = new RateLimiterMemory(
     {
@@ -44,11 +44,11 @@ const removeUserFromRoom = async (socket, data) => {
             const roomSocket = user.game_room.room_id
 
             await models.users.update({ gameRoomId: null }, { where: { id: user.id } })
+            await models.player_character.destroy({ where: { userId: user.id } })
 
             if (roomId === userHostingRoom) {
                 await models.users.findAll({ where: { gameRoomId: roomId } }).then(async users => {
                     await models.users.update({ hosting: null }, { where: { id: user.id } })
-                    await models.player_character.destroy({ where: { userId: user.id } })
                     if (users.length > 0) {
                         await models.users.update({ hosting: roomId }, { where: { id: users[0].id } }).then(el => {
                             socket.nsp.to(el.socket_id).emit('hosting_now', { roomId: roomId })
@@ -87,6 +87,7 @@ const connectUser = async (io, socket) => {
         if (userRoom) {
             await models.users.update({ connected_to_room: true }, { where: { id: user.id } });
             socket.join(user.game_room.room_id);
+            socket.nsp.to(user.game_room.room_id).emit('user_connected_lobby', { user })
             socket.leave('global')
         }
     } else {
@@ -120,17 +121,27 @@ const autoConnect = async (socket, data) => {
     socket.leave('global')
     await models.users.update({ connected_to_room: true }, { where: { id: data.userId } });
     socket.emit('auto-connect-response', data)
+    socket.nsp.to(data.roomSocket).emit('user_connected_lobby', 'User Connected')
 }
 
 const onDisconnect = async (socket) => {
 
     console.log('User disconnected ' + socket.id)
 
-    await models.users.update({ loggedIn: false, socket_id: null, connected_to_room: false }, { where: { id: socket.handshake.auth.uuid } }).then(async () => {
+    const user = await models.users.findOne({
+        where: { id: socket.handshake.auth.uuid  },
+        include: [models.game_rooms]
+    })
+
+    await models.users.update({ loggedIn: false, socket_id: null, connected_to_room: false }, { where: { id: user.id } }).then(async () => {
         await models.users.findAll().then(users => {
             socket.broadcast.emit('users', users)
         })
     })
+
+    if(user.game_room) {
+        socket.nsp.to(user.game_room.room_id).emit('user_disconnected_lobby', { userId: user.id }) 
+    }
 
     // //Só faz disconnect ao user passados 10 segundos, pois entretanto pode ter-se re-conectado (refresh)
     // setTimeout(() => {
@@ -151,7 +162,7 @@ const onMessage = async (socket, data) => {
 }
 
 const createRoom = async (socket, data) => {
-    const roomSocket = uuidv4();
+    const roomSocket = generator.generate({ length: 12, numbers: true })
 
     socket.leave('global')
     socket.join(roomSocket)
@@ -220,7 +231,7 @@ const joinRoom = async (socket, data) => {
 const onCharacterPicked = async (socket, data) => {
     await models.player_character.update({ characterId: data.charId }, { where: { userId: data.userId } })
 
-    socket.nsp.to(data.roomSocket).emit('character-picked-response', 'teste')
+    socket.nsp.to(data.roomSocket).emit('character-picked-response')
 
 }
 

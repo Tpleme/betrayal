@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from '../../Misc/Image'
 import Button from '../../Buttons/Button'
 import { Divider } from '@mui/material'
@@ -6,7 +6,18 @@ import { Divider } from '@mui/material'
 import './PickCharacterCard.css'
 
 function PickCharacterCard({ character, ...props }) {
-    
+    const [characterPicked, setCharacterPicked] = useState({picked: false, player: null})
+
+    useEffect(() => {
+        const playerPickedCharacter = props.players.find(player => player.characterId === character.id)
+
+        if (playerPickedCharacter) {
+            setCharacterPicked({picked: true, player: playerPickedCharacter.user})
+            return
+        }
+        setCharacterPicked({picked: false, player: null}) 
+    }, [props.players, character])
+
     return (
         <div className='pick-character-card-main-div'>
             <Image
@@ -25,11 +36,15 @@ function PickCharacterCard({ character, ...props }) {
                 <span>{character.description}</span>
             </div>
             <Button
+                disabled={characterPicked.picked}
                 style={{ position: 'absolute', top: '15px', right: '10px' }}
                 label={`Pick ${character.name}`}
                 onClick={props.onPick}
                 size='big'
             />
+            {characterPicked.picked &&
+                <p className='character-picked-user-name'>{`Character already picked by ${characterPicked.player.name}`}</p>
+            }
         </div>
     )
 }

@@ -3,7 +3,7 @@
     right: 0;
     height: var(--top-bar-height);
     /* background: linear-gradient(270deg, black, var(--dark-green)); */
-    background-color: rgba(0,0,0,0.3);
+    background-color: transparent;
     position: fixed;
     display: flex;
     align-items: center;

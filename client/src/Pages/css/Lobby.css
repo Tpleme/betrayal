@@ -85,7 +85,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    backdrop-filter: blue(3px);
+    backdrop-filter: blur(3px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -97,12 +97,19 @@
     display: flex;
     gap: 10px;
     align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
     animation: playerDisplay 0.3s ease-in-out;
+}
+
+.lobby-player-div:hover > p {
+    letter-spacing: 1px;
 }
 
 .lobby-player-div>p {
     font-size: 26px;
     color: white;
+    transition: all 0.2s ease-in-out;
 }
 
 .lobby-player-image {

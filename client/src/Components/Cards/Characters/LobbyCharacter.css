@@ -5,6 +5,10 @@
     text-align: center;
     padding: 2px 5px;
     margin-top: 5px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     animation: lobby-character 0.5s ease-in-out;
 }
 
@@ -16,9 +20,14 @@
     transition: all 0.2s ease-in-out;
 }
 
-.character-lobby-char-portrait:hover {
+.character-lobby-char-portrait.selectable:hover {
     cursor: pointer;
     box-shadow: rgb(255 255 255) 0px 0px 10px 1px;
+    filter: brightness(0.5);
+}
+
+.character-lobby-char-portrait.selectable:hover ~ .change-character-text {
+    opacity: 1;
 }
 
 .char-lobby-card-player-name {
@@ -27,6 +36,16 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.change-character-text {
+    opacity: 0;
+    position: absolute;
+    top: 90px;
+    font-size: 24px;
+    width: 140px;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
 }
 
 @keyframes lobby-character {

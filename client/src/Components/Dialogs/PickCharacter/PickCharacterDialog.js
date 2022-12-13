@@ -22,7 +22,7 @@ function PickCharacterDialog(props) {
                 <div className='pick-char-dialog-content'>
                     {props.data.map(char => {
                         return (
-                            <PickCharacterCard key={char.id} character={char} onPick={() => handlePickChar(char)} />
+                            <PickCharacterCard key={char.id} players={props.players} character={char} onPick={() => handlePickChar(char)} />
                         )
                     })}
                 </div>
