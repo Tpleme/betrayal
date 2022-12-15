@@ -1,19 +1,29 @@
 .lobby-main-div {
     padding-top: var(--top-bar-height);
     height: 100vh;
-    min-height: 550px;
+    min-height: 800px;
     min-width: 1200px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.lobby-background {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    position: absolute;
     background: radial-gradient(circle, rgba(19, 75, 52, 1) 0%, rgba(0, 0, 0, 1) 40%);
-    background-size: 200%;
     background-position: center;
-    animation: lobby-background 15s ease-in-out infinite;
+    z-index: -1;
+    /* animation: lobby-background 15s ease-in-out infinite; */
 }
 
 .lobby-characters-div {
-    height: 300px;
+    max-height: 300px;
+    height: 40%;
     width: 100%;
     overflow-x: auto;
     display: flex;
@@ -24,8 +34,8 @@
 }
 
 .lobby-bottom-div {
-    /* border: 1px solid blue; */
     flex: 1 1;
+    height: 60%;
     display: flex;
     justify-content: space-between;
     padding: 10px;
@@ -54,7 +64,7 @@
 
 .lobby-chat-div {
     width: 30%;
-    /* max-width: 450px; */
+    height: 100%;
 }
 
 .lobby-info-title {
@@ -132,14 +142,14 @@
 
 @keyframes lobby-background {
     0% {
-        background-size: 200%;
+        scale: 1;
     }
 
     50% {
-        background-size: 100%;
+        scale: 2;
     }
 
     100% {
-        background-size: 200%;
+        scale: 1;
     }
 }

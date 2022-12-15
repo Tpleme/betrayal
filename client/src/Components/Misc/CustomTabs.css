@@ -1,0 +1,10 @@
+.custom-tabs button {
+    font-size: 16px;
+    color: var(--dark-green);
+}
+
+.custom-tabs button.Mui-selected {
+    font-weight: 600;
+    color: var(--dark-green);
+    z-index: 10;
+}

@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import Image from '../Components/Misc/Image';
 import LobbyCharacter from '../Components/Cards/Characters/LobbyCharacter';
 import UserProfile from '../Components/Dialogs/Users/UserProfile/UserProfile';
+import CustomTabs from '../Components/Misc/CustomTabs';
+import TabPanel from '../Components/Misc/TabPanel'
 
 import './css/Lobby.css'
 
@@ -23,6 +25,7 @@ function Lobby() {
     const [selectedUser, setSelectedUser] = useState(null)
     const [allCharacters, setAllCharacters] = useState()
     const [playersConnected, setPlayersConnected] = useState([])
+    const [tab, setTab] = useState(0)
 
     useEffect(() => {
         sessionStorage.setItem('room', state.roomId)
@@ -51,7 +54,6 @@ function Lobby() {
 
     const getUsersFromRoom = () => {
         getRoomUsers(state.roomId).then(res => {
-            console.log(res)
             setPlayersConnected(res.data)
         }, err => {
             console.log(err)
@@ -63,8 +65,6 @@ function Lobby() {
     }
 
     const onLeaveRoom = () => {
-        sessionStorage.removeItem('room')
-        socket.emit('leave-room', { userId: userInfo.id })
         navigate('/', { replace: true })
     }
 
@@ -75,6 +75,7 @@ function Lobby() {
 
     return (
         <div className='lobby-main-div'>
+            <div className='lobby-background' />
             <div className='lobby-characters-div'>
                 {allCharacters && <UpperCharacterDisplay
                     players={playersConnected}
@@ -85,7 +86,15 @@ function Lobby() {
             </div>
             <div className='lobby-bottom-div'>
                 <div className='lobby-settings-div'>
-
+                    <CustomTabs value={tab} onClick={(e, value) => setTab(value)} variant='fullWidth' options={['Room Settings', 'Player Character']} />
+                    <div>
+                        <TabPanel value={tab} index={0}>
+                            <p>test</p>
+                        </TabPanel>
+                        <TabPanel value={tab} index={1}>
+                            <p>test1</p>
+                        </TabPanel>
+                    </div>
                 </div>
                 <div className='lobby-information'>
                     <div className='lobby-info-div'>
@@ -100,7 +109,7 @@ function Lobby() {
                                     <Image alt={player.name} src={player.user.picture} entity='users' className='lobby-player-image' />
                                     <p>{player.user.name}</p>
                                     {!player.user.connected_to_room &&
-                                        <p style={{fontSize: '16px'}}>{`(Disconnected)`}</p>
+                                        <p style={{ fontSize: '16px' }}>{`(Disconnected)`}</p>
                                     }
                                 </div>
                             )
@@ -152,3 +161,4 @@ const UpperCharacterDisplay = ({ players, me, allCharacters, onCharPick }) => {
         </>
     )
 }
+

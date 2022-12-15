@@ -2,10 +2,10 @@ import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Avatar } from '@mui/material'
 import { Send } from '@mui/icons-material'
 import { msToMinutesAndSeconds } from '../../utils'
-
 import { useUserInfo } from '../../Hooks/useUser'
 import { SocketContext } from '../../Context/socket/socket'
-import UserProfile from '../Dialogs/Users/UserProfile/UserProfile'
+import { getChatsData, pushMessagesToChat } from '../../UserSettings/LobbyChat'
+import moment from 'moment'
 
 import portraitPlaceholder from '../../Assets/placeholders/portrait.jpg'
 
@@ -14,7 +14,6 @@ import './LobbyChat.css'
 function LobbyChat(props) {
     const [currentType, setCurrentType] = useState('')
     const [chatMessages, setChatMessages] = useState([])
-    const [openUserProfile, setOpenUserProfile] = useState(false)
     const [blocked, setBlocked] = useState({ blocked: false, timer: null })
 
     const socket = useContext(SocketContext)
@@ -24,11 +23,13 @@ function LobbyChat(props) {
 
 
     useEffect(() => {
-        socket.on('chat_message', msg => addMessageToChat(msg))
+        setChatMessages(getChatsData(props.roomId))
+
+        socket.on('looby_chat_message', msg => addMessageToChat(msg))
         socket.on('blocked', data => handleBlocked(data))
 
         return () => {
-            socket.off('chat_message', addMessageToChat)
+            socket.off('looby_chat_message', addMessageToChat)
             socket.off('blocked', handleBlocked)
         }
     }, [])
@@ -48,12 +49,23 @@ function LobbyChat(props) {
     }
 
     const addMessageToChat = (data) => {
+        pushMessagesToChat(data.chat, data)
         setChatMessages(prev => [...prev, data])
     }
 
     const addSelfMessage = (message) => {
         if (message.length > 0) {
-            socket.emit('message', { chat: props.roomId, user_id: userInfo.id, user_name: userInfo.name, user_picture: userInfo.picture, message: message })
+
+            socket.emit('lobbyMessage', {
+                chat: props.roomId,
+                type: 'user',
+                user_id: userInfo.id,
+                user_name: userInfo.name,
+                user_picture: userInfo.picture,
+                message: message,
+                createdAt: new Date()
+            })
+
             setCurrentType('')
             inputRef.current.focus()
         }
@@ -69,9 +81,9 @@ function LobbyChat(props) {
             <div className='lobby-chat-inner-div'>
                 <div className='lobby-chat-history-wrapper'>
                     <div className='lobby-chat-history'>
-                        {chatMessages.map((message, index) => {
+                        {chatMessages.map((data, index) => {
                             return (
-                                <Messages key={index} data={message} />
+                                data.type === 'system' ? <SystemMessages key={index} data={data} /> : <Messages key={index} data={data} />
                             )
                         })}
                     </div>
@@ -97,9 +109,6 @@ function LobbyChat(props) {
                     }
                 </div>
             </div>
-            {/* {selectedUser &&
-                <UserProfile open={openUserProfile} close={() => setOpenUserProfile(false)} user={selectedUser} />
-            } */}
         </div>
     )
 }
@@ -109,12 +118,25 @@ export default LobbyChat
 
 const Messages = (props) => {
     return (
-        <div className='chat-messages-div'>
+        <div className='lobby-chat-messages-div'>
             <Avatar alt={props.data.user_name} src={props.data.user_picture ? `${process.env.REACT_APP_SERVER_URL}/resources/images/users/${props.data.user_picture}` : portraitPlaceholder} sx={{ width: '35px', height: '35px', marginRight: '10px' }} />
-            <div>
-                <p className='chat-message-name'>{props.data.user_name}</p>
-                <p className='chat-message-message'>{props.data.message}</p>
+            <div style={{ width: '100%' }}>
+                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3px'}}>
+                    <p className='lobby-chat-message-name'>{props.data.user_name}</p>
+                    <p className='lobby-chat-message-time'>{moment(props.data.createdAt).format('DD-MMM-YYYY HH:mm')}</p>
+                </div>
+                <p className='lobby-chat-message-message'>{props.data.message}</p>
             </div>
+        </div>
+    )
+}
+
+const SystemMessages = ({ data }) => {
+    return (
+        <div className='system-messages-div'>
+            <p className='system-message-name'>System Message</p>
+            <p className='system-message-time'>{moment(data.createdAt).format('DD-MMM-YYYY HH:mm')}</p>
+            <p className='system-message-message'>{data.message}</p>
         </div>
     )
 }

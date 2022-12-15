@@ -13,6 +13,7 @@ import useGlobalSnackbar from '../Hooks/useGlobalSnackbar'
 import useDialog from '../Hooks/useDialog'
 
 import './css/Game.css'
+import { removeChat } from '../UserSettings/LobbyChat'
 
 function Game() {
 	const [openLoadingDialog, setOpenLoadingDialog] = useState(false)
@@ -40,6 +41,7 @@ function Game() {
 		socket.on('join-room-response', data => handleJoinRoomResponse(data))
 		socket.on('auto-connect-room', data => handleAutoConnect(data))
 		socket.on('auto-connect-response', data => reconnectToRoom(data))
+		socket.on('leave-room-response', data => onLeaveRoom(data))
 
 
 		return () => {
@@ -47,8 +49,13 @@ function Game() {
 			socket.off('join-room-response', handleJoinRoomResponse)
 			socket.off('auto-connect-room', handleAutoConnect)
 			socket.off('auto-connect-response', reconnectToRoom)
+			socket.off('leave-room-response', onLeaveRoom)
 		}
 	}, [])
+
+	const onLeaveRoom = data => {
+		removeChat(data.roomSocket)
+	}
 
 	const reconnectToRoom = data => {
 		setOpenJoinLoading(false)

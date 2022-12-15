@@ -20,6 +20,7 @@ const handleWS = (socket, io) => {
 
     socket.on('disconnect', () => onDisconnect(socket));
     socket.on('message', (msg) => onMessage(socket, msg))
+    socket.on('lobbyMessage', (msg) => onLobbyMessage(socket, msg))
     socket.on('create-room', (data) => createRoom(socket, data))
     socket.on('join-room', (data) => joinRoom(socket, data))
     socket.on('leave-room', data => leaveRoom(socket, data))
@@ -45,6 +46,7 @@ const removeUserFromRoom = async (socket, data) => {
 
             await models.users.update({ gameRoomId: null }, { where: { id: user.id } })
             await models.player_character.destroy({ where: { userId: user.id } })
+            socket.emit('leave-room-response', { roomSocket })
 
             if (roomId === userHostingRoom) {
                 await models.users.findAll({ where: { gameRoomId: roomId } }).then(async users => {
@@ -60,6 +62,7 @@ const removeUserFromRoom = async (socket, data) => {
             }
 
             socket.nsp.to(roomSocket).emit('user_disconnected_lobby', { userId: user.id })
+            onLobbyMessage(socket, { chat: roomSocket, type: 'system', message: `${user.name} left lobby`, createdAt: new Date() })
             socket.leave(roomSocket)
         }
     }
@@ -88,6 +91,8 @@ const connectUser = async (io, socket) => {
             await models.users.update({ connected_to_room: true }, { where: { id: user.id } });
             socket.join(user.game_room.room_id);
             socket.nsp.to(user.game_room.room_id).emit('user_connected_lobby', { user })
+
+            onLobbyMessage(socket, { chat: user.game_room.room_id, type: 'system', message: `${user.name} connected to lobby`, createdAt: new Date() })
             socket.leave('global')
         }
     } else {
@@ -119,9 +124,15 @@ const checkAutoConnect = async (socket, data) => {
 const autoConnect = async (socket, data) => {
     socket.join(data.roomSocket)
     socket.leave('global')
+
+    const user = await models.users.findByPk(data.userId)
+
     await models.users.update({ connected_to_room: true }, { where: { id: data.userId } });
+
     socket.emit('auto-connect-response', data)
     socket.nsp.to(data.roomSocket).emit('user_connected_lobby', 'User Connected')
+    onLobbyMessage(socket, { chat: data.roomSocket, type: 'system', message: `${user.name} connected to lobby`, createdAt: new Date() })
+
 }
 
 const onDisconnect = async (socket) => {
@@ -129,7 +140,7 @@ const onDisconnect = async (socket) => {
     console.log('User disconnected ' + socket.id)
 
     const user = await models.users.findOne({
-        where: { id: socket.handshake.auth.uuid  },
+        where: { id: socket.handshake.auth.uuid },
         include: [models.game_rooms]
     })
 
@@ -139,8 +150,9 @@ const onDisconnect = async (socket) => {
         })
     })
 
-    if(user.game_room) {
-        socket.nsp.to(user.game_room.room_id).emit('user_disconnected_lobby', { userId: user.id }) 
+    if (user.game_room) {
+        socket.nsp.to(user.game_room.room_id).emit('user_disconnected_lobby', { userId: user.id })
+        onLobbyMessage(socket, { chat: user.game_room.room_id, type: 'system', message: `${user.name} disconnected`, createdAt: new Date() })
     }
 
     // //Só faz disconnect ao user passados 10 segundos, pois entretanto pode ter-se re-conectado (refresh)
@@ -156,6 +168,16 @@ const onMessage = async (socket, data) => {
         await rateLimiter.consume(data.user_id);
         await models.main_chats.create(data);
         socket.nsp.to(data.chat).emit('chat_message', data)
+    } catch (rejRes) {
+        socket.emit('blocked', { 'retry-ms': rejRes.msBeforeNext });
+    }
+}
+
+const onLobbyMessage = async (socket, data) => {
+
+    try {
+        await rateLimiter.consume(data.user_id);
+        socket.nsp.to(data.chat).emit('looby_chat_message', data)
     } catch (rejRes) {
         socket.emit('blocked', { 'retry-ms': rejRes.msBeforeNext });
     }
@@ -203,6 +225,7 @@ const joinRoom = async (socket, data) => {
                         socket.leave('global')
                         socket.join(roomSocket)
                         socket.nsp.to(roomSocket).emit('user_connected_lobby', { user })
+                        onLobbyMessage(socket, { chat: roomSocket, type: 'system', message: `${user.name} just connected to lobby`, createdAt: new Date() })
                         socket.emit('join-room-response', { code: 0, message: 'go to room', roomSocket, roomId: room.id });
                     })
                 } else {
@@ -219,6 +242,7 @@ const joinRoom = async (socket, data) => {
                     socket.leave('global')
                     socket.join(roomSocket)
                     socket.nsp.to(roomSocket).emit('user_connected_lobby', { user })
+                    onLobbyMessage(socket, { chat: roomSocket, type: 'system', message: `${user.name} just connected to lobby`, createdAt: new Date() })
                     socket.emit('join-room-response', { code: 0, message: 'go to room', roomSocket, roomId: room.id });
                 })
             }
