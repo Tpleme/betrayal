@@ -1,0 +1,68 @@
+.toggle-button {
+    max-width: 250px;
+    margin: 15px;
+    border: 2px solid var(--light-yellow);
+    background-color: transparent;
+    color: var(--light-yellow);
+    font-family: 'xerox';
+    box-shadow: 1px 1px 2px 0px var(--dark-yellow);
+    transition: background-color 0.2s ease-in-out, width 0.5s ease-in-out, border-radius 0.5s ease-in-out, color 0.2s ease-in-out;;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: fit-content;
+    padding: 0 20px;
+}
+
+.toggle-button.big {
+    height: 50px;
+    font-size: 22px;
+}
+
+.toggle-button.medium {
+    height: 40px;
+    font-size: 20px;
+}
+
+.toggle-button.small {
+    height: 30px;
+    padding: 0 10px;
+}
+
+
+.toggle-button:not([disabled]):hover,
+.toggle-button:not([disabled]):focus-visible,
+.toggle-button:not([disabled]):active  {
+    /* background-color: var(--light-yellow); */
+    /* color: var(--dark-green); */
+    border-radius: 10px;
+}
+
+.toggle-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.toggle-button.toggled {
+    outline: none;
+    background-color: var(--light-yellow);
+    color: var(--dark-green);
+    border-radius: 10px;
+}
+
+.toggle-btn-check-div {
+    border: 2px solid var(--light-yellow);
+    height: 25px;
+    width: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+}
+
+.toggle-btn-check-div.toggled {
+    border: 2px solid var(--dark-green);
+}

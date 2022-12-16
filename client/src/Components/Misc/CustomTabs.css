@@ -1,3 +1,7 @@
+.custom-tabs {
+    width: 100%;
+}
+
 .custom-tabs button {
     font-size: 16px;
     color: var(--dark-green);
@@ -5,6 +9,10 @@
 
 .custom-tabs button.Mui-selected {
     font-weight: 600;
-    color: var(--dark-green);
+    color: var(--light-yellow);
     z-index: 10;
+}
+
+.custom-tabs .MuiTabs-indicator {
+    background-color: var(--light-yellow);
 }

@@ -12,6 +12,9 @@ import LobbyCharacter from '../Components/Cards/Characters/LobbyCharacter';
 import UserProfile from '../Components/Dialogs/Users/UserProfile/UserProfile';
 import CustomTabs from '../Components/Misc/CustomTabs';
 import TabPanel from '../Components/Misc/TabPanel'
+import ToggleButton from '../Components/Buttons/ToggleButton'
+import { Check } from '@mui/icons-material';
+import CustomTooltip from '../Components/Misc/CustomTooltip'
 
 import './css/Lobby.css'
 
@@ -25,7 +28,9 @@ function Lobby() {
     const [selectedUser, setSelectedUser] = useState(null)
     const [allCharacters, setAllCharacters] = useState()
     const [playersConnected, setPlayersConnected] = useState([])
+    const [amIHosting, setAmIHosting] = useState(false)
     const [tab, setTab] = useState(0)
+    const [myInfo, setMyInfo] = useState(null)
 
     useEffect(() => {
         sessionStorage.setItem('room', state.roomId)
@@ -33,14 +38,23 @@ function Lobby() {
         socket.on('user_connected_lobby', () => getUsersFromRoom())
         socket.on('user_disconnected_lobby', () => getUsersFromRoom())
         socket.on('character-picked-response', () => getUsersFromRoom())
+        socket.on('player-ready-response', () => getUsersFromRoom())
 
         return () => {
             socket.off('user_connected_lobby', getUsersFromRoom)
-            socket.on('user_disconnected_lobby', getUsersFromRoom)
+            socket.off('user_disconnected_lobby', getUsersFromRoom)
             socket.off('character-picked-response', getUsersFromRoom)
+            socket.off('player-ready-response', getUsersFromRoom)
         }
     }, [])
 
+    useEffect(() => {
+        if (playersConnected.length > 0) {
+            const me = playersConnected.filter(player => player.user.id === userInfo.id)[0]
+            setMyInfo(me)
+            setAmIHosting(me.user.hosting === state.roomId)
+        }
+    }, [state, playersConnected, userInfo])
 
     useEffect(() => {
         getEntity('characters').then(res => {
@@ -73,27 +87,47 @@ function Lobby() {
         setOpenUserProfile(true)
     }
 
+    const onPlayerReady = value => {
+        socket.emit('player-ready', { userId: userInfo.id, roomSocket: state.roomSocket, ready: value })
+    }
+
+    const getTabsOptions = () => {
+        if (amIHosting) {
+            return ['Room Settings', 'Player Character']
+        }
+        return ['Player Character']
+    }
+
+    const checkIfCanStart = () => {
+        const allReady = playersConnected.every(player => player.ready)
+        return allReady && playersConnected.length > 1
+    }
+
     return (
         <div className='lobby-main-div'>
             <div className='lobby-background' />
             <div className='lobby-characters-div'>
-                {allCharacters && <UpperCharacterDisplay
+                {(allCharacters && myInfo) && <UpperCharacterDisplay
                     players={playersConnected}
-                    me={userInfo}
+                    myInfo={myInfo}
                     allCharacters={allCharacters}
                     onCharPick={onCharPick}
                 />}
             </div>
             <div className='lobby-bottom-div'>
                 <div className='lobby-settings-div'>
-                    <CustomTabs value={tab} onClick={(e, value) => setTab(value)} variant='fullWidth' options={['Room Settings', 'Player Character']} />
-                    <div>
+                    <CustomTabs value={tab} onClick={(e, value) => setTab(value)} variant='fullWidth' options={getTabsOptions()} />
+                    <div className='lobby-settings-tab-div'>
                         <TabPanel value={tab} index={0}>
-                            <p>test</p>
+                            <LobbySettingsDiv />
                         </TabPanel>
                         <TabPanel value={tab} index={1}>
-                            <p>test1</p>
+                            <LobbyCharacterDiv myInfo={myInfo} />
                         </TabPanel>
+                    </div>
+                    <div className='looby-ready-start-buttons'>
+                        <ToggleButton label='Ready' onToggle={value => onPlayerReady(value)} />
+                        <Button label='Start Game' disabled={!checkIfCanStart()} />
                     </div>
                 </div>
                 <div className='lobby-information'>
@@ -106,6 +140,11 @@ function Lobby() {
                         {playersConnected.map(player => {
                             return (
                                 <div className='lobby-player-div' key={player.id} onClick={() => openProfile(player.user)}>
+                                    {player.ready &&
+                                        <CustomTooltip title='Player Ready'>
+                                            <Check htmlColor='var(--light-yellow)' sx={{ scale: '1.5' }} />
+                                        </CustomTooltip>
+                                    }
                                     <Image alt={player.name} src={player.user.picture} entity='users' className='lobby-player-image' />
                                     <p>{player.user.name}</p>
                                     {!player.user.connected_to_room &&
@@ -132,10 +171,8 @@ function Lobby() {
 
 export default Lobby
 
-const UpperCharacterDisplay = ({ players, me, allCharacters, onCharPick }) => {
+const UpperCharacterDisplay = ({ players, myInfo, allCharacters, onCharPick }) => {
     const [openPickCharacter, setOpenPickCharacter] = useState(false)
-
-    const myInfo = players.filter(player => player.user.id === me.id)[0]
 
     const repickCharacter = player => {
         if (player.user.id === myInfo.user.id) {
@@ -157,8 +194,42 @@ const UpperCharacterDisplay = ({ players, me, allCharacters, onCharPick }) => {
                     <Button label='Pick a Character' onClick={() => setOpenPickCharacter(true)} />
                 </div>
             }
-            <PickCharacterDialog open={openPickCharacter} close={() => setOpenPickCharacter(false)} data={allCharacters} onCharPick={char => onCharPick(me.id, char.id)} players={players} />
+            <PickCharacterDialog open={openPickCharacter} close={() => setOpenPickCharacter(false)} data={allCharacters} onCharPick={char => onCharPick(myInfo.user.id, char.id)} players={players} />
         </>
+    )
+}
+
+const LobbySettingsDiv = () => {
+    return (
+        <p style={{ color: 'white' }}>Lobby Settings</p>
+    )
+}
+
+const LobbyCharacterDiv = ({ myInfo }) => {
+    console.log(myInfo)
+    return (
+        <div className='lobby-character-info-div'>
+            {myInfo.character ?
+                <div className='lobby-character-info-image-div'>
+                    <Image
+                        alt={myInfo.character.name} src={myInfo.character.image}
+                        entity='characters'
+                        className={`lobby-character-info-image`}
+                        style={{ boxShadow: `0px 0px 8px 3px ${myInfo.character.color}` }}
+                    />
+                    <div className='lobby-character-info'>
+                        <p style={{ color: 'var(--light-yellow' }}>Name: <span style={{ color: 'white' }}>{myInfo.character.name}</span></p>
+                        <p style={{ color: 'var(--light-yellow' }}>Age: <span style={{ color: 'white' }}>{myInfo.character.age}</span></p>
+                        <p style={{ color: 'var(--light-yellow' }}>Birthday: <span style={{ color: 'white' }}>{myInfo.character.birthday}</span></p>
+                        <p style={{ color: 'var(--light-yellow' }}>Fears: <span style={{ color: 'white' }}>{myInfo.character.fears}</span></p>
+                        <p style={{ color: 'var(--light-yellow', marginBottom: '5px' }}>Hobbies: <span style={{ color: 'white' }}>{myInfo.character.hobbies}</span></p>
+                        <p>{myInfo.character.description}</p>
+                    </div>
+                </div>
+                :
+                <p className='lobby-character-info-text'>Pick a character to see it here</p>
+            }
+        </div>
     )
 }
 

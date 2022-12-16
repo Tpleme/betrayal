@@ -7,7 +7,7 @@ export default function TabPanel(props) {
             hidden={value !== index}
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
-            style={{ height: '100%', display:'flex', justifyContent: 'center' }}
+            style={value !== index ? { height: 'auto', display: 'flex', justifyContent: 'center' } : { height: '100%', display: 'flex', justifyContent: 'center' }}
             {...other}
         >
             {value === index && (

@@ -27,6 +27,7 @@ const handleWS = (socket, io) => {
     socket.on('check-auto-connect', data => checkAutoConnect(socket, data))
     socket.on('auto-connect', data => autoConnect(socket, data))
     socket.on('character-picked', data => onCharacterPicked(socket, data))
+    socket.on('player-ready', data => onPlayerReady(socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -256,7 +257,11 @@ const onCharacterPicked = async (socket, data) => {
     await models.player_character.update({ characterId: data.charId }, { where: { userId: data.userId } })
 
     socket.nsp.to(data.roomSocket).emit('character-picked-response')
+}
 
+const onPlayerReady = async (socket, data) => {
+    await models.player_character.update({ ready: data.ready }, { where: { userId: data.userId } })
+    socket.nsp.to(data.roomSocket).emit('player-ready-response') 
 }
 
 module.exports = {
