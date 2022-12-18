@@ -36,9 +36,11 @@ const authRoute = require('./Routes/Auth')
 const usersRoute = require('./Routes/Users')
 const chatMessagesRoute = require('./Routes/ChatsMessages')
 const CharactersRoute = require('./Routes/Characters')
+const GameRoomRoute = require('./Routes/GameRooms')
 
 const routes = {
     users: usersRoute,
+    gameRoom: GameRoomRoute
 }
 
 const startServer = async () => {

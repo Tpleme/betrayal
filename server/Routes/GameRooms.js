@@ -9,7 +9,7 @@ const getAll = async (req, res) => {
 const getByID = async (req, res) => {
     const id = getIdParam(req);
 
-    await models.game_rooms.findOne({ where: { room_id: id } }).then(room => {
+    await models.game_rooms.findOne({ where: { id: id } }).then(room => {
         if (!room) {
             return res.status(404).send('Room not found')
         }
@@ -17,43 +17,22 @@ const getByID = async (req, res) => {
     })
 }
 
-const getRoomUsers = async (req, res) => {
+const create = async (req, res) => {
+    res.status(401).send('NO')
 }
 
-// const create = async (req, res) => {
-//     models.main_chats.create(req.body.data).then(() => 
-//     res.status(201).send('message created'))
-// }
+const update = async (req, res) => {
+    res.status(201).send('OK')
+}
 
-// const update = async (req, res) => {
-//     const id = getIdParam(req);
-
-//     await models.main_chats.findOne({ where: { id: id } }).then(async message => {
-//         if (message) {
-//             await models.custom_chats.update({ message: req.body.message }, { where: { id: id } }).then(() => {
-//                 return res.status(200).send(`Message updated`)
-//             })
-//         } else {
-//             res.status(404).send('message not found')
-//         }
-//     })
-// }
-
-// const remove = async (req, res) => {
-//     const id = getIdParam(req);
-
-//     await models.main_chats.findOne({ where: { id: id } }).then(async message => {
-//         if (message) {
-//             await models.custom_chats.update({ deleted: true }, { where: { id: id } }).then(() => {
-//                 return res.status(200).send(`Message deleted`)
-//             })
-//         } else {
-//             res.status(404).send('Message not found')
-//         }
-//     })
-// }
+const remove = async (req, res) => {
+    res.status(401).send('NO')
+}
 
 module.exports = {
     getAll,
     getByID,
+    create,
+    update,
+    remove
 }

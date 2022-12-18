@@ -1,0 +1,26 @@
+.lobby-settings-main-div {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    border: 1px solid red;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.lobby-settings-join-url {
+    color: white;
+    text-align: center;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.lobby-settings-join-url :first-child {
+    color: var(--light-yellow);
+    font-size: 26px;
+}
+
+.lobby-settings-join-url :last-child {
+    font-family: 'xerox';
+}

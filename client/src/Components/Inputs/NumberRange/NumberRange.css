@@ -1,0 +1,32 @@
+.number-range-main-div {
+    display: flex;
+    color: white;
+    font-size: 26px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.number-range-label {
+    color: var(--light-yellow);
+}
+
+.number-range-actions-div {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100px;
+}
+
+.number-range-add {
+    opacity: 1;
+    margin-right: -5px;
+    cursor: pointer;
+}
+
+.number-range-add.disabled {
+    opacity: 0;
+    pointer-events: none;
+}

@@ -4,17 +4,18 @@ import { getEntity, getRoomUsers } from '../API/requests';
 import { useUserInfo } from '../Hooks/useUser'
 import Button from '../Components/Buttons/Button';
 import { SocketContext } from '../Context/socket/socket'
-import PickCharacterDialog from '../Components/Dialogs/PickCharacter/PickCharacterDialog';
 import LobbyChat from '../Components/Chat/LobbyChat';
 import { useNavigate } from 'react-router-dom';
 import Image from '../Components/Misc/Image';
-import LobbyCharacter from '../Components/Cards/Characters/LobbyCharacter';
 import UserProfile from '../Components/Dialogs/Users/UserProfile/UserProfile';
 import CustomTabs from '../Components/Misc/CustomTabs';
 import TabPanel from '../Components/Misc/TabPanel'
 import ToggleButton from '../Components/Buttons/ToggleButton'
 import { Check } from '@mui/icons-material';
 import CustomTooltip from '../Components/Misc/CustomTooltip'
+import UpperCharacterDisplay from '../Components/Lobby/UpperCharacterDisplay';
+import CharacterDisplay from '../Components/Lobby/CharacterDisplay';
+import LobbySettings from '../Components/Lobby/LobbySettings';
 
 import './css/Lobby.css'
 
@@ -119,10 +120,10 @@ function Lobby() {
                     <CustomTabs value={tab} onClick={(e, value) => setTab(value)} variant='fullWidth' options={getTabsOptions()} />
                     <div className='lobby-settings-tab-div'>
                         <TabPanel value={tab} index={0}>
-                            <LobbySettingsDiv />
+                            <LobbySettings lobby={state} />
                         </TabPanel>
                         <TabPanel value={tab} index={1}>
-                            <LobbyCharacterDiv myInfo={myInfo} />
+                            <CharacterDisplay myInfo={myInfo} />
                         </TabPanel>
                     </div>
                     <div className='looby-ready-start-buttons'>
@@ -170,66 +171,3 @@ function Lobby() {
 }
 
 export default Lobby
-
-const UpperCharacterDisplay = ({ players, myInfo, allCharacters, onCharPick }) => {
-    const [openPickCharacter, setOpenPickCharacter] = useState(false)
-
-    const repickCharacter = player => {
-        if (player.user.id === myInfo.user.id) {
-            setOpenPickCharacter(true)
-        }
-    }
-
-    return (
-        <>
-            {players.map(player => {
-                return (
-                    player.character &&
-                    <LobbyCharacter key={player.user.id} player={player.user} character={player.character} onClick={() => repickCharacter(player)} myInfo={myInfo} />
-
-                )
-            })}
-            {!myInfo?.character &&
-                <div className='pick-character-background'>
-                    <Button label='Pick a Character' onClick={() => setOpenPickCharacter(true)} />
-                </div>
-            }
-            <PickCharacterDialog open={openPickCharacter} close={() => setOpenPickCharacter(false)} data={allCharacters} onCharPick={char => onCharPick(myInfo.user.id, char.id)} players={players} />
-        </>
-    )
-}
-
-const LobbySettingsDiv = () => {
-    return (
-        <p style={{ color: 'white' }}>Lobby Settings</p>
-    )
-}
-
-const LobbyCharacterDiv = ({ myInfo }) => {
-    console.log(myInfo)
-    return (
-        <div className='lobby-character-info-div'>
-            {myInfo.character ?
-                <div className='lobby-character-info-image-div'>
-                    <Image
-                        alt={myInfo.character.name} src={myInfo.character.image}
-                        entity='characters'
-                        className={`lobby-character-info-image`}
-                        style={{ boxShadow: `0px 0px 8px 3px ${myInfo.character.color}` }}
-                    />
-                    <div className='lobby-character-info'>
-                        <p style={{ color: 'var(--light-yellow' }}>Name: <span style={{ color: 'white' }}>{myInfo.character.name}</span></p>
-                        <p style={{ color: 'var(--light-yellow' }}>Age: <span style={{ color: 'white' }}>{myInfo.character.age}</span></p>
-                        <p style={{ color: 'var(--light-yellow' }}>Birthday: <span style={{ color: 'white' }}>{myInfo.character.birthday}</span></p>
-                        <p style={{ color: 'var(--light-yellow' }}>Fears: <span style={{ color: 'white' }}>{myInfo.character.fears}</span></p>
-                        <p style={{ color: 'var(--light-yellow', marginBottom: '5px' }}>Hobbies: <span style={{ color: 'white' }}>{myInfo.character.hobbies}</span></p>
-                        <p>{myInfo.character.description}</p>
-                    </div>
-                </div>
-                :
-                <p className='lobby-character-info-text'>Pick a character to see it here</p>
-            }
-        </div>
-    )
-}
-

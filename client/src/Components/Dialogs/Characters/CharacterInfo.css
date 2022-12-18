@@ -1,0 +1,71 @@
+.character-more-info-div {
+    min-height: 500px;
+    background: var(--dark-green);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+}
+
+.character-more-info-image-fade-in {
+    position: absolute;
+    height: 250px;
+    width: 100%;
+    top: 0;
+    background: linear-gradient(to top, var(--dark-green) 0%, transparent 75%);
+}
+
+.character-more-info-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    object-position: 10%;
+    margin-top: -33px;
+}
+
+.character-more-info-name {
+    font-size: 32px;
+    text-align: center;
+    color: var(--light-yellow);
+}
+
+.character-more-info-description {
+    font-size: 20px;
+    text-align: center;
+    color: white;
+    font-family: xerox;
+    padding: 0 10px;
+}
+
+.character-more-info-bottom-div {
+    width: 100%;
+    height: 300px;
+}
+
+.character-more-info-player-stats > .title{
+    color: var(--light-yellow);
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.character-more-info-player-stats > .stats{
+    color: var(--light-yellow);
+    font-size: 20px;
+}
+
+.character-more-info-data {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+
+.character-more-info-data > p {
+    color: var(--light-yellow);
+    font-size: 20px;
+    margin: 0 10px;
+}

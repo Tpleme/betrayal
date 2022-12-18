@@ -11,6 +11,11 @@ const GameRoomModel = database.define('game_rooms', {
     },
     password: {
         type: DataTypes.STRING,
+    },
+    max_players: {
+        type: DataTypes.INTEGER,
+        defaultValue: 4,
+        validate: { min: 2, max: 6 }
     }
 })
 
