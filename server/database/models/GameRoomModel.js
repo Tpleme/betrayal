@@ -14,7 +14,7 @@ const GameRoomModel = database.define('game_rooms', {
     },
     max_players: {
         type: DataTypes.INTEGER,
-        defaultValue: 4,
+        defaultValue: 6,
         validate: { min: 2, max: 6 }
     }
 })

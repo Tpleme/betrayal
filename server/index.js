@@ -82,6 +82,8 @@ app.get('/api/users/get-user-for-pass-reset/:id/:secret', [cors(), ChangePassLim
 app.post('/api/users/change-pass/:id', [cors(), ChangePassLimiter, Auth], makeHandlerAwareOfAsyncError(routes.users.changePassword))
 app.get('/api/users/get-room-users/:roomId', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.users.getUsersFromRoom))
 
+//room
+app.post('/api/game-room/change-password/:id', [cors(), ChangePassLimiter, Auth], makeHandlerAwareOfAsyncError(routes.gameRoom.changeRoomPassword))
 
 for (const [routeName, routeController] of Object.entries(routes)) {
     if (routeController.getAll) {

@@ -1,5 +1,5 @@
 import React from 'react'
-import CustomTooltip from '../Misc/CustomTooltip'
+import CustomTooltip from '../../Misc/CustomTooltip'
 
 import './Checkbox.css'
 

@@ -56,3 +56,7 @@ export const joinRoom = async (roomId) => {
 export const getRoomUsers = async room => {
     return await axios.get(`${SERVER_URL}/api/users/get-room-users/${room}`, { headers: await getHeaders() })
 }
+
+export const changeRoomPassword = async (id, data) => {
+    return await axios.post(`${SERVER_URL}/api/game-room/change-password/${id}`, data, { headers: await getHeaders() })
+}
