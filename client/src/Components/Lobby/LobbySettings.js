@@ -5,6 +5,7 @@ import { copyTextToClipboard } from '../../utils'
 import { editEntity, getEntity } from '../../API/requests'
 import ChangeLobbyPassword from '../Dialogs/Lobby/ChangeLobbyPassword'
 import Button from '../Buttons/Button'
+import LobbyInvitePeople from '../Dialogs/Lobby/LobbyInvitePeople'
 
 import './LobbySettings.css'
 
@@ -12,11 +13,12 @@ function LobbySettings(props) {
     const [maxPlayers, setMaxPlayers] = useState(6)
     const [roomInfo, setRoomInfo] = useState(null)
     const [openChangePassword, setOpenChangePassword] = useState(false)
+    const [openInvite, setOpenInvite] = useState(false)
     const [refresh, setRefresh] = useState(false)
+    const [min, setMin] = useState(2)
 
     useEffect(() => {
         getEntity('gameRoom', props.lobby.roomId).then(res => {
-            console.log(res)
             setRoomInfo(res.data)
             setMaxPlayers(res.data.max_players)
         }, err => {
@@ -25,7 +27,10 @@ function LobbySettings(props) {
     }, [props.lobby, refresh])
 
     const maxPlayerOnChange = value => {
-        if (value >= 2 && value <= 6) {
+        const minValue = props.players.length > 2 ? props.players.length : 2
+        setMin(minValue)
+
+        if (value >= minValue && value <= 6) {
             editEntity('gameRoom', props.lobby.roomId, { max_players: value }).then(() => {
                 setMaxPlayers(value)
             }, err => {
@@ -43,10 +48,14 @@ function LobbySettings(props) {
                     <p>{`${process.env.REACT_APP_CLIENT_URL}/join-room?id=${props.lobby.roomSocket}`}</p>
                 </div>
             </CustomTooltip>
-            <NumberRange label='Max Players' min={2} max={6} onChange={(e) => maxPlayerOnChange(e)} value={maxPlayers} />
+            <NumberRange label='Max Players' min={min} max={6} onChange={(e) => maxPlayerOnChange(e)} value={maxPlayers} />
             <Button label={roomInfo.password ? 'Change Password' : 'Set Password'} onClick={() => setOpenChangePassword(true)} />
+            <Button label='Invite people' onClick={() => setOpenInvite(true)} />
             {roomInfo &&
-                <ChangeLobbyPassword open={openChangePassword} close={() => setOpenChangePassword(false)} room={roomInfo} refresh={() => setRefresh(!refresh)} />
+                <>
+                    <ChangeLobbyPassword open={openChangePassword} close={() => setOpenChangePassword(false)} room={roomInfo} refresh={() => setRefresh(!refresh)} />
+                    <LobbyInvitePeople open={openInvite} close={() => setOpenInvite(false)} room={roomInfo} />
+                </>
             }
         </div>
     )

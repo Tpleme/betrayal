@@ -11,6 +11,7 @@ import JoinRoomDialog from '../Components/Dialogs/JoinRoom/JoinRoomDialog'
 import PassWordDialog from '../Components/Dialogs/PasswordDialog/PasswordDialog'
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar'
 import useDialog from '../Hooks/useDialog'
+import { useLocation } from 'react-router-dom'
 
 import './css/Game.css'
 import { removeChat } from '../UserSettings/LobbyChat'
@@ -22,6 +23,7 @@ function Game() {
 	const [openJoinRoom, setOpenJoinRoom] = useState(false)
 	const [openPasswordDialog, setOpenPasswordDialog] = useState(false)
 	const [savedRoomId, setSavedRoomId] = useState(null)
+	const { state } = useLocation();
 
 	const { userInfo } = useUserInfo()
 	const socket = useContext(SocketContext)
@@ -31,10 +33,14 @@ function Game() {
 
 	useEffect(() => {
 		if (sessionStorage.getItem('room')) {
-			socket.emit('leave-room', { userId: userInfo.id })
+			socket.emit('leave-room', { userId: userInfo.id, wasKicked: state?.wasKicked })
 			sessionStorage.removeItem('room')
 		} else {
 			socket.emit('check-auto-connect', { userId: userInfo.id })
+		}
+
+		if (state?.autoJoinRoom) {
+			handleJoinRoom(state.autoJoinRoom)
 		}
 
 		socket.on('room-created', data => handleRoomCreated(data))

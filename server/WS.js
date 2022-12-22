@@ -28,6 +28,7 @@ const handleWS = (socket, io) => {
     socket.on('auto-connect', data => autoConnect(socket, data))
     socket.on('character-picked', data => onCharacterPicked(socket, data))
     socket.on('player-ready', data => onPlayerReady(socket, data))
+    socket.on('kick-player', data => onKickPlayer(io, socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -61,10 +62,14 @@ const removeUserFromRoom = async (socket, data) => {
                     }
                 })
             }
-
             socket.nsp.to(roomSocket).emit('user_disconnected_lobby', { userId: user.id })
-            onLobbyMessage(socket, { chat: roomSocket, type: 'system', message: `${user.name} left lobby`, createdAt: new Date() })
             socket.leave(roomSocket)
+
+            data.wasKicked ?
+                onLobbyMessage(socket, { chat: roomSocket, type: 'system', message: `${user.name} was kicked from the game`, createdAt: new Date() })
+                :
+                onLobbyMessage(socket, { chat: roomSocket, type: 'system', message: `${user.name} left lobby`, createdAt: new Date() })
+
         }
     }
     socket.join('global')
@@ -261,7 +266,23 @@ const onCharacterPicked = async (socket, data) => {
 
 const onPlayerReady = async (socket, data) => {
     await models.player_character.update({ ready: data.ready }, { where: { userId: data.userId } })
-    socket.nsp.to(data.roomSocket).emit('player-ready-response') 
+    socket.nsp.to(data.roomSocket).emit('player-ready-response')
+}
+
+const onKickPlayer = async (io, socket, data) => {
+
+    const requestingUser = await models.users.findByPk(data.myId)
+    const user = await models.users.findByPk(data.userId)
+
+    if (requestingUser.hosting === data.room.roomId) {
+        if (user.socket_id) {
+            socket.nsp.to(user.socket_id).emit('kicked')
+        } else {
+            await models.users.update({ gameRoomId: null }, { where: { id: user.id } })
+            await models.player_character.destroy({ where: { userId: user.id } })
+            socket.nsp.to(data.room.roomSocket).emit('user_disconnected_lobby', { userId: user.id })
+        }
+    }
 }
 
 module.exports = {

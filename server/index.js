@@ -83,7 +83,7 @@ app.post('/api/users/change-pass/:id', [cors(), ChangePassLimiter, Auth], makeHa
 app.get('/api/users/get-room-users/:roomId', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.users.getUsersFromRoom))
 
 //room
-app.post('/api/game-room/change-password/:id', [cors(), ChangePassLimiter, Auth], makeHandlerAwareOfAsyncError(routes.gameRoom.changeRoomPassword))
+app.post('/api/game-room/change-password/:id', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.gameRoom.changeRoomPassword))
 
 for (const [routeName, routeController] of Object.entries(routes)) {
     if (routeController.getAll) {

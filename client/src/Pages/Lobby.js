@@ -6,24 +6,26 @@ import Button from '../Components/Buttons/Button';
 import { SocketContext } from '../Context/socket/socket'
 import LobbyChat from '../Components/Chat/LobbyChat';
 import { useNavigate } from 'react-router-dom';
-import Image from '../Components/Misc/Image';
 import UserProfile from '../Components/Dialogs/Users/UserProfile/UserProfile';
 import CustomTabs from '../Components/Misc/CustomTabs';
 import TabPanel from '../Components/Misc/TabPanel'
 import ToggleButton from '../Components/Buttons/ToggleButton'
-import { Check } from '@mui/icons-material';
-import CustomTooltip from '../Components/Misc/CustomTooltip'
 import UpperCharacterDisplay from '../Components/Lobby/UpperCharacterDisplay';
 import CharacterDisplay from '../Components/Lobby/CharacterDisplay';
 import LobbySettings from '../Components/Lobby/LobbySettings';
+import useGlobalSnackbar from '../Hooks/useGlobalSnackbar';
+import { copyTextToClipboard } from '../utils';
+import CustomTooltip from '../Components/Misc/CustomTooltip';
 
 import './css/Lobby.css'
+import PlayerDisplay from '../Components/Lobby/PlayerDisplay';
 
 function Lobby() {
     const { state } = useLocation();
     const { userInfo } = useUserInfo()
     const socket = useContext(SocketContext)
     const navigate = useNavigate()
+    const { showSnackbar } = useGlobalSnackbar()
 
     const [openUserProfile, setOpenUserProfile] = useState(false)
     const [selectedUser, setSelectedUser] = useState(null)
@@ -40,12 +42,14 @@ function Lobby() {
         socket.on('user_disconnected_lobby', () => getUsersFromRoom())
         socket.on('character-picked-response', () => getUsersFromRoom())
         socket.on('player-ready-response', () => getUsersFromRoom())
+        socket.on('kicked', () => onKicked())
 
         return () => {
             socket.off('user_connected_lobby', getUsersFromRoom)
             socket.off('user_disconnected_lobby', getUsersFromRoom)
             socket.off('character-picked-response', getUsersFromRoom)
             socket.off('player-ready-response', getUsersFromRoom)
+            socket.off('kicked', onKicked)
         }
     }, [])
 
@@ -88,6 +92,15 @@ function Lobby() {
         setOpenUserProfile(true)
     }
 
+    const handleKickPlayer = (player) => {
+        socket.emit('kick-player', { userId: player.id, myId: userInfo.id, room: state })
+    }
+
+    const onKicked = () => {
+        showSnackbar({ message: 'You have been kicked out from the game', variant: 'default', persist: true })
+        navigate('/', { replace: true, state: { wasKicked: true } })
+    }
+
     const onPlayerReady = value => {
         socket.emit('player-ready', { userId: userInfo.id, roomSocket: state.roomSocket, ready: value })
     }
@@ -97,6 +110,29 @@ function Lobby() {
             return ['Room Settings', 'Player Character']
         }
         return ['Player Character']
+    }
+
+    const getTabsPanels = () => {
+        if (amIHosting) {
+            return (
+                myInfo &&
+                <>
+                    <TabPanel value={tab} index={0}>
+                        <LobbySettings lobby={state} players={playersConnected} />
+                    </TabPanel>
+                    <TabPanel value={tab} index={1}>
+                        <CharacterDisplay myInfo={myInfo} />
+                    </TabPanel>
+                </>
+            )
+        }
+        return (
+            <TabPanel value={tab} index={0}>
+                {myInfo &&
+                    <CharacterDisplay myInfo={myInfo} />
+                }
+            </TabPanel>
+        )
     }
 
     const checkIfCanStart = () => {
@@ -119,12 +155,7 @@ function Lobby() {
                 <div className='lobby-settings-div'>
                     <CustomTabs value={tab} onClick={(e, value) => setTab(value)} variant='fullWidth' options={getTabsOptions()} />
                     <div className='lobby-settings-tab-div'>
-                        <TabPanel value={tab} index={0}>
-                            <LobbySettings lobby={state} />
-                        </TabPanel>
-                        <TabPanel value={tab} index={1}>
-                            <CharacterDisplay myInfo={myInfo} />
-                        </TabPanel>
+                        {getTabsPanels()}
                     </div>
                     <div className='looby-ready-start-buttons'>
                         <ToggleButton label='Ready' onToggle={value => onPlayerReady(value)} />
@@ -134,24 +165,22 @@ function Lobby() {
                 <div className='lobby-information'>
                     <div className='lobby-info-div'>
                         <p className='lobby-info-title'>Lobby info</p>
-                        <p className='lobby-info-text'>{state.roomSocket}</p>
+                        <CustomTooltip title='Copy to clipboard'>
+                            <p className='lobby-info-text' onClick={() => copyTextToClipboard(state.roomSocket)}>{state.roomSocket}</p>
+                        </CustomTooltip>
                     </div>
                     <div className='connected-players-div'>
                         <p className='lobby-info-title'>Connected Players</p>
                         {playersConnected.map(player => {
                             return (
-                                <div className='lobby-player-div' key={player.id} onClick={() => openProfile(player.user)}>
-                                    {player.ready &&
-                                        <CustomTooltip title='Player Ready'>
-                                            <Check htmlColor='var(--light-yellow)' sx={{ scale: '1.5' }} />
-                                        </CustomTooltip>
-                                    }
-                                    <Image alt={player.name} src={player.user.picture} entity='users' className='lobby-player-image' />
-                                    <p>{player.user.name}</p>
-                                    {!player.user.connected_to_room &&
-                                        <p style={{ fontSize: '16px' }}>{`(Disconnected)`}</p>
-                                    }
-                                </div>
+                                <PlayerDisplay
+                                    key={player.id}
+                                    player={player}
+                                    openProfile={() => openProfile(player.user)}
+                                    actions={amIHosting}
+                                    myInfo={myInfo}
+                                    kickPlayer={handleKickPlayer}
+                                />
                             )
                         })}
                     </div>

@@ -4,6 +4,7 @@ import Button from '../../Buttons/Button'
 import { PasswordTextField } from '../../Inputs/TextField/TextField'
 import { changeRoomPassword } from '../../../API/requests'
 import CustomSwitch from '../../Inputs/Switch/CustomSwitch'
+import useGlobalSnackbar from '../../../Hooks/useGlobalSnackbar'
 
 import './ChangeLobbyPassword.css'
 
@@ -11,6 +12,7 @@ function ChangeLobbyPassword(props) {
     const [password, setPassword] = useState('')
     const [authPass, setAuthPass] = useState('')
     const [hasPassword, setHasPassword] = useState(props.room.password)
+    const { showSnackbar } = useGlobalSnackbar()
 
     const handleSwitch = (e) => {
         const value = e.target.checked
@@ -38,13 +40,14 @@ function ChangeLobbyPassword(props) {
     }
 
     const onsubmit = () => {
-        console.log(password)
-        console.log(authPass)
-
         changeRoomPassword(props.room.id, { password, authPass }).then(res => {
-            console.log(res)
+            setPassword('')
+            setAuthPass('')
+            showSnackbar({ message: res.data })
             props.refresh()
+            props.close()
         }, err => {
+            showSnackbar({ message: err.response.data ? err.response.data : 'Cannot communicate with the server, please try again later', variant: 'error', persist: true })
             console.log(err)
         })
     }

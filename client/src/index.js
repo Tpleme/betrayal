@@ -20,6 +20,7 @@ root.render(
 				<BrowserRouter>
 					<Routes>
 						<Route path='/login' element={<Login />} />
+						<Route path='/join-room' element={<Login />} />
 						<Route path='/passwordReset' element={<PassReset />} />
 						<Route path='/*' element={<App />} />
 						<Route path='*' element={<Navigate to='/login' />} />

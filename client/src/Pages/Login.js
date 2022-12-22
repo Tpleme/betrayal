@@ -14,6 +14,7 @@ import './css/Login.css'
 
 export default function Login() {
     const [submitting, setSubmitting] = useState(false)
+    const [autoJoinRoom, setAutoJoinRoom] = useState(null)
 
     const { setToken } = useToken()
     const navigate = useNavigate()
@@ -30,7 +31,7 @@ export default function Login() {
             socket.auth = { uuid: res.headers.id, name: res.headers.username, token: res.headers.key }
             socket.connect()
             setSubmitting(false)
-            navigate('/', { replace: true })
+            navigate('/', { replace: true, state: { autoJoinRoom } })
         }, err => {
             console.log(err)
             setSubmitting(false)
@@ -39,6 +40,11 @@ export default function Login() {
     }
 
     useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search)
+        if (urlParams.get('id')) {
+            setAutoJoinRoom(urlParams.get('id'))
+        }
+
         sessionStorage.removeItem('token')
         sessionStorage.removeItem('id')
         sessionStorage.removeItem('room')

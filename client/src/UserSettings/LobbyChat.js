@@ -40,7 +40,6 @@ export const pushMessagesToChat = (chat, message) => {
 export const removeChat = chat => {
     if(chat) {
         if(localStorage.getItem('lobby_chats')) {
-            console.log(chat)
             const localStorageData = JSON.parse(localStorage.getItem('lobby_chats'));
             delete localStorageData[chat]
             localStorage.setItem('lobby_chats', JSON.stringify(localStorageData))

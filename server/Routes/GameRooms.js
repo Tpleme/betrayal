@@ -13,7 +13,7 @@ const getByID = async (req, res) => {
     const room = await models.game_rooms.findOne({ where: { id: id } })
     if (room) {
         const password = room.dataValues.password;
-        
+
         if (password) {
             delete room.dataValues.password
             return res.status(200).json({ ...room.dataValues, password: true })
@@ -60,28 +60,36 @@ const changeRoomPassword = async (req, res) => {
 
     const hostingUser = await models.users.findByPk(userId)
 
-    if (!hostingUser || parseInt(hostingUser.hosting) !== id) {
-        return res.status(401).send('Non Authorized')
-    }
+    try {
+        if (!hostingUser || parseInt(hostingUser.hosting) !== id) {
+            return res.status(401).send('Non Authorized')
+        }
 
-    const room = await models.game_rooms.findByPk(id)
-    if (room.password) {
-        bcrypt.compare(req.body.authPass, room.password).then(async valid => {
-            if (!valid) {
-                return res.status(401).send('Non Authorized')
-            } //ToDO: não faz return aqui, é melhor usar try catch e fazer throw se a pass estiver errada
-        })
-    }
+        const room = await models.game_rooms.findByPk(id)
+        if (room.password) {
+            await bcrypt.compare(req.body.authPass, room.password).then(async valid => {
+                if (!valid) {
+                    throw { code: 401, message: 'Incorrect password' }
+                }
+            })
+        }
 
-    console.log(req.body)
-    if (req.body.password) {
-        bcrypt.hash(req.body.password, 10).then(async hash => {
-            await models.game_rooms.update({ password: hash }, { where: { id: id } })
-            res.status(201).send('Password changed successfully')
-        })
-    } else {
-        await models.game_rooms.update({ password: null }, { where: { id: id } })
-        res.status(201).send('Password removed successfully')
+        if (req.body.password) {
+            await bcrypt.hash(req.body.password, 10).then(async hash => {
+                await models.game_rooms.update({ password: hash }, { where: { id: id } })
+                if (room.password) {
+                    res.status(201).send('Password changed successfully')
+                } else {
+                    res.status(201).send('Password created successfully')
+                }
+            })
+        } else {
+            await models.game_rooms.update({ password: null }, { where: { id: id } })
+            res.status(201).send('Password removed successfully')
+        }
+    } catch (err) {
+        console.log(`Error: ${err.message ? err.message : err}`);
+        err.code ? res.status(err.code).send(err.message) : res.status(500).send('Error: ' + err)
     }
 }
 
