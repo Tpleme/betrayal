@@ -2,10 +2,14 @@ import { Button } from "@mui/material";
 import { useSnackbar } from 'notistack';
 import useDialog from './useDialog'
 import DefaultComponent from "../Components/CustomSnackbar/DefaultComponent";
+import GameInviteSnackbar from "../Components/CustomSnackbar/GameInviteSnackbar";
+import { useContext } from "react";
+import { SocketContext } from "../Context/socket/socket";
 
 export default function useGlobalSnackbar() {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const { openErrDialog } = useDialog()
+    const socket = useContext(SocketContext)
 
     const Actions = ({ snackbarKey, description }) => {
         return (
@@ -42,8 +46,7 @@ export default function useGlobalSnackbar() {
     const getRespectiveComponent = (key, message, customComponent, variant, description, actions) => {
         const type = variant ? variant : 'success'
         switch (customComponent) {
-            // case 'connection': return <div><NewConnectionsSnackbar id={key} message={message} socket={socket} /></div>
-            // case 'chat': return <div><ChatMessageSnackbar id={key} data={message} /></div>
+            case 'game-invite': return <div><GameInviteSnackbar id={key} message={message} socket={socket} /></div>
             default: return <div><DefaultComponent id={key} message={message} type={type} description={description} actions={actions} /></div>
         }
     }

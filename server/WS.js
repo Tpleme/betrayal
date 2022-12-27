@@ -14,6 +14,11 @@ const rateLimiter = new RateLimiterMemory(
         blockDuration: 30
     });
 
+EventEmitter.on('invite-players', (players, room, hostingUser) => {
+    const playersSocket = players.map(player => player.socket_id)
+    global_io.to(playersSocket).emit('game-invite', { room, hostingUser });
+})
+
 const handleWS = (socket, io) => {
     global_io = io
     connectUser(io, socket)
@@ -29,6 +34,7 @@ const handleWS = (socket, io) => {
     socket.on('character-picked', data => onCharacterPicked(socket, data))
     socket.on('player-ready', data => onPlayerReady(socket, data))
     socket.on('kick-player', data => onKickPlayer(io, socket, data))
+    socket.on('start-game', data => onStartGame(io, socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -144,7 +150,7 @@ const autoConnect = async (socket, data) => {
 const onDisconnect = async (socket) => {
 
     console.log('User disconnected ' + socket.id)
-
+    //TODO: passar o host para o proximo user do room
     const user = await models.users.findOne({
         where: { id: socket.handshake.auth.uuid },
         include: [models.game_rooms]
@@ -160,11 +166,6 @@ const onDisconnect = async (socket) => {
         socket.nsp.to(user.game_room.room_id).emit('user_disconnected_lobby', { userId: user.id })
         onLobbyMessage(socket, { chat: user.game_room.room_id, type: 'system', message: `${user.name} disconnected`, createdAt: new Date() })
     }
-
-    // //Só faz disconnect ao user passados 10 segundos, pois entretanto pode ter-se re-conectado (refresh)
-    // setTimeout(() => {
-    //     removeUserFromRoom(socket, { userId: socket.handshake.auth.uuid })
-    // }, 10000);
 
 }
 
@@ -219,10 +220,14 @@ const joinRoom = async (socket, data) => {
     const userId = data.userId
     const pass = data.password
 
-    const room = await models.game_rooms.findOne({ where: { room_id: roomSocket } })
+    const room = await models.game_rooms.findOne({ where: { room_id: roomSocket }, include: [models.users] })
     const user = await models.users.findByPk(data.userId)
 
     if (room) {
+        if (room.users.length >= room.max_players) {
+            socket.emit('join-room-response', { code: 2, message: 'Game Room is full' });
+            return;
+        }
         if (pass) {
             await bcrypt.compare(pass, room.password).then(valid => {
                 if (valid) {
@@ -240,8 +245,17 @@ const joinRoom = async (socket, data) => {
             })
         } else {
             if (room.password) {
-                socket.emit('join-room-response', { code: 1, message: 'password required', roomId: roomSocket });
-                return
+                if (data.invited) {
+                    await models.player_character.create({ userId, gameRoomId: room.id })
+                    socket.leave('global')
+                    socket.join(roomSocket)
+                    socket.nsp.to(roomSocket).emit('user_connected_lobby', { user })
+                    onLobbyMessage(socket, { chat: roomSocket, type: 'system', message: `${user.name} just connected to lobby`, createdAt: new Date() })
+                    socket.emit('join-room-response', { code: 0, message: 'go to room', roomSocket, roomId: room.id });
+                } else {
+                    socket.emit('join-room-response', { code: 1, message: 'password required', roomId: roomSocket });
+                    return
+                }
             } else {
                 models.users.update({ gameRoomId: room.id, connected_to_room: true }, { where: { id: userId } }).then(async () => {
                     await models.player_character.create({ userId, gameRoomId: room.id })
@@ -283,6 +297,10 @@ const onKickPlayer = async (io, socket, data) => {
             socket.nsp.to(data.room.roomSocket).emit('user_disconnected_lobby', { userId: user.id })
         }
     }
+}
+
+const onStartGame = async (io, socket, data) => {
+    console.log(data)
 }
 
 module.exports = {

@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import CustomTooltip from '../Misc/CustomTooltip'
 import { Help } from '@mui/icons-material'
 import Image from '../Misc/Image'
-import CharacterStatsRadar from '../Charts/CharacterStatsRadar'
 import CharacterInfo from '../Dialogs/Characters/CharacterInfo'
 
 import './CharacterDisplay.css'
@@ -25,17 +24,10 @@ function CharacterDisplay({ myInfo }) {
                             style={{ boxShadow: `0px 0px 8px 3px ${myInfo.character.color}` }}
                         />
                     </div>
-                    <div className='lobby-character-info-chart'>
-                        <CharacterStatsRadar
-                            data={
-                                [
-                                    { stat: 'Might', value: myInfo.character.might },
-                                    { stat: 'Speed', value: myInfo.character.speed },
-                                    { stat: 'Sanity', value: myInfo.character.sanity },
-                                    { stat: 'Knowledge', value: myInfo.character.knowledge },
-                                ]
-                            }
-                        />
+                    <div className='lobby-character-info-info'>
+                        <p className='lobby-character-info-name'>{myInfo.character.name}</p>
+                        <p className='lobby-character-info-age'>Born at {myInfo.character.birthday}, {myInfo.character.age} years old</p>
+                        <p className='lobby-character-info-description'>{myInfo.character.description}</p>
                     </div>
                     <CharacterInfo open={openCharacterInfo} close={() => setOpenCharacterInfo(false)} character={myInfo.character} />
                 </>

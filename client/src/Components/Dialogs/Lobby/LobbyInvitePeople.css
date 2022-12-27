@@ -1,0 +1,39 @@
+.lobby-invite-main-div {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.lobby-invite-title {
+    color: var(--light-yellow);
+    font-size: 22px;
+    text-align: center;
+    font-family: xerox;
+}
+
+.lobby-invite-subtitle {
+    color: white;
+    font-size: 22px;
+    text-align: center;
+}
+
+.lobby-invite-autocomplete-div {
+    width: 100%;
+    margin: 20px 0 10px;
+    display: flex;
+    gap: 20px;
+}
+
+.lobby-invite-refresh-btn {
+    color: var(--light-yellow);
+    margin-top: 7px;
+    scale: 1.3;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out !important;
+}
+
+.lobby-invite-refresh-btn:hover {
+    transform: rotate(180deg);
+}

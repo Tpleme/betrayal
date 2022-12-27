@@ -60,3 +60,7 @@ export const getRoomUsers = async room => {
 export const changeRoomPassword = async (id, data) => {
     return await axios.post(`${SERVER_URL}/api/game-room/change-password/${id}`, data, { headers: await getHeaders() })
 }
+
+export const invitePlayers = async data => {
+    return await axios.post(`${SERVER_URL}/api/game-room/invite-players`, data, { headers: await getHeaders() })
+}

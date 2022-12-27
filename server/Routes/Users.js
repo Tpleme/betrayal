@@ -11,7 +11,7 @@ const renameAsync = promisify(fs.rename)
 
 const getAll = async (req, res) => {
     await models.users.findAll({
-        attributes: { exclude: ['password', 'password_recovery_key'] }
+        attributes: { exclude: ['password', 'password_recovery_key', 'socket_id'] }
     }).then((users) => {
         res.status(200).json(users)
     })
@@ -22,7 +22,7 @@ const getByID = async (req, res) => {
 
     await models.users.findOne({
         where: { id: id },
-        attributes: { exclude: ['password', ['password_recovery_key']] }
+        attributes: { exclude: ['password', ['password_recovery_key', 'socket_id']] }
     }).then(user => {
         if (!user) {
             return res.status(404).send('User not found')

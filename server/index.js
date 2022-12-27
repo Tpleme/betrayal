@@ -84,6 +84,7 @@ app.get('/api/users/get-room-users/:roomId', [cors(), StandardLimiter, Auth], ma
 
 //room
 app.post('/api/game-room/change-password/:id', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.gameRoom.changeRoomPassword))
+app.post('/api/game-room/invite-players', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.gameRoom.invitePlayers))
 
 for (const [routeName, routeController] of Object.entries(routes)) {
     if (routeController.getAll) {

@@ -48,6 +48,7 @@ function Game() {
 		socket.on('auto-connect-room', data => handleAutoConnect(data))
 		socket.on('auto-connect-response', data => reconnectToRoom(data))
 		socket.on('leave-room-response', data => onLeaveRoom(data))
+		socket.on('game-invite', data => onGameInvite(data))
 
 
 		return () => {
@@ -58,6 +59,11 @@ function Game() {
 			socket.off('leave-room-response', onLeaveRoom)
 		}
 	}, [])
+
+	const onGameInvite = data => {
+		const fullData = {...data, userId: userInfo.id}
+		showSnackbar({ message: JSON.stringify(fullData), customComponent: 'game-invite', persist: true })
+	}
 
 	const onLeaveRoom = data => {
 		removeChat(data.roomSocket)

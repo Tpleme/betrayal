@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Button from '../Buttons/Button'
 import LobbyCharacter from '../Cards/Characters/LobbyCharacter'
-import PickCharacterDialog from '../Dialogs/Characters/PickCharacterDialog'
+import PickCharacterDialog from '../Dialogs/Lobby/PickCharacterDialog'
 
 import './UpperCharacterDisplay.css'
 

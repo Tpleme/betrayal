@@ -141,25 +141,31 @@
 /* ------- Input -------- */
 
 .lobby-chat-input {
-    height: 60%;
     width: 90%;
+    height: 35px;
+    font-size: 18px;
+    letter-spacing: 1px;
+    font-weight: 300;
     margin-right: 10px;
-    border-radius: 10px;
+    background-color: var(--darker-green);
     border: none;
+    box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.5);
+    border-radius: 10px;
     outline: none;
-    padding: 10px;
-    font-family: var(--common-font);
-    background: linear-gradient(to right, var(--light-green) 0%, var(--dark-green) 100%);
     color: white;
     transition: all 0.2s ease-in-out;
+    padding-left: 10px;
 }
+
+
 
 .lobby-chat-input::placeholder {
     color: rgba(255, 255, 255, 0.7);
 }
 
-.lobby-chat-input:focus-visible {
-    height: 80%;
+.lobby-chat-input:focus-visible,
+.lobby-chat-input:hover {
+    height: 40px;
 }
 
 .lobby-chat-input-submit-btn:hover {

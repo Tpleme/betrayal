@@ -1,6 +1,7 @@
 const { models } = require('../database/index')
 const { getIdParam } = require('../utils')
 const bcrypt = require('bcrypt')
+const EventEmitter = require('../EventEmitter')
 
 const getAll = async (req, res) => {
     const rooms = await models.game_rooms.findAll()
@@ -97,11 +98,48 @@ const remove = async (req, res) => {
     res.status(401).send('NO')
 }
 
+const invitePlayers = async (req, res) => {
+    const players = req.body.players
+    const room = req.body.room
+    const playersArray = []
+
+    const userId = req.headers['requesting-user']
+
+    const hostingUser = await models.users.findByPk(userId)
+
+    try {
+        if (!hostingUser || parseInt(hostingUser.hosting) !== room.id) {
+            return res.status(401).send('Non Authorized')
+        }
+
+        if (!players || players.length === 0) {
+            throw { code: 401, message: 'No players selected' }
+        }
+
+        for (let i = 0; i < players.length; i++) {
+            const player = players[i];
+            await models.users.findByPk(player.id).then(user => {
+                if (user.socket_id) {
+                    playersArray.push(user)
+                }
+            })
+        }
+
+        EventEmitter.emit('invite-players', playersArray, room, hostingUser.name)
+        res.status(201).send('Invites sent')
+
+    } catch (err) {
+        console.log(`Error: ${err.message ? err.message : err}`);
+        err.code ? res.status(err.code).send(err.message) : res.status(500).send('Error: ' + err)
+    }
+}
+
 module.exports = {
     getAll,
     getByID,
     create,
     update,
     remove,
-    changeRoomPassword
+    changeRoomPassword,
+    invitePlayers
 }

@@ -1,0 +1,16 @@
+.autocomplete-list {
+    width: 250px;
+    height: fit-content;
+    font-size: 20px;
+    font-family: 'xerox';
+}
+
+.autocomplete-list:hover {
+    background-color: var(--dark-green);
+    cursor: pointer;
+    color: var(--light-yellow);
+}
+
+.autocomplete-list:hover * {
+    color: var(--light-yellow);
+}

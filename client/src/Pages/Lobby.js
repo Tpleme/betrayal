@@ -16,9 +16,9 @@ import LobbySettings from '../Components/Lobby/LobbySettings';
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar';
 import { copyTextToClipboard } from '../utils';
 import CustomTooltip from '../Components/Misc/CustomTooltip';
+import PlayerDisplay from '../Components/Lobby/PlayerDisplay';
 
 import './css/Lobby.css'
-import PlayerDisplay from '../Components/Lobby/PlayerDisplay';
 
 function Lobby() {
     const { state } = useLocation();

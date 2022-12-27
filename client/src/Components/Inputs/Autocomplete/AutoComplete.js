@@ -3,6 +3,7 @@ import { Autocomplete, Checkbox, Popper, TextField } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material'
 
+import './AutoComplete.css'
 
 const CustomPopper = (props) => {
     return <Popper {...props} style={{ width: 'max-content', maxWidth: '300px', minWidth: '150px' }} />
@@ -14,34 +15,37 @@ const CustomAutoCompleteStyled = styled(TextField)({
         color: 'var()',
     },
     '& .MuiFormHelperText-root': {
-        color: 'var(--dark-red) !important',
+        color: 'var(--light-red) !important',
         marginLeft: 0,
-        fontFamily: 'ropa-mix-pro, sans-serif',
         fontSize: '16px'
     },
     '& .MuiInputBase-root': {
-        padding: 0,
-        backgroundColor: 'white',
-        borderRadius: 0,
-        transition: 'box-shadow 0.3s ease-in-out',
-        fontFamily: 'ropa-mix-pro, sans-serif',
-        fontWeight: '300',
+        height: '35px',
+        backgroundColor: 'var(--darker-green)',
+        letterSpacing: '1px',
         fontSize: '18px',
+        boxShadow: '2px 2px 2px 0 rgb(0 0 0 / 50%)',
+        border: 'none',
+        outline: 'none',
+        color: 'var(--light-yellow)',
+        transition: 'box-shadow 0.2s ease-in-out',
+        borderRadius: '10px',
+        padding: '0 10px 0 10px !important',
+        fontFamily: 'xerox',
         '&:hover': {
-            boxShadow: '0px 0px 4px 0px white'
+            boxShadow: '2px 2px 4px 0px black'
         },
         '&:focus-visible': {
-            outline: 'none'
+            boxShadow: '2px 2px 4px 0px black'
         },
         '&.Mui-focused': {
-            boxShadow: '0px 0px 4px 0px black',
+            boxShadow: '2px 2px 4px 0px black'
         },
         '& fieldset': {
             border: 'none',
             borderRadius: 0,
         },
         '& input': {
-            color: 'black',
             padding: '0px 5px !important',
             height: '35px'
         },
@@ -52,24 +56,26 @@ const CustomAutoCompleteStyled = styled(TextField)({
 
         },
         '&.Mui-error fieldset': {
-            border: '1px solid var(--dark-red)',
+            border: '1px solid var(--light-red)',
             borderLeftWidth: '10px',
-            boxShadow: '0 0 4px 0 var(--dark-red)'
+            boxShadow: '0 0 4px 0 var(--light-red)'
         },
         '& button': {
-            color: 'var(--light-blue)',
+            color: 'var(--light-yellow)',
             transform: 'scale(1.5)'
         }
     },
 })
 
-export function AutoComplete({ data, label, id, onChange, value, name, optionLabel, helperText, error, customLabel, ...props }) {
+export function AutoComplete({ data, label, id, onChange, value, name, optionLabel, helperText, error, customLabel, placeholder, ...props }) {
 
     return (
         <Autocomplete
+            sx={{ width: '100%' }}
             id={id}
             renderTags={(tagValue) =>
-                <p style={{ color: 'var(--dark-blue)', marginLeft: '10px' }}>{`${tagValue.length} ${label} selecionada(s) `}</p>
+                props.renderTags ? props.renderTags :
+                    <p style={{ color: 'var(--light-yellow)', marginLeft: '10px' }}>{`${tagValue.length} ${label} selected `}</p>
             }
             tabIndex={-1}
             options={data}
@@ -81,20 +87,19 @@ export function AutoComplete({ data, label, id, onChange, value, name, optionLab
             getOptionLabel={optionLabel ? (option) => option[optionLabel] : props.getOptionLabel}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             renderOption={(props, option, { selected }) => (
-                <li {...props} style={{ width: '250px', height: 'fit-content', fontSize: '16px' }}>
+                <li {...props} className='autocomplete-list'>
                     <Checkbox
                         icon={<CheckBoxOutlineBlank fontSize='small' />}
                         checkedIcon={<CheckBox fontSize='small' />}
-                        style={{ color: 'var(--dark-blue)' }}
                         checked={selected}
                     />
-                    {customLabel ? `${option.name} - ${option.year}` : option[optionLabel]}
+                    {option[optionLabel]}
                 </li>
             )}
             renderInput={(params) =>
                 <div style={{ marginBottom: '20px' }}>
                     <p style={{ color: 'white', fontWeight: '500', letterSpacing: '1px', textTransform: 'uppercase' }}>{label}</p>
-                    <CustomAutoCompleteStyled tabIndex={1} {...params} error={error} name={name} helperText={helperText} />
+                    <CustomAutoCompleteStyled tabIndex={1} {...params} error={error} name={name} helperText={helperText} placeholder={placeholder} />
                 </div>
             }
             {...props}
