@@ -25,6 +25,12 @@
     font-family: 'xerox';
 }
 
+.lobby-settings-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 @keyframes lobbySettings {
     0% {
         transform: translateY(100px);

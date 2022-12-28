@@ -43,6 +43,8 @@ function Lobby() {
         socket.on('character-picked-response', () => getUsersFromRoom())
         socket.on('player-ready-response', () => getUsersFromRoom())
         socket.on('kicked', () => onKicked())
+        socket.on('hosting-now-message', (data) => onHostingNowMessage(data))
+        socket.on('hosting-now-update', (data) => getUsersFromRoom(data))
 
         return () => {
             socket.off('user_connected_lobby', getUsersFromRoom)
@@ -50,6 +52,8 @@ function Lobby() {
             socket.off('character-picked-response', getUsersFromRoom)
             socket.off('player-ready-response', getUsersFromRoom)
             socket.off('kicked', onKicked)
+            socket.off('hosting-now-message', onHostingNowMessage)
+            socket.off('hosting-now-update', getUsersFromRoom)
         }
     }, [])
 
@@ -77,6 +81,10 @@ function Lobby() {
         }, err => {
             console.log(err)
         })
+    }
+
+    const onHostingNowMessage = data => {
+        console.log(data)
     }
 
     const onCharPick = (userId, charId) => {
@@ -118,7 +126,7 @@ function Lobby() {
                 myInfo &&
                 <>
                     <TabPanel value={tab} index={0}>
-                        <LobbySettings lobby={state} players={playersConnected} />
+                        <LobbySettings lobby={state} players={playersConnected} socket={socket} />
                     </TabPanel>
                     <TabPanel value={tab} index={1}>
                         <CharacterDisplay myInfo={myInfo} />

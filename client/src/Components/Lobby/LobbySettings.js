@@ -8,12 +8,14 @@ import Button from '../Buttons/Button'
 import LobbyInvitePeople from '../Dialogs/Lobby/LobbyInvitePeople'
 
 import './LobbySettings.css'
+import ChangeHost from '../Dialogs/Lobby/ChangeHost'
 
 function LobbySettings(props) {
     const [maxPlayers, setMaxPlayers] = useState(6)
     const [roomInfo, setRoomInfo] = useState(null)
     const [openChangePassword, setOpenChangePassword] = useState(false)
     const [openInvite, setOpenInvite] = useState(false)
+    const [openChangeHost, setOpenChangeHost] = useState(false)
     const [refresh, setRefresh] = useState(false)
     const [min, setMin] = useState(2)
 
@@ -49,12 +51,16 @@ function LobbySettings(props) {
                 </div>
             </CustomTooltip>
             <NumberRange label='Max Players' min={min} max={6} onChange={(e) => maxPlayerOnChange(e)} value={maxPlayers} />
-            <Button label={roomInfo.password ? 'Change Password' : 'Set Password'} onClick={() => setOpenChangePassword(true)} />
-            <Button label='Invite people' onClick={() => setOpenInvite(true)} />
+            <div className='lobby-settings-buttons'>
+                <Button label={roomInfo.password ? 'Change Password' : 'Set Password'} onClick={() => setOpenChangePassword(true)} />
+                <Button label='Invite people' onClick={() => setOpenInvite(true)} />
+                <Button label='Change Host' onClick={() => setOpenChangeHost(true)} />
+            </div>
             {roomInfo &&
                 <>
                     <ChangeLobbyPassword open={openChangePassword} close={() => setOpenChangePassword(false)} room={roomInfo} refresh={() => setRefresh(!refresh)} />
                     <LobbyInvitePeople open={openInvite} close={() => setOpenInvite(false)} room={roomInfo} />
+                    <ChangeHost open={openChangeHost} close={() => setOpenChangeHost(false)} players={props.players} room={roomInfo} socket={props.socket}/>
                 </>
             }
         </div>

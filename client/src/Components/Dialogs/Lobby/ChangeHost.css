@@ -1,0 +1,49 @@
+.change-host-main-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 20px;
+    width: 100%;
+    gap: 20px;
+}
+
+.change-host-title {
+    color: var(--light-yellow);
+    font-size: 22px;
+    text-align: center;
+    font-family: xerox;
+}
+
+.change-host-players-div {
+    width: 100%;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.change-host-player {
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-color: var(--light-yellow);
+    transition: all 0.3s ease-in-out;
+    width: 80%;
+}
+
+.change-host-player.selected {
+    border: 1px solid var(--light-yellow);
+    border-radius: 20px;
+    font-size: 24px;
+}
+
+.change-host-player:hover {
+    border: 1px solid var(--light-yellow);
+    border-radius: 20px;
+}
+
+.change-host-host-info {
+    color: var(--light-yellow);
+    font-size: 20px;
+}
