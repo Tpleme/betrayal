@@ -20,27 +20,37 @@
     display: flex;
     align-items: center;
     flex-direction: column;
+    gap: 10px;
 }
 
 .change-host-player {
     color: white;
     font-size: 22px;
     cursor: pointer;
-    padding: 10px 20px;
+    padding: 5px;
     border-color: var(--light-yellow);
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
     width: 80%;
+    border: 1px solid transparent;
+    display: flex;
+    gap: 10px;
+}
+
+.change-host-info-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .change-host-player.selected {
     border: 1px solid var(--light-yellow);
-    border-radius: 20px;
+    border-radius: 25px;
     font-size: 24px;
 }
 
 .change-host-player:hover {
     border: 1px solid var(--light-yellow);
-    border-radius: 20px;
+    border-radius: 25px;
 }
 
 .change-host-host-info {

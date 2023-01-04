@@ -62,7 +62,7 @@ const removeUserFromRoom = async (socket, data) => {
                     await models.users.update({ hosting: null }, { where: { id: user.id } })
                     if (users.length > 0) {
                         await models.users.update({ hosting: roomId }, { where: { id: users[0].id } }).then(el => {
-                            socket.nsp.to(el.socket_id).emit('hosting-now-message', { roomId: roomId })
+                            socket.nsp.to(el.socket_id).emit('hosting-now', { roomId: roomId })
                         })
                     } else {
                         await models.game_rooms.destroy({ where: { id: roomId } })
@@ -316,17 +316,12 @@ const onKickPlayer = async (io, socket, data) => {
 }
 
 const onChangeHost = async (socket, data) => {
-    const currentHostId = data.currentHostId;
-    const newHostId = data.newHostId
-    const room = data.room
 
-    const newHost = await models.users.findByPk(newHostId)
+    await models.users.update({ hosting: null }, { where: { id: data.currentHostId } })
+    await models.users.update({ hosting: data.room.id }, { where: { id: data.newHostId } })
 
-    await models.user.update({ hosting: null }, { where: { id: currentHostId } })
-    await models.user.update({ hosting: room.id }, { where: { id: newHostId } })
-
-    onLobbyMessage(socket, { chat: room.socket, type: 'system', message: `${newHost.name} is now the host`, createdAt: new Date() })
-    socket.nsp.to(newHostId.socket_id).emit('hosting_now_update')
+    onLobbyMessage(socket, { chat: data.room.socket, type: 'system', message: `${data.newHostName} is now the host`, createdAt: new Date() })
+    socket.nsp.to(data.room.socket).emit('hosting-now')
 }
 
 const onStartGame = async (io, socket, data) => {

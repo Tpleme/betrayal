@@ -42,9 +42,8 @@ function Lobby() {
         socket.on('user_disconnected_lobby', () => getUsersFromRoom())
         socket.on('character-picked-response', () => getUsersFromRoom())
         socket.on('player-ready-response', () => getUsersFromRoom())
+        socket.on('hosting-now', () => getUsersFromRoom())
         socket.on('kicked', () => onKicked())
-        socket.on('hosting-now-message', (data) => onHostingNowMessage(data))
-        socket.on('hosting-now-update', (data) => getUsersFromRoom(data))
 
         return () => {
             socket.off('user_connected_lobby', getUsersFromRoom)
@@ -52,8 +51,7 @@ function Lobby() {
             socket.off('character-picked-response', getUsersFromRoom)
             socket.off('player-ready-response', getUsersFromRoom)
             socket.off('kicked', onKicked)
-            socket.off('hosting-now-message', onHostingNowMessage)
-            socket.off('hosting-now-update', getUsersFromRoom)
+            socket.off('hosting-now', getUsersFromRoom)
         }
     }, [])
 
@@ -81,10 +79,6 @@ function Lobby() {
         }, err => {
             console.log(err)
         })
-    }
-
-    const onHostingNowMessage = data => {
-        console.log(data)
     }
 
     const onCharPick = (userId, charId) => {
@@ -187,6 +181,7 @@ function Lobby() {
                                     openProfile={() => openProfile(player.user)}
                                     actions={amIHosting}
                                     myInfo={myInfo}
+                                    host={player.user.hosting === state.roomId}
                                     kickPlayer={handleKickPlayer}
                                 />
                             )

@@ -49,7 +49,6 @@ function Game() {
 		socket.on('auto-connect-response', data => reconnectToRoom(data))
 		socket.on('leave-room-response', data => onLeaveRoom(data))
 		socket.on('game-invite', data => onGameInvite(data))
-		socket.on('hosting_now', data => onHosting(data))
 
 
 		return () => {
@@ -59,13 +58,9 @@ function Game() {
 			socket.off('auto-connect-response', reconnectToRoom)
 			socket.off('leave-room-response', onLeaveRoom)
 			socket.off('game-invite', onGameInvite)
-			socket.off('hosting_now', onHosting)
 		}
 	}, [])
 
-	const onHosting = data => {
-		console.log(data)
-	}
 
 	const onGameInvite = data => {
 		const fullData = {...data, userId: userInfo.id}

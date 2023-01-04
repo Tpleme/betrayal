@@ -4,7 +4,7 @@ import { Send } from '@mui/icons-material'
 import { msToMinutesAndSeconds } from '../../utils'
 import { useUserInfo } from '../../Hooks/useUser'
 import { SocketContext } from '../../Context/socket/socket'
-import { getChatsData, pushMessagesToChat } from '../../UserSettings/LobbyChat'
+import { getChatsData, pushMessagesToChat, removeChat } from '../../UserSettings/LobbyChat'
 import moment from 'moment'
 
 import portraitPlaceholder from '../../Assets/placeholders/portrait.jpg'
@@ -54,8 +54,12 @@ function LobbyChat(props) {
     }
 
     const addSelfMessage = (message) => {
-        if (message.length > 0) {
+        if (message[0] === '/') {
+            checkCommands(message)
+            return;
+        }
 
+        if (message.length > 0) {
             socket.emit('lobbyMessage', {
                 chat: props.roomId,
                 type: 'user',
@@ -69,6 +73,19 @@ function LobbyChat(props) {
             setCurrentType('')
             inputRef.current.focus()
         }
+    }
+
+    const checkCommands = (message) => {
+        const command = message.split('/')[1]
+        console.log(command)
+
+        if (command === 'clear') {
+            removeChat(props.roomId)
+            setChatMessages(getChatsData(props.roomId))
+        }
+
+        setCurrentType('')
+        inputRef.current.focus()
     }
 
     const handleInput = (e) => {
@@ -121,7 +138,7 @@ const Messages = (props) => {
         <div className='lobby-chat-messages-div'>
             <Avatar alt={props.data.user_name} src={props.data.user_picture ? `${process.env.REACT_APP_SERVER_URL}/resources/images/users/${props.data.user_picture}` : portraitPlaceholder} sx={{ width: '35px', height: '35px', marginRight: '10px' }} />
             <div style={{ width: '100%' }}>
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3px'}}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3px' }}>
                     <p className='lobby-chat-message-name'>{props.data.user_name}</p>
                     <p className='lobby-chat-message-time'>{moment(props.data.createdAt).format('DD-MMM-YYYY HH:mm')}</p>
                 </div>

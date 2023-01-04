@@ -3,10 +3,11 @@ import CustomTooltip from '../Misc/CustomTooltip'
 import { Check, Block } from '@mui/icons-material'
 import Image from '../Misc/Image'
 import useDialog from '../../Hooks/useDialog'
+import Crown from '../../Assets/misc/crown.png'
 
 import './PlayerDisplay.css'
 
-function PlayerDisplay({ player, openProfile, actions, kickPlayer, myInfo }) {
+function PlayerDisplay({ player, openProfile, actions, kickPlayer, myInfo, host }) {
     const { openInfoDialog } = useDialog()
 
     const handleKickPlayer = (e) => {
@@ -27,7 +28,12 @@ function PlayerDisplay({ player, openProfile, actions, kickPlayer, myInfo }) {
                     <Check htmlColor='var(--light-yellow)' sx={{ scale: '1.5' }} />
                 </CustomTooltip>
             }
-            <Image alt={player.name} src={player.user.picture} entity='users' className='lobby-player-image' />
+            {host &&
+                <CustomTooltip title='Host'>
+                    <img alt='crown' src={Crown} className='lobby-player-div-crown' />
+                </CustomTooltip>
+            }
+            <Image alt={player.user.name} src={player.user.picture} entity='users' className='lobby-player-image' />
             <p>{player.user.name}</p>
             {!player.user.connected_to_room &&
                 <p style={{ fontSize: '16px' }}>{`(Disconnected)`}</p>

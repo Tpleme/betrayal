@@ -6,9 +6,9 @@ import { editEntity, getEntity } from '../../API/requests'
 import ChangeLobbyPassword from '../Dialogs/Lobby/ChangeLobbyPassword'
 import Button from '../Buttons/Button'
 import LobbyInvitePeople from '../Dialogs/Lobby/LobbyInvitePeople'
+import ChangeHost from '../Dialogs/Lobby/ChangeHost'
 
 import './LobbySettings.css'
-import ChangeHost from '../Dialogs/Lobby/ChangeHost'
 
 function LobbySettings(props) {
     const [maxPlayers, setMaxPlayers] = useState(6)

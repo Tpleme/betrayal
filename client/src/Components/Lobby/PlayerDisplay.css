@@ -6,6 +6,7 @@
     margin-bottom: 10px;
     cursor: pointer;
     animation: playerDisplay 0.3s ease-in-out;
+    position: relative;
 }
 
 .lobby-player-div:hover > p {
@@ -25,6 +26,10 @@
     border-radius: 50%;
 }
 
-.player-ban-icon {
-    
+.lobby-player-div-crown {
+    width: 35px;
+    left: -8px;
+    top: -20px;
+    height: auto;
+    position: absolute;
 }
