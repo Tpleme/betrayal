@@ -49,6 +49,9 @@ const CharactersModel = database.define('characters', {
     },
     image: {
         type: DataTypes.STRING,
+    },
+    image_id: {
+        type: DataTypes.STRING
     }
 })
 

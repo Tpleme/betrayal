@@ -14,14 +14,15 @@ const app = express()
 const server = createServer(app)
 
 const AddImageId = require('./middleware/ImageID')
-const { UserImageUploader} = require('./middleware/ImageUploader')
+const { UserImageUploader } = require('./middleware/ImageUploader')
 const { LoginLimiter, StandardLimiter, ChangePassLimiter } = require('./middleware/rateLimiter')
 const { Auth } = require('./middleware/EndpointAuth')
+const { getRouteMiddleware, postRouteMiddleware, putRouteMiddleware, deleteRouteMiddleware } = require('./Routes/GetRoutesMiddleware')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-    origin: ['http://localhost:3001'],
+    origin: [process.env.CORS_ORIGIN_1],
     allowedHeaders: ['Content-Type', 'Authorization', 'key', 'requesting-user'],
     exposedHeaders: ['key', 'user', 'email', 'id']
 }))
@@ -37,10 +38,13 @@ const usersRoute = require('./Routes/Users')
 const chatMessagesRoute = require('./Routes/ChatsMessages')
 const CharactersRoute = require('./Routes/Characters')
 const GameRoomRoute = require('./Routes/GameRooms')
+const RoomTilesRoute = require('./Routes/RoomTiles')
 
 const routes = {
     users: usersRoute,
-    gameRoom: GameRoomRoute
+    gameRoom: GameRoomRoute,
+    roomTiles: RoomTilesRoute,
+    characters: CharactersRoute
 }
 
 const startServer = async () => {
@@ -68,10 +72,6 @@ app.post('/api/user/auth', [cors(), LoginLimiter], makeHandlerAwareOfAsyncError(
 //Chats
 app.get('/api/chat_messages/:chat', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(chatMessagesRoute.getAll))
 
-// Characters
-app.get('/api/characters', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(CharactersRoute.getAll))
-app.get('/api/characters/:id', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(CharactersRoute.getByID))
-
 // Users
 app.post('/api/users/remove-picture/:id', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.users.removePicture))
 app.post('/api/users/change-picture/:id', [cors(), StandardLimiter, Auth, AddImageId, UserImageUploader], makeHandlerAwareOfAsyncError(routes.users.addPicture))
@@ -86,31 +86,32 @@ app.get('/api/users/get-room-users/:roomId', [cors(), StandardLimiter, Auth], ma
 app.post('/api/game-room/change-password/:id', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.gameRoom.changeRoomPassword))
 app.post('/api/game-room/invite-players', [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routes.gameRoom.invitePlayers))
 
+
 for (const [routeName, routeController] of Object.entries(routes)) {
     if (routeController.getAll) {
-        app.get(`/api/${routeName}`, [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routeController.getAll))
+        app.get(`/api/${routeName}`, getRouteMiddleware(routeName), makeHandlerAwareOfAsyncError(routeController.getAll))
     }
 
     if (routeController.getByID) {
-        app.get(`/api/${routeName}/:id`, [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routeController.getByID))
+        app.get(`/api/${routeName}/:id`, getRouteMiddleware(routeName), makeHandlerAwareOfAsyncError(routeController.getByID))
     }
 
     if (routeController.create) {
-        app.post(`/api/${routeName}`, [cors(), StandardLimiter, Auth, AddImageId], makeHandlerAwareOfAsyncError(routeController.create))
+        app.post(`/api/${routeName}`, postRouteMiddleware(routeName), makeHandlerAwareOfAsyncError(routeController.create))
     }
 
     if (routeController.update) {
-        app.put(`/api/${routeName}/:id`, [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routeController.update))
+        app.put(`/api/${routeName}/:id`, putRouteMiddleware(routeName), makeHandlerAwareOfAsyncError(routeController.update))
     }
 
     if (routeController.remove) {
-        app.delete(`/api/${routeName}/:id`, [cors(), StandardLimiter, Auth], makeHandlerAwareOfAsyncError(routeController.remove))
+        app.delete(`/api/${routeName}/:id`, deleteRouteMiddleware(routeName), makeHandlerAwareOfAsyncError(routeController.remove))
     }
 }
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3001'
+        origin: [process.env.CORS_ORIGIN_1]
     }
 })
 

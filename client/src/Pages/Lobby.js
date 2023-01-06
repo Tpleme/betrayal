@@ -36,26 +36,33 @@ function Lobby() {
     const [myInfo, setMyInfo] = useState(null)
 
     useEffect(() => {
-        sessionStorage.setItem('room', state.roomId)
+        if (state) {
+            sessionStorage.setItem('room', state.roomId)
 
-        socket.on('user_connected_lobby', () => getUsersFromRoom())
-        socket.on('user_disconnected_lobby', () => getUsersFromRoom())
-        socket.on('character-picked-response', () => getUsersFromRoom())
-        socket.on('player-ready-response', () => getUsersFromRoom())
-        socket.on('hosting-now', () => getUsersFromRoom())
-        socket.on('kicked', () => onKicked())
+            socket.on('user_connected_lobby', () => getUsersFromRoom())
+            socket.on('user_disconnected_lobby', () => getUsersFromRoom())
+            socket.on('character-picked-response', () => getUsersFromRoom())
+            socket.on('player-ready-response', () => getUsersFromRoom())
+            socket.on('hosting-now', () => getUsersFromRoom())
+            socket.on('kicked', () => onKicked())
 
-        return () => {
-            socket.off('user_connected_lobby', getUsersFromRoom)
-            socket.off('user_disconnected_lobby', getUsersFromRoom)
-            socket.off('character-picked-response', getUsersFromRoom)
-            socket.off('player-ready-response', getUsersFromRoom)
-            socket.off('kicked', onKicked)
-            socket.off('hosting-now', getUsersFromRoom)
+            return () => {
+                socket.off('user_connected_lobby', getUsersFromRoom)
+                socket.off('user_disconnected_lobby', getUsersFromRoom)
+                socket.off('character-picked-response', getUsersFromRoom)
+                socket.off('player-ready-response', getUsersFromRoom)
+                socket.off('kicked', onKicked)
+                socket.off('hosting-now', getUsersFromRoom)
+            }
         }
     }, [])
 
     useEffect(() => {
+        if (!state) {
+            navigate('/', { replace: true })
+            return;
+        }
+
         if (playersConnected.length > 0) {
             const me = playersConnected.filter(player => player.user.id === userInfo.id)[0]
             setMyInfo(me)
@@ -64,13 +71,16 @@ function Lobby() {
     }, [state, playersConnected, userInfo])
 
     useEffect(() => {
-        getEntity('characters').then(res => {
-            setAllCharacters(res.data)
-        }, err => {
-            console.log(err)
-        })
+        if (state) {
 
-        getUsersFromRoom()
+            getEntity('characters').then(res => {
+                setAllCharacters(res.data)
+            }, err => {
+                console.log(err)
+            })
+
+            getUsersFromRoom()
+        }
     }, [])
 
     const getUsersFromRoom = () => {
@@ -143,6 +153,7 @@ function Lobby() {
     }
 
     return (
+        state &&
         <div className='lobby-main-div'>
             <div className='lobby-background' />
             <div className='lobby-characters-div'>

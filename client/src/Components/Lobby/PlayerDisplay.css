@@ -33,3 +33,7 @@
     height: auto;
     position: absolute;
 }
+
+.lobby-player-image-div {
+    position: relative;
+}

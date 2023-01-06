@@ -28,12 +28,14 @@ function PlayerDisplay({ player, openProfile, actions, kickPlayer, myInfo, host 
                     <Check htmlColor='var(--light-yellow)' sx={{ scale: '1.5' }} />
                 </CustomTooltip>
             }
-            {host &&
-                <CustomTooltip title='Host'>
-                    <img alt='crown' src={Crown} className='lobby-player-div-crown' />
-                </CustomTooltip>
-            }
-            <Image alt={player.user.name} src={player.user.picture} entity='users' className='lobby-player-image' />
+            <div className='lobby-player-image-div'>
+                {host &&
+                    <CustomTooltip title='Host'>
+                        <img alt='crown' src={Crown} className='lobby-player-div-crown' />
+                    </CustomTooltip>
+                }
+                <Image alt={player.user.name} src={player.user.picture} entity='users' className='lobby-player-image' />
+            </div>
             <p>{player.user.name}</p>
             {!player.user.connected_to_room &&
                 <p style={{ fontSize: '16px' }}>{`(Disconnected)`}</p>

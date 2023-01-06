@@ -1,0 +1,150 @@
+.game-room-main-div {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 1300px;
+    min-height: 800px;
+    padding: 5px;
+}
+
+.game-room-background {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    position: absolute;
+    background: radial-gradient(circle, rgba(19, 75, 52, 1) 0%, rgba(0, 0, 0, 1) 40%);
+    background-position: center;
+    z-index: -1;
+    /* animation: lobby-background 15s ease-in-out infinite; */
+}
+
+.game-room-help-div,
+.game-room-player-actions,
+.game-room-player-display,
+.game-room-top,
+.game-room-players-display {
+    /* border: 1px solid red;  */
+    position: absolute;
+    color: white;
+    z-index: 10;
+    background-color: black;
+    box-shadow: 0 0 20px 0px rgb(255 255 255 / 50%);
+    border-radius: 20px;
+    margin: 5px;
+}
+
+.game-room-player-actions {
+    height: 100px;
+    width: 500px;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-room-chat {
+    position: absolute;
+    height: 400px;
+    width: 300px;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    background-color: black;
+}
+
+.game-room-players-display {
+    height: 400px;
+    width: 200px;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-room-player-display {
+    height: 400px;
+    width: 400px;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-room-help-div {
+    height: 300px;
+    width: 300px;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.game-room-top {
+    height: 50px;
+    width: 700px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ----------- Game board ------------------*/
+
+.game-room-game-board {
+    height: 90%;
+    width: 90%;
+    border: 1px solid red;
+    color: white;
+    margin-top: 30px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-room-inner-game-board {
+    position: absolute;
+    height: 2000px;
+    border: 1px solid blue;
+    transform: translate(400px, -2200px);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* display: grid;
+    align-content: end;
+    justify-content: center;
+    grid-template-columns: repeat(auto-fill, 250px);
+    grid-template-rows: repeat(auto-fill, 250px); */
+}
+
+.game-room-board-tile {
+    position: absolute;
+    /* border: 1px solid red; */
+}
+
+.game-room-board-tile.filled {
+    box-shadow: -7px -4px 8px 0 black;
+}
+
+.game-room-board-tile.empty:hover {
+    box-shadow: 0px 0px 11px 0px white;
+    border-radius: 10px;
+    z-index: 50;
+}
+
+.game-room-board-tile>img {
+    width: 100%;
+    height: 100%;
+}

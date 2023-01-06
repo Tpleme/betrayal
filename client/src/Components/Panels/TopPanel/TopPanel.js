@@ -55,7 +55,7 @@ function TopPanel() {
 
     useEffect(() => {
         if (userInfo.id) {
-            if(!socket.connected) {
+            if (!socket.connected) {
                 socket.auth = { uuid: userInfo.id, name: userInfo.name, token: userInfo.token }
                 socket.connect();
             }
@@ -83,7 +83,7 @@ function TopPanel() {
         if (timer) return; //previne a criação de múltiplos timeouts
 
         // timer = setTimeout(() => {
-            // logoutUser(false)
+        // logoutUser(false)
         // }, 5000)
         // setShowErrorDialog(true)
     }
@@ -95,8 +95,8 @@ function TopPanel() {
 
     return (
         <>
-            <div className='top-bar-main-div'>
-                <img alt='game icon' src={Logo} className='top-bar-logo'/>
+            <div className='top-bar-main-div' style={window.location.pathname === '/room' ? { display: 'none' } : {}}>
+                <img alt='game icon' src={Logo} className='top-bar-logo' />
                 <div className='top-panel-user-display' onClick={(e) => setAnchorEl(e.currentTarget)}>
                     <Avatar alt={userInfo.name} src={userInfo.picture ? `${process.env.REACT_APP_SERVER_URL}/resources/images/users/${userInfo.picture}` : portraitPlaceholder} sx={{ width: '30px', height: '30px', margin: '5px 10px 5px 5px' }} />
                     <p>{userInfo.name}</p>

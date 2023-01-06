@@ -1,21 +1,16 @@
 const { models } = require('../database/index')
 const { getIdParam } = require('../utils')
 
-
 const getAll = async (req, res) => {
-    const characters = await models.characters.findAll()
-    res.status(200).json(characters)
+    const tiles = await models.room_tiles.findAll()
+    const initialTiles = tiles.filter(tile => tile.initial > 0)
+    const restTiles = tiles.filter(tile => tile.initial === 0)
+
+    res.status(200).json({ initialTiles, restTiles })
 }
 
 const getByID = async (req, res) => {
-    const id = getIdParam(req);
-
-    await models.characters.findByPk(id).then(character => {
-        if (!character) {
-            return res.status(404).send('Character not found')
-        }
-        res.status(200).send(character)
-    })
+    res.status(401).send('NO')
 }
 
 const create = async (req, res) => {
@@ -23,17 +18,19 @@ const create = async (req, res) => {
 }
 
 const update = async (req, res) => {
-    res.status(401).send('NO')
 }
+
 
 const remove = async (req, res) => {
     res.status(401).send('NO')
 }
+
+
 
 module.exports = {
     getAll,
     getByID,
     create,
     update,
-    remove
+    remove,
 }
