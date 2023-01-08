@@ -102,23 +102,24 @@
 /* ----------- Game board ------------------*/
 
 .game-room-game-board {
-    height: 90%;
+    height: 80%;
     width: 90%;
     border: 1px solid red;
     color: white;
-    margin-top: 30px;
+    margin-bottom: 50px;
     overflow: hidden;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
 }
 
 .game-room-inner-game-board {
-    position: absolute;
-    height: 2000px;
+    /* position: absolute; */
+    position: relative;
     border: 1px solid blue;
-    transform: translate(400px, -2200px);
+    /* transform: translate(400px, -2200px); */
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -147,4 +148,23 @@
 .game-room-board-tile>img {
     width: 100%;
     height: 100%;
+}
+
+.react-transform-wrapper {
+    height: 100%;
+}
+
+.game-room-board-tools {
+    position: absolute;
+    top: 0;
+    height: 40px;
+    width: fit-content;
+    gap: 10px;
+    padding: 0 20px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    /* border: 1px solid rgba(255, 255, 255, 0.7); */
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
 }

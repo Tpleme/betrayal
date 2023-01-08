@@ -5,17 +5,20 @@ import { SocketContext } from '../Context/socket/socket'
 import { useNavigate } from 'react-router-dom';
 import { getRoomUsers } from '../API/requests';
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
+import { ZoomIn, ZoomOut, CenterFocusStrong, PanTool } from '@mui/icons-material'
 
 import './css/Room.css'
 
-const TILE_SIZE = 200
-const BOARD_SIZE = 5000
+const TILE_SIZE = 50
+const BOARD_SIZE = 2000
 
 function Room() {
     const [boardTiles, setBoardTiles] = useState([])
     const [players, setPlayers] = useState([])
     const [state, setState] = useState({ roomSocket: '12kjasd90asd' }) //test only
     const [board, setBoard] = useState({ basement: [], ground: [], upper: [] })
+    const [mode, setMode] = useState('active')
 
     const socket = useContext(SocketContext)
     const navigate = useNavigate()
@@ -52,7 +55,23 @@ function Room() {
         }, err => {
             console.log(err)
         })
+
+        document.addEventListener('keydown', (e) => onKeyDown(e))
+        document.addEventListener('keyup', (e) => onKeyUp(e))
+
     }, [])
+
+    const onKeyDown = e => {
+        if (e.keyCode === 17) {
+            setMode('panning')
+        }
+    }
+
+    const onKeyUp = e => {
+        if (e.keyCode === 17) {
+            setMode('active')
+        }
+    }
 
     const getUsersFromRoom = () => {
         getRoomUsers(state.roomId).then(res => {
@@ -121,6 +140,8 @@ function Room() {
     }
 
     const spawnTile = (x, y, floor) => {
+        if (mode !== 'active') return;
+
         const boardData = board.ground
 
         const rightTile = boardData[y][x + 1] ? { data: boardData[y][x + 1], side: 'E' } : null
@@ -181,7 +202,7 @@ function Room() {
     }
 
     return (
-        <div className='game-room-main-div'>
+        <div className='game-room-main-div' >
             <div className='game-room-background' />
             <div className='game-room-player-actions'>
                 Player Actions
@@ -196,58 +217,83 @@ function Room() {
                 Player display
             </div>
             <div className='game-room-help-div'>
-                Game help div
+                <p>Game help div</p>
             </div>
             <div className='game-room-top'>
-                Player turn indicator
+                {/* Player turn indicator */}
+                {mode}
             </div>
-            <div className='game-room-game-board'>
-                <div className='game-room-inner-game-board' style={{ height: `${BOARD_SIZE}px`, width: `${BOARD_SIZE}px` }}>
-                    {board.ground.map(col => {
-                        return (
-                            col.map((row, index) => {
-                                if (row.tile) {
-                                    return (
-                                        <div
-                                            key={row.tile.id}
-                                            className='game-room-board-tile filled'
-                                            onClick={() => console.log(row)}
-                                            style={{
-                                                bottom: `${row.position.y * TILE_SIZE}px`,
-                                                left: `${row.position.x * TILE_SIZE}px`,
-                                                width: `${TILE_SIZE}px`,
-                                                height: `${TILE_SIZE}px`,
-                                                rotate: `${row.rotation}deg`,
-                                                borderTop: `${row.tile.doors.includes('N') ? '1px solid green' : 'none'}`,
-                                                borderBottom: `${row.tile.doors.includes('S') ? '1px solid green' : 'none'}`,
-                                                borderRight: `${row.tile.doors.includes('E') ? '1px solid green' : 'none'}`,
-                                                borderLeft: `${row.tile.doors.includes('W') ? '1px solid green' : 'none'}`,
+            <div className='game-room-game-board' style={mode === 'panning' ? { cursor: 'grab' } : {}}>
+                <TransformWrapper
+                    initialPositionX={-1240}
+                    initialPositionY={-6748}
+                    initialScale={3.70}
+                    doubleClick={{ disabled: true }}
+                    panning={{ disabled: mode !== 'panning' }}
+                >
+                    {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
+                        <>
+                            <div className='game-room-board-tools'>
+                                <ZoomIn onClick={() => zoomIn()} />
+                                <ZoomOut onClick={() => zoomOut()} />
+                                <CenterFocusStrong />
+                                <PanTool
+                                    htmlColor={mode === 'active' ? 'grey' : 'white'}
+                                    fontSize='small'
+                                    onClick={() => mode === 'active' ? setMode('panning') : setMode('active')}
+                                />
+                            </div>
+                            <TransformComponent>
+                                <div className='game-room-inner-game-board' style={{ height: `${BOARD_SIZE}px`, width: `${BOARD_SIZE}px` }}>
+                                    {board.ground.map(col => {
+                                        return (
+                                            col.map((row, index) => {
+                                                if (row.tile) {
+                                                    return (
+                                                        <div
+                                                            key={row.tile.id}
+                                                            className='game-room-board-tile filled'
+                                                            onClick={() => console.log(row)}
+                                                            style={{
+                                                                bottom: `${row.position.y * TILE_SIZE}px`,
+                                                                left: `${row.position.x * TILE_SIZE}px`,
+                                                                width: `${TILE_SIZE}px`,
+                                                                height: `${TILE_SIZE}px`,
+                                                                rotate: `${row.rotation}deg`,
+                                                                borderTop: `${row.tile.doors.includes('N') ? '1px solid green' : 'none'}`,
+                                                                borderBottom: `${row.tile.doors.includes('S') ? '1px solid green' : 'none'}`,
+                                                                borderRight: `${row.tile.doors.includes('E') ? '1px solid green' : 'none'}`,
+                                                                borderLeft: `${row.tile.doors.includes('W') ? '1px solid green' : 'none'}`,
 
-                                            }}
-                                        >
-                                            <img alt={row.tile.name} src={`${process.env.REACT_APP_SERVER_URL}/resources/images/roomTiles/${row.tile.image}`} />
-                                        </div>
-                                    )
-                                } else {
-                                    return (
-                                        <div
-                                            className='game-room-board-tile empty'
-                                            key={`${index}-empty`}
-                                            onClick={() => spawnTile(row.position.x, row.position.y, '1')}
-                                            style={{
-                                                bottom: `${row.position.y * TILE_SIZE}px`,
-                                                left: `${row.position.x * TILE_SIZE}px`,
-                                                width: `${TILE_SIZE}px`,
-                                                height: `${TILE_SIZE}px`
-                                            }}
-                                        >
-                                        </div>
-                                    )
-                                }
-                            })
-                        )
-                    })}
-                </div>
+                                                            }}
+                                                        >
+                                                            <img alt={row.tile.name} src={`${process.env.REACT_APP_SERVER_URL}/resources/images/roomTiles/${row.tile.image}`} />
+                                                        </div>
+                                                    )
+                                                } else {
+                                                    return (
+                                                        <div
+                                                            className='game-room-board-tile empty'
+                                                            key={`${index}-empty`}
+                                                            onClick={() => spawnTile(row.position.x, row.position.y, '1')}
+                                                            style={{
+                                                                bottom: `${row.position.y * TILE_SIZE}px`,
+                                                                left: `${row.position.x * TILE_SIZE}px`,
+                                                                width: `${TILE_SIZE}px`,
+                                                                height: `${TILE_SIZE}px`
+                                                            }}
+                                                        >
+                                                        </div>
+                                                    )
+                                                }
+                                            })
+                                        )
+                                    })}
+                                </div>
+                            </TransformComponent>
+                        </>
+                    )}
+                </TransformWrapper>
             </div>
         </div>
     )
