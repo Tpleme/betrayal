@@ -12,6 +12,11 @@ function GameBoard() {
     const [boardTiles, setBoardTiles] = useState([])
     const [board, setBoard] = useState({ basement: [], ground: [], upper: [] })
     const [mode, setMode] = useState('active')
+    const [players, setPlayers] = useState([
+        // { name: 'test', position: { x: 10, y: 0 } },
+        // { name: 'test1', position: { x: 10, y: 1 } },
+    ])
+    const [myToken, setMyToken] = useState({ name: 'test', position: { x: 10, y: 0 } })
 
     useEffect(() => {
         getEntity('roomTiles').then(res => {
@@ -59,8 +64,10 @@ function GameBoard() {
 
             board.ground[0][10].tile = entrance
             board.ground[0][10].rotation = 90
+
             board.ground[1][10].tile = foyer
             board.ground[1][10].rotation = 90
+
             board.ground[2][10].tile = staircase
             board.ground[2][10].rotation = 90
 
@@ -173,6 +180,23 @@ function GameBoard() {
         setBoard({ ...board, ground: boardData })
     }
 
+    const handleTileClick = (tile) => {
+        const startRoom = board.ground[myToken.position.y][myToken.position.x];
+        const finishRoom = board.ground[tile.position.y][tile.position.x]
+        const ySteps = Math.abs(startRoom.position.y - finishRoom.position.y)
+
+        console.log(ySteps)
+
+        for (let i = startRoom.position.y; i <= ySteps; i++) {
+            const room = board.ground[i][tile.position.x]
+            console.log(room)
+        }
+        
+        const doorWithRotation = getDoors(startRoom.tile.doors, startRoom.rotation)
+        // console.log(doorWithRotation)
+
+        // setMyToken({ ...myToken, position: { x: tile.position.x, y: tile.position.y } })
+    }
 
     return (
         <div className='game-room-game-board' style={mode === 'panning' ? { cursor: 'grab' } : {}}>
@@ -205,7 +229,7 @@ function GameBoard() {
                                                     <div
                                                         key={row.tile.id}
                                                         className='game-room-board-tile filled'
-                                                        onClick={() => console.log(row)}
+                                                        onClick={() => handleTileClick(row)}
                                                         style={{
                                                             bottom: `${row.position.y * TILE_SIZE}px`,
                                                             left: `${row.position.x * TILE_SIZE}px`,
@@ -219,6 +243,7 @@ function GameBoard() {
 
                                                         }}
                                                     >
+
                                                         <img alt={row.tile.name} src={`${process.env.REACT_APP_SERVER_URL}/resources/images/roomTiles/${row.tile.image}`} />
                                                     </div>
                                                 )
@@ -241,6 +266,28 @@ function GameBoard() {
                                         })
                                     )
                                 })}
+                            </div>
+                            {players.map(player => (
+                                <div
+                                    key={player.name}
+                                    className='player-token'
+                                    style={{
+                                        bottom: `${player.position.y * TILE_SIZE}px`,
+                                        left: `${player.position.x * TILE_SIZE}px`,
+                                    }}
+                                >
+                                    {player.name}
+                                </div>
+                            ))}
+                            <div
+                                key={myToken.name}
+                                className='player-token'
+                                style={{
+                                    bottom: `${myToken.position.y * TILE_SIZE}px`,
+                                    left: `${myToken.position.x * TILE_SIZE}px`,
+                                }}
+                            >
+                                {myToken.name}
                             </div>
                         </TransformComponent>
                     </>
