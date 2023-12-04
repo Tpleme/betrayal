@@ -16,7 +16,7 @@ function GameBoard() {
         // { name: 'test', position: { x: 10, y: 0 } },
         // { name: 'test1', position: { x: 10, y: 1 } },
     ])
-    const [myToken, setMyToken] = useState({ name: 'test', position: { x: 10, y: 0 } })
+    const [myToken, setMyToken] = useState({ name: 'test', position: { x: 0, y: 0 } })
 
     useEffect(() => {
         getEntity('roomTiles').then(res => {
@@ -49,6 +49,7 @@ function GameBoard() {
 
     const buildBoard = (tiles) => {
         const tileCount = BOARD_SIZE / TILE_SIZE
+        console.log(tileCount)
 
         if (board.ground.length === 0) {
             for (var i = 0; i < tileCount; i++) {
@@ -62,15 +63,18 @@ function GameBoard() {
             const foyer = tiles.find(tile => tile.id === 48)
             const staircase = tiles.find(tile => tile.id === 46)
 
-            board.ground[0][10].tile = entrance
-            board.ground[0][10].rotation = 90
+            const boardCenter = Math.floor(tileCount / 2)
 
-            board.ground[1][10].tile = foyer
-            board.ground[1][10].rotation = 90
+            board.ground[boardCenter][boardCenter].tile = entrance
+            board.ground[boardCenter][boardCenter].rotation = 90
 
-            board.ground[2][10].tile = staircase
-            board.ground[2][10].rotation = 90
+            board.ground[boardCenter + 1][boardCenter].tile = foyer
+            board.ground[boardCenter + 1][boardCenter].rotation = 90
 
+            board.ground[boardCenter + 2][boardCenter].tile = staircase
+            board.ground[boardCenter + 2][boardCenter].rotation = 90
+
+            setMyToken(prev => ({ ...prev, position: { x: boardCenter, y: boardCenter } }))
         }
     }
 
@@ -135,12 +139,22 @@ function GameBoard() {
             }
         })
 
+        //Checks if player is in neighbor tiles and if there is a connection
+        const possibleConnectionsTiles = neighborTiles.filter(tile => possibleDoorConnections.includes(tile?.side))
+
+        const playerInConnectedNeighborTile = possibleConnectionsTiles.filter(el => {
+            return (
+                el.data.position.x === myToken.position.x &&
+                el.data.position.y === myToken.position.y
+            )
+        })
+
+        if (playerInConnectedNeighborTile.length === 0) return;
+        //finish check
+
         if (possibleDoorConnections.length === 0) {
-            return
+            return;
         }
-
-        // console.log(possibleDoorConnections)
-
 
         const floorTiles = boardTiles.filter(tile => tile.floor.split(',').includes(floor) && !tile.discarded)
 
@@ -159,17 +173,11 @@ function GameBoard() {
             for (let i = 0; i < 4; i++) {
                 const doorsAfterRotation = getDoors(floorTiles[randomTile].doors, i * 90)
                 if (doorsAfterRotation.includes(possibleDoorConnections[0])) {
-                    // console.log(doorsAfterRotation)
-                    // console.log(i * 90);
                     boardData[y][x].rotation = i * 90
                     break;
                 }
             }
-
-            // console.log(tileDoors)
-            // console.log(getDoors(floorTiles[randomTile].doors, 90))
         }
-
 
         const usedTile = boardTiles.find(tile => tile.id === floorTiles[randomTile].id)
         usedTile.discarded = true
@@ -178,31 +186,60 @@ function GameBoard() {
 
         setBoardTiles([...filteredTiles, usedTile])
         setBoard({ ...board, ground: boardData })
+        moveCharacter(boardData[y][x])
     }
 
-    const handleTileClick = (tile) => {
+    const moveCharacter = (roomTile) => {
+        if (mode !== 'active') return;
+
         const startRoom = board.ground[myToken.position.y][myToken.position.x];
-        const finishRoom = board.ground[tile.position.y][tile.position.x]
-        const ySteps = Math.abs(startRoom.position.y - finishRoom.position.y)
 
-        console.log(ySteps)
+        const startingTileDoors = getDoors(startRoom.tile.doors, startRoom.rotation)
+        const destinyTileDors = getDoors(roomTile.tile.doors, roomTile.rotation)
 
-        for (let i = startRoom.position.y; i <= ySteps; i++) {
-            const room = board.ground[i][tile.position.x]
-            console.log(room)
+        const xDistance = Math.abs(startRoom.position.x - roomTile.position.x);
+        const yDistance = Math.abs(startRoom.position.y - roomTile.position.y)
+
+        if (xDistance + yDistance !== 1) { //can only travel 1 tile each time
+            console.log('cannot travel more than a tile each time')
+            return;
         }
-        
-        const doorWithRotation = getDoors(startRoom.tile.doors, startRoom.rotation)
-        // console.log(doorWithRotation)
 
-        // setMyToken({ ...myToken, position: { x: tile.position.x, y: tile.position.y } })
+        const directionTraveling = { from: null, to: null }
+
+        if (startRoom.position.x < roomTile.position.x) {
+            console.log('Traveling east')
+            directionTraveling.to = 'E';
+            directionTraveling.from = 'W';
+        } else if (startRoom.position.x > roomTile.position.x) {
+            console.log('traveling west')
+            directionTraveling.to = 'W';
+            directionTraveling.from = 'E'
+        } else if (startRoom.position.y > roomTile.position.y) {
+            console.log('traveling south')
+            directionTraveling.to = 'S'
+            directionTraveling.from = 'N'
+        } else {
+            console.log('traveling north')
+            directionTraveling.to = 'N'
+            directionTraveling.from = 'S'
+        }
+
+        if (destinyTileDors.includes(directionTraveling.from) && startingTileDoors.includes(directionTraveling.to)) {
+            console.log('Can travel')
+            setMyToken(prev => ({ ...prev, position: { x: roomTile.position.x, y: roomTile.position.y } }))
+        } else {
+            console.log('cannot travel')
+        }
+
     }
 
     return (
         <div className='game-room-game-board' style={mode === 'panning' ? { cursor: 'grab' } : {}}>
             <TransformWrapper
-                initialPositionX={-1240}
-                initialPositionY={-6748}
+                initialPositionX={-2950}
+                initialPositionY={-2950}
+                // centerOnInit={true}
                 initialScale={3.70}
                 doubleClick={{ disabled: true }}
                 panning={{ disabled: mode !== 'panning' }}
@@ -212,7 +249,7 @@ function GameBoard() {
                         <div className='game-room-board-tools'>
                             <ZoomIn onClick={() => zoomIn()} />
                             <ZoomOut onClick={() => zoomOut()} />
-                            <CenterFocusStrong />
+                            <CenterFocusStrong onClick={() => resetTransform()} />
                             <PanTool
                                 htmlColor={mode === 'active' ? 'grey' : 'white'}
                                 fontSize='small'
@@ -229,7 +266,7 @@ function GameBoard() {
                                                     <div
                                                         key={row.tile.id}
                                                         className='game-room-board-tile filled'
-                                                        onClick={() => handleTileClick(row)}
+                                                        onClick={() => moveCharacter(row)}
                                                         style={{
                                                             bottom: `${row.position.y * TILE_SIZE}px`,
                                                             left: `${row.position.x * TILE_SIZE}px`,
