@@ -1,9 +1,9 @@
 .game-room-game-board {
-    height: 80%;
-    width: 90%;
-    border: 1px solid red;
+    height: 100vh;
+    width: 100vw;
+    /* border: 1px solid red; */
     color: white;
-    margin-bottom: 50px;
+    margin-bottom: 10px;
     overflow: hidden;
     position: relative;
     display: flex;
@@ -42,13 +42,20 @@
     height: 100%;
 }
 
+.player-token-wrapper {
+    border: 1px solid red;
+    position: absolute;
+    transition: all 0.5s ease-in-out;
+    pointer-events: none;
+}
+
 .player-token {
     position: absolute;
     width: 20px;
     height: 20px;
     background-color: blue;
     font-size: 12px;
-    transition: all 0.5s ease-in-out;
+    transition: all 0.3s ease-in-out;
 }
 
 .react-transform-wrapper {
@@ -57,7 +64,7 @@
 
 .game-room-board-tools {
     position: absolute;
-    top: 0;
+    top: 70px;
     height: 40px;
     width: fit-content;
     gap: 10px;

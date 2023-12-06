@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
-import { ZoomIn, ZoomOut, CenterFocusStrong, PanTool } from '@mui/icons-material'
+import { RotateRight } from '@mui/icons-material'
 import { getEntity } from '../../API/requests'
+import BoardViewActions from './BoardViewActions'
+import { getVisualPlayerPosition } from '../../utils'
 
 import './GameBoard.css'
 
-const TILE_SIZE = 50
+const TILE_SIZE = 70
 const BOARD_SIZE = 2000
 
 function GameBoard() {
@@ -13,10 +15,11 @@ function GameBoard() {
     const [board, setBoard] = useState({ basement: [], ground: [], upper: [] })
     const [mode, setMode] = useState('active')
     const [players, setPlayers] = useState([
-        // { name: 'test', position: { x: 10, y: 0 } },
-        // { name: 'test1', position: { x: 10, y: 1 } },
+        { id: 1, name: 'test1', position: { x: 14, y: 14 } },
+        { id: 2, name: 'test2', position: { x: 14, y: 15 } },
+        { id: 3, name: 'test3', position: { x: 14, y: 14 } },
     ])
-    const [myToken, setMyToken] = useState({ name: 'test', position: { x: 0, y: 0 } })
+    const [myToken, setMyToken] = useState({ id: 4, name: 'test', position: { x: 0, y: 0 } })
 
     useEffect(() => {
         getEntity('roomTiles').then(res => {
@@ -26,7 +29,6 @@ function GameBoard() {
 
             setBoardTiles(tiles);
             buildBoard(res.data.initialTiles)
-            console.log(res.data)
         }, err => {
             console.log(err)
         })
@@ -49,7 +51,6 @@ function GameBoard() {
 
     const buildBoard = (tiles) => {
         const tileCount = BOARD_SIZE / TILE_SIZE
-        console.log(tileCount)
 
         if (board.ground.length === 0) {
             for (var i = 0; i < tileCount; i++) {
@@ -74,6 +75,7 @@ function GameBoard() {
             board.ground[boardCenter + 2][boardCenter].tile = staircase
             board.ground[boardCenter + 2][boardCenter].rotation = 90
 
+            // setPlayers(prev => prev.map(player => ({ ...player, position: { x: boardCenter, y: boardCenter } })))
             setMyToken(prev => ({ ...prev, position: { x: boardCenter, y: boardCenter } }))
         }
     }
@@ -172,7 +174,7 @@ function GameBoard() {
         if (!tileDoors.includes(possibleDoorConnections[0])) {
             for (let i = 0; i < 4; i++) {
                 const doorsAfterRotation = getDoors(floorTiles[randomTile].doors, i * 90)
-                if (doorsAfterRotation.includes(possibleDoorConnections[0])) {
+                if (doorsAfterRotation.includes(playerInConnectedNeighborTile[0].side)) {
                     boardData[y][x].rotation = i * 90
                     break;
                 }
@@ -208,54 +210,46 @@ function GameBoard() {
         const directionTraveling = { from: null, to: null }
 
         if (startRoom.position.x < roomTile.position.x) {
-            console.log('Traveling east')
             directionTraveling.to = 'E';
             directionTraveling.from = 'W';
         } else if (startRoom.position.x > roomTile.position.x) {
-            console.log('traveling west')
             directionTraveling.to = 'W';
             directionTraveling.from = 'E'
         } else if (startRoom.position.y > roomTile.position.y) {
-            console.log('traveling south')
             directionTraveling.to = 'S'
             directionTraveling.from = 'N'
         } else {
-            console.log('traveling north')
             directionTraveling.to = 'N'
             directionTraveling.from = 'S'
         }
 
         if (destinyTileDors.includes(directionTraveling.from) && startingTileDoors.includes(directionTraveling.to)) {
-            console.log('Can travel')
             setMyToken(prev => ({ ...prev, position: { x: roomTile.position.x, y: roomTile.position.y } }))
-        } else {
-            console.log('cannot travel')
         }
+    }
 
+    const getPositionOfPlayer = (player) => {
+
+        const playerInSameRoomAsMyToken = [...players, myToken].filter(el => el.position.x === player.position.x && el.position.y === player.position.y)
+
+        const playerIndex = playerInSameRoomAsMyToken.findIndex(el => el.id === player.id)
+
+        return getVisualPlayerPosition(playerInSameRoomAsMyToken.length - 1, playerIndex)
     }
 
     return (
         <div className='game-room-game-board' style={mode === 'panning' ? { cursor: 'grab' } : {}}>
             <TransformWrapper
-                initialPositionX={-2950}
-                initialPositionY={-2950}
+                initialPositionX={-2050}
+                initialPositionY={-2200}
                 // centerOnInit={true}
-                initialScale={3.70}
+                initialScale={3.0}
                 doubleClick={{ disabled: true }}
                 panning={{ disabled: mode !== 'panning' }}
             >
                 {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
                     <>
-                        <div className='game-room-board-tools'>
-                            <ZoomIn onClick={() => zoomIn()} />
-                            <ZoomOut onClick={() => zoomOut()} />
-                            <CenterFocusStrong onClick={() => resetTransform()} />
-                            <PanTool
-                                htmlColor={mode === 'active' ? 'grey' : 'white'}
-                                fontSize='small'
-                                onClick={() => mode === 'active' ? setMode('panning') : setMode('active')}
-                            />
-                        </div>
+                        <BoardViewActions mode={mode} setMode={setMode} zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />
                         <TransformComponent>
                             <div className='game-room-inner-game-board' style={{ height: `${BOARD_SIZE}px`, width: `${BOARD_SIZE}px` }}>
                                 {board.ground.map(col => {
@@ -280,7 +274,6 @@ function GameBoard() {
 
                                                         }}
                                                     >
-
                                                         <img alt={row.tile.name} src={`${process.env.REACT_APP_SERVER_URL}/resources/images/roomTiles/${row.tile.image}`} />
                                                     </div>
                                                 )
@@ -291,10 +284,10 @@ function GameBoard() {
                                                         key={`${index}-empty`}
                                                         onClick={() => spawnTile(row.position.x, row.position.y, '1')}
                                                         style={{
-                                                            bottom: `${row.position.y * TILE_SIZE}px`,
-                                                            left: `${row.position.x * TILE_SIZE}px`,
-                                                            width: `${TILE_SIZE}px`,
-                                                            height: `${TILE_SIZE}px`
+                                                            bottom: row.position.y * TILE_SIZE,
+                                                            left: row.position.x * TILE_SIZE,
+                                                            width: TILE_SIZE,
+                                                            height: TILE_SIZE
                                                         }}
                                                     >
                                                     </div>
@@ -307,24 +300,32 @@ function GameBoard() {
                             {players.map(player => (
                                 <div
                                     key={player.name}
-                                    className='player-token'
+                                    className='player-token-wrapper'
                                     style={{
+                                        width: `${TILE_SIZE}px`,
+                                        height: `${TILE_SIZE}px`,
                                         bottom: `${player.position.y * TILE_SIZE}px`,
                                         left: `${player.position.x * TILE_SIZE}px`,
                                     }}
                                 >
-                                    {player.name}
+                                    <div className='player-token' style={getPositionOfPlayer(player)}>
+                                        {player.name}
+                                    </div>
                                 </div>
                             ))}
                             <div
                                 key={myToken.name}
-                                className='player-token'
+                                className='player-token-wrapper'
                                 style={{
+                                    width: `${TILE_SIZE}px`,
+                                    height: `${TILE_SIZE}px`,
                                     bottom: `${myToken.position.y * TILE_SIZE}px`,
                                     left: `${myToken.position.x * TILE_SIZE}px`,
                                 }}
                             >
-                                {myToken.name}
+                                <div className='player-token' style={getPositionOfPlayer(myToken)}>
+                                    {myToken.name}
+                                </div>
                             </div>
                         </TransformComponent>
                     </>
