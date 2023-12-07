@@ -3,9 +3,10 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import { RotateRight } from '@mui/icons-material'
 import { getEntity } from '../../API/requests'
 import BoardViewActions from './BoardViewActions'
-import { getVisualPlayerPosition } from '../../utils'
+import { getVisualPlayerPosition, getDoors } from './GameRoomUtils'
 
 import './GameBoard.css'
+import CustomTooltip from '../Misc/CustomTooltip'
 
 const TILE_SIZE = 70
 const BOARD_SIZE = 2000
@@ -14,12 +15,13 @@ function GameBoard() {
     const [boardTiles, setBoardTiles] = useState([])
     const [board, setBoard] = useState({ basement: [], ground: [], upper: [] })
     const [mode, setMode] = useState('active')
+    const [lastSpawnedTile, setLastSpawnedTile] = useState(null)
     const [players, setPlayers] = useState([
         { id: 1, name: 'test1', position: { x: 14, y: 14 } },
         { id: 2, name: 'test2', position: { x: 14, y: 15 } },
         { id: 3, name: 'test3', position: { x: 14, y: 14 } },
     ])
-    const [myToken, setMyToken] = useState({ id: 4, name: 'test', position: { x: 0, y: 0 } })
+    const [myToken, setMyToken] = useState({ id: 4, name: 'test', position: { x: 0, y: 0 }, navigationHistory: [] })
 
     useEffect(() => {
         getEntity('roomTiles').then(res => {
@@ -75,37 +77,12 @@ function GameBoard() {
             board.ground[boardCenter + 2][boardCenter].tile = staircase
             board.ground[boardCenter + 2][boardCenter].rotation = 90
 
-            // setPlayers(prev => prev.map(player => ({ ...player, position: { x: boardCenter, y: boardCenter } })))
-            setMyToken(prev => ({ ...prev, position: { x: boardCenter, y: boardCenter } }))
+            setMyToken(prev => ({
+                ...prev,
+                position: { x: boardCenter, y: boardCenter },
+                navigationHistory: [board.ground[boardCenter][boardCenter], ...prev.navigationHistory]
+            }))
         }
-    }
-
-    //calcula onde estão as portas independentemente da rotação
-    const getDoors = (doors, rotation) => {
-        const splitDoors = doors.split('')
-        const coord = ['N', 'E', 'S', 'W']
-        const newDoorArray = []
-
-        const getRotationNumber = (rotation) => {
-            switch (rotation) {
-                case 90: return 1;
-                case 180: return 2;
-                case 270: return 3;
-                default: return 0
-            }
-        }
-
-        splitDoors.forEach(door => {
-            const doorIndex = coord.findIndex(coord => coord === door);
-            if (coord[doorIndex + getRotationNumber(rotation)]) {
-                newDoorArray.push(coord[doorIndex + getRotationNumber(rotation)])
-            } else {
-                const overflow = getRotationNumber(rotation) - (coord.length - doorIndex)
-                newDoorArray.push(coord[overflow])
-            }
-
-        })
-        return newDoorArray
     }
 
     const spawnTile = (x, y, floor) => {
@@ -122,7 +99,7 @@ function GameBoard() {
 
         const possibleDoorConnections = []
 
-        //por casa sala com tile a volta, verifica se tem ligação
+        //por cada sala com tile a volta, verifica se tem ligação
         neighborTiles.forEach(el => {
             if (el?.data.tile) {
                 const doorWithRotation = getDoors(el.data.tile.doors, el.data.rotation)
@@ -186,6 +163,7 @@ function GameBoard() {
 
         const filteredTiles = boardTiles.filter(tiles => tiles.id !== usedTile.id)
 
+        setLastSpawnedTile(boardData[y][x])
         setBoardTiles([...filteredTiles, usedTile])
         setBoard({ ...board, ground: boardData })
         moveCharacter(boardData[y][x])
@@ -224,7 +202,11 @@ function GameBoard() {
         }
 
         if (destinyTileDors.includes(directionTraveling.from) && startingTileDoors.includes(directionTraveling.to)) {
-            setMyToken(prev => ({ ...prev, position: { x: roomTile.position.x, y: roomTile.position.y } }))
+            setMyToken(prev => ({
+                ...prev,
+                position: { x: roomTile.position.x, y: roomTile.position.y },
+                navigationHistory: [roomTile, ...prev.navigationHistory]
+            }))
         }
     }
 
@@ -235,6 +217,57 @@ function GameBoard() {
         const playerIndex = playerInSameRoomAsMyToken.findIndex(el => el.id === player.id)
 
         return getVisualPlayerPosition(playerInSameRoomAsMyToken.length - 1, playerIndex)
+    }
+
+    const manuallyRotateTile = (e, tile) => {
+        e.stopPropagation()
+
+        const fromTile = myToken.navigationHistory[1]
+        const boardTile = board.ground[tile.position.y][tile.position.x];
+
+        const xDistance = fromTile.position.x - boardTile.position.x
+        const yDistance = fromTile.position.y - boardTile.position.y
+
+        //calculate the door where the player came so we can force the new position to have a door in that direction
+        let doorFromWherePlayerCame;
+
+        if (xDistance !== 0) {
+            if (xDistance > 0) doorFromWherePlayerCame = 'E'
+            else doorFromWherePlayerCame = 'W'
+        } else {
+            if (yDistance > 0) doorFromWherePlayerCame = 'N'
+            else doorFromWherePlayerCame = 'S'
+        }
+
+        const rotate = () => {
+            if (boardTile.rotation + 90 >= 360) {
+                boardTile.rotation = 0
+            } else {
+                boardTile.rotation += 90
+            }
+
+            //if the none of the doors with the rotation match the doorFromWherePlayerCame, rotate again
+            if (!getDoors(boardTile.tile.doors, boardTile.rotation).includes(doorFromWherePlayerCame)) rotate()
+        }
+
+        rotate()
+
+        const groundTiles = board.ground;
+        groundTiles[[tile.position.y][tile.position.x]] = boardTile
+
+        setBoard(prev => ({ ...prev, ground: groundTiles }))
+    }
+
+    const getRotatingButton = (tile) => {
+
+        //if tile has 1 or 4 doors or it is not the last spawned tile return nothing
+        if ([1, 4].some((el) => el === tile.doors.length) || lastSpawnedTile?.tile.id !== tile.id) return "";
+
+        return (
+            <CustomTooltip title='Rotate Tile'>
+                <RotateRight className='rotate-tile-icon' onClick={(e) => manuallyRotateTile(e, lastSpawnedTile)} />
+            </CustomTooltip>
+        )
     }
 
     return (
@@ -266,15 +299,14 @@ function GameBoard() {
                                                             left: `${row.position.x * TILE_SIZE}px`,
                                                             width: `${TILE_SIZE}px`,
                                                             height: `${TILE_SIZE}px`,
-                                                            rotate: `${row.rotation}deg`,
-                                                            // borderTop: `${row.tile.doors.includes('N') ? '1px solid green' : 'none'}`,
-                                                            // borderBottom: `${row.tile.doors.includes('S') ? '1px solid green' : 'none'}`,
-                                                            // borderRight: `${row.tile.doors.includes('E') ? '1px solid green' : 'none'}`,
-                                                            // borderLeft: `${row.tile.doors.includes('W') ? '1px solid green' : 'none'}`,
-
                                                         }}
                                                     >
-                                                        <img alt={row.tile.name} src={`${process.env.REACT_APP_SERVER_URL}/resources/images/roomTiles/${row.tile.image}`} />
+                                                        {getRotatingButton(row.tile)}
+                                                        <img
+                                                            alt={row.tile.name}
+                                                            src={`${process.env.REACT_APP_SERVER_URL}/resources/images/roomTiles/${row.tile.image}`}
+                                                            style={{ rotate: `${row.rotation}deg` }}
+                                                        />
                                                     </div>
                                                 )
                                             } else {

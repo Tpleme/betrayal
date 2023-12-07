@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { getRoomUsers } from '../API/requests';
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar';
 import GameBoard from '../Components/GameRoom/GameBoard';
+import PlayerActions from '../Components/GameRoom/PlayerActions';
 
 import './css/Room.css'
 
@@ -47,9 +48,7 @@ function Room() {
     return (
         <div className='game-room-main-div' >
             <div className='game-room-background' />
-            <div className='game-room-player-actions'>
-                Player Actions
-            </div>
+            <PlayerActions />
             <div className='game-room-chat'>
                 <LobbyChat roomId={state.roomSocket} />
             </div>

@@ -1,0 +1,27 @@
+.game-room-player-actions {
+    position: absolute;
+    height: 65px;
+    width: 500px;
+    background-color: black;
+    border-radius: 20px;
+    margin: 5px;
+    box-shadow: 0 0 20px 0px rgb(255 255 255 / 50%);
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 10;
+}
+
+.game-room-player-actions > img {
+    filter: invert(1);
+    height: 40px;
+    width: auto;
+    cursor: pointer;
+    transition: scale 0.2s ease-in-out;
+}
+
+
+.game-room-player-actions > img:hover {
+    scale: 1.1;
+}

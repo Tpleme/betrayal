@@ -20,6 +20,7 @@
     flex-wrap: wrap;
 }
 
+
 .game-room-board-tile {
     position: absolute;
     display: flex;
@@ -43,7 +44,6 @@
 }
 
 .player-token-wrapper {
-    border: 1px solid red;
     position: absolute;
     transition: all 0.5s ease-in-out;
     pointer-events: none;
@@ -74,4 +74,19 @@
     align-items: center;
     border-radius: 10px;
     background-color: rgba(0, 0, 0, 0.8);
+}
+
+.rotate-tile-icon {
+    position: absolute;
+    scale: 0.5;
+    filter: drop-shadow(1px 1px 1px black);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out !important;
+    z-index: 100;
+    top: 0;
+    right: 0;
+}
+
+.rotate-tile-icon:hover {
+    scale: 0.7;
 }

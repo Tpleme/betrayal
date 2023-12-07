@@ -22,7 +22,6 @@
 }
 
 .game-room-help-div,
-.game-room-player-actions,
 .game-room-player-display,
 .game-room-top,
 .game-room-players-display {
@@ -34,15 +33,6 @@
     box-shadow: 0 0 20px 0px rgb(255 255 255 / 50%);
     border-radius: 20px;
     margin: 5px;
-}
-
-.game-room-player-actions {
-    height: 100px;
-    width: 500px;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .game-room-chat {
