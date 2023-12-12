@@ -17,6 +17,7 @@ import useGlobalSnackbar from '../Hooks/useGlobalSnackbar';
 import { copyTextToClipboard } from '../utils';
 import CustomTooltip from '../Components/Misc/CustomTooltip';
 import PlayerDisplay from '../Components/Lobby/PlayerDisplay';
+import LoadingDialog from '../Components/Dialogs/LoadingDialog'
 
 import './css/Lobby.css'
 
@@ -27,6 +28,7 @@ function Lobby() {
     const navigate = useNavigate()
     const { showSnackbar } = useGlobalSnackbar()
 
+    const [showLoadingDialog, setShowLoadingDialog] = useState(false)
     const [openUserProfile, setOpenUserProfile] = useState(false)
     const [selectedUser, setSelectedUser] = useState(null)
     const [allCharacters, setAllCharacters] = useState()
@@ -45,6 +47,7 @@ function Lobby() {
             socket.on('player-ready-response', () => getUsersFromRoom())
             socket.on('hosting-now', () => getUsersFromRoom())
             socket.on('kicked', () => onKicked())
+            socket.on('start-game-response', startGameResponse)
 
             return () => {
                 socket.off('user_connected_lobby', getUsersFromRoom)
@@ -53,6 +56,7 @@ function Lobby() {
                 socket.off('player-ready-response', getUsersFromRoom)
                 socket.off('kicked', onKicked)
                 socket.off('hosting-now', getUsersFromRoom)
+                socket.off('start-game-response', startGameResponse)
             }
         }
     }, [])
@@ -152,17 +156,34 @@ function Lobby() {
         return allReady && playersConnected.length > 1
     }
 
+    const startGame = () => {
+        console.log(state)
+        socket.emit('start-game', { players: playersConnected, roomSocket: state.roomSocket })
+    }
+
+    const startGameResponse = data => {
+        setShowLoadingDialog(true)
+
+        //fake loading
+        setTimeout(() => {
+            setShowLoadingDialog(false)
+            navigate('/room', { replace: true, state })
+        }, 2500)
+    }
+
     return (
         state &&
         <div className='lobby-main-div'>
             <div className='lobby-background' />
             <div className='lobby-characters-div'>
-                {(allCharacters && myInfo) && <UpperCharacterDisplay
-                    players={playersConnected}
-                    myInfo={myInfo}
-                    allCharacters={allCharacters}
-                    onCharPick={onCharPick}
-                />}
+                {(allCharacters && myInfo) &&
+                    <UpperCharacterDisplay
+                        players={playersConnected}
+                        myInfo={myInfo}
+                        allCharacters={allCharacters}
+                        onCharPick={onCharPick}
+                    />
+                }
             </div>
             <div className='lobby-bottom-div'>
                 <div className='lobby-settings-div'>
@@ -171,8 +192,8 @@ function Lobby() {
                         {getTabsPanels()}
                     </div>
                     <div className='looby-ready-start-buttons'>
-                        <ToggleButton label='Ready' onToggle={value => onPlayerReady(value)} />
-                        <Button label='Start Game' disabled={!checkIfCanStart()} />
+                        <ToggleButton disabled={!myInfo?.character} label='Ready' onToggle={value => onPlayerReady(value)} />
+                        {amIHosting && <Button label='Start Game' disabled={!checkIfCanStart()} onClick={startGame} />}
                     </div>
                 </div>
                 <div className='lobby-information'>
@@ -209,6 +230,7 @@ function Lobby() {
             {selectedUser &&
                 <UserProfile open={openUserProfile} close={() => setOpenUserProfile(false)} user={selectedUser} />
             }
+            <LoadingDialog open={showLoadingDialog} message={'Starting game...'} />
         </div>
     )
 }

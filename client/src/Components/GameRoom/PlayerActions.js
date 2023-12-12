@@ -8,20 +8,30 @@ import PassTurnIcon from '../../Assets/Icons/pass-turn.png'
 
 import './PlayerActions.css'
 
-function PlayerActions() {
+function PlayerActions({ playerMode, setPlayerMode, passTurn, openInventory }) {
+
+    const handleClick = (mode) => {
+        if (mode === playerMode) {
+            setPlayerMode('free')
+            return;
+        }
+
+        setPlayerMode(mode)
+    }
+
     return (
         <div className='game-room-player-actions'>
             <CustomTooltip title='View Inventory'>
-                <img alt='inventory' src={InventoryIcon} />
+                <img className={`action-icon ${playerMode === 'inventory' ? 'active' : ''}`} alt='inventory' src={InventoryIcon} onClick={openInventory} />
             </CustomTooltip>
-            <CustomTooltip title='Enter attack mode'>
-                <img alt='attack' src={AttackIcon} />
+            <CustomTooltip title={playerMode === 'attack' ? 'Exit Attack Mode' : 'Enter Attack Mode'}>
+                <img className={`action-icon ${playerMode === 'attack' ? 'active' : ''}`} alt='attack' src={AttackIcon} onClick={() => handleClick('attack')} />
             </CustomTooltip>
-            <CustomTooltip title='Enter move mode'>
-                <img alt='move' src={MoveIcon} />
+            <CustomTooltip title={playerMode === 'move' ? 'Exit Move Mode' : 'Enter Move Mode'}>
+                <img className={`action-icon ${playerMode === 'move' ? 'active' : ''}`} alt='move' src={MoveIcon} onClick={() => handleClick('move')} />
             </CustomTooltip>
             <CustomTooltip title='Pass turn'>
-                <img alt='pass turn' src={PassTurnIcon} />
+                <img className='action-icon' alt='pass turn' src={PassTurnIcon} onClick={passTurn} />
             </CustomTooltip>
         </div>
     )

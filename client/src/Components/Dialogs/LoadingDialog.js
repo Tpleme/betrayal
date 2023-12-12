@@ -24,6 +24,7 @@ function LoadingDialog({ message, ...props }) {
         <DialogPrefab
             open={props.open}
             close={() => { return }}
+            preventClose={true}
             maxWidth='xs'
         >
             <div className='loading-dialog-main-div'>

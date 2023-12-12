@@ -13,7 +13,7 @@
     z-index: 10;
 }
 
-.game-room-player-actions > img {
+.action-icon {
     filter: invert(1);
     height: 40px;
     width: auto;
@@ -21,7 +21,11 @@
     transition: scale 0.2s ease-in-out;
 }
 
+.action-icon.active {
+    filter: brightness(0) saturate(100%) invert(25%) sepia(38%) saturate(582%) hue-rotate(103deg) brightness(95%) contrast(105%);
+    scale: 1.1;
+}
 
-.game-room-player-actions > img:hover {
+.action-icon:hover {
     scale: 1.1;
 }

@@ -325,7 +325,8 @@ const onChangeHost = async (socket, data) => {
 }
 
 const onStartGame = async (io, socket, data) => {
-    console.log(data)
+    console.log(data);
+    socket.nsp.to(data.roomSocket).emit('start-game-response', data.players)
 }
 
 module.exports = {

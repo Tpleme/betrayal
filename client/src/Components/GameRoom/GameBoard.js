@@ -11,17 +11,11 @@ import CustomTooltip from '../Misc/CustomTooltip'
 const TILE_SIZE = 70
 const BOARD_SIZE = 2000
 
-function GameBoard() {
+function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode }) {
     const [boardTiles, setBoardTiles] = useState([])
     const [board, setBoard] = useState({ basement: [], ground: [], upper: [] })
-    const [mode, setMode] = useState('active')
+    const [viewMode, setViewMode] = useState('active')
     const [lastSpawnedTile, setLastSpawnedTile] = useState(null)
-    const [players, setPlayers] = useState([
-        { id: 1, name: 'test1', position: { x: 14, y: 14 } },
-        { id: 2, name: 'test2', position: { x: 14, y: 15 } },
-        { id: 3, name: 'test3', position: { x: 14, y: 14 } },
-    ])
-    const [myToken, setMyToken] = useState({ id: 4, name: 'test', position: { x: 0, y: 0 }, navigationHistory: [] })
 
     useEffect(() => {
         getEntity('roomTiles').then(res => {
@@ -37,17 +31,21 @@ function GameBoard() {
         document.addEventListener('keydown', (e) => onKeyDown(e))
         document.addEventListener('keyup', (e) => onKeyUp(e))
 
+        return () => {
+            document.removeEventListener('keydown', onKeyDown)
+            document.removeEventListener('keyup', onKeyUp)
+        }
     }, [])
 
     const onKeyDown = e => {
         if (e.keyCode === 17) {
-            setMode('panning')
+            setViewMode('panning')
         }
     }
 
     const onKeyUp = e => {
         if (e.keyCode === 17) {
-            setMode('active')
+            setViewMode('active')
         }
     }
 
@@ -77,6 +75,14 @@ function GameBoard() {
             board.ground[boardCenter + 2][boardCenter].tile = staircase
             board.ground[boardCenter + 2][boardCenter].rotation = 90
 
+            const playersWithPosition = players.map(player => ({
+                ...player,
+                position: { x: boardCenter, y: boardCenter },
+                navigationHistory: [board.ground[boardCenter][boardCenter], ...player.navigationHistory]
+            }))
+
+            setPlayers(playersWithPosition)
+
             setMyToken(prev => ({
                 ...prev,
                 position: { x: boardCenter, y: boardCenter },
@@ -86,7 +92,8 @@ function GameBoard() {
     }
 
     const spawnTile = (x, y, floor) => {
-        if (mode !== 'active') return;
+        if (viewMode !== 'active') return;
+        if (playerMode !== 'move') return;
 
         const boardData = board.ground
 
@@ -170,7 +177,8 @@ function GameBoard() {
     }
 
     const moveCharacter = (roomTile) => {
-        if (mode !== 'active') return;
+        if (viewMode !== 'active') return;
+        if (playerMode !== 'move') return;
 
         const startRoom = board.ground[myToken.position.y][myToken.position.x];
 
@@ -271,18 +279,18 @@ function GameBoard() {
     }
 
     return (
-        <div className='game-room-game-board' style={mode === 'panning' ? { cursor: 'grab' } : {}}>
+        <div className='game-room-game-board' style={viewMode === 'panning' ? { cursor: 'grab' } : {}}>
             <TransformWrapper
-                initialPositionX={-2050}
+                initialPositionX={-2150}
                 initialPositionY={-2200}
                 // centerOnInit={true}
                 initialScale={3.0}
                 doubleClick={{ disabled: true }}
-                panning={{ disabled: mode !== 'panning' }}
+                panning={{ disabled: viewMode !== 'panning' }}
             >
                 {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
                     <>
-                        <BoardViewActions mode={mode} setMode={setMode} zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />
+                        <BoardViewActions mode={viewMode} setMode={setViewMode} zoomIn={zoomIn} zoomOut={zoomOut} resetTransform={resetTransform} />
                         <TransformComponent>
                             <div className='game-room-inner-game-board' style={{ height: `${BOARD_SIZE}px`, width: `${BOARD_SIZE}px` }}>
                                 {board.ground.map(col => {
@@ -331,7 +339,7 @@ function GameBoard() {
                             </div>
                             {players.map(player => (
                                 <div
-                                    key={player.name}
+                                    key={player.id}
                                     className='player-token-wrapper'
                                     style={{
                                         width: `${TILE_SIZE}px`,
@@ -341,12 +349,12 @@ function GameBoard() {
                                     }}
                                 >
                                     <div className='player-token' style={getPositionOfPlayer(player)}>
-                                        {player.name}
+                                        {player?.user.name}
                                     </div>
                                 </div>
                             ))}
                             <div
-                                key={myToken.name}
+                                key={myToken.id}
                                 className='player-token-wrapper'
                                 style={{
                                     width: `${TILE_SIZE}px`,
@@ -356,7 +364,7 @@ function GameBoard() {
                                 }}
                             >
                                 <div className='player-token' style={getPositionOfPlayer(myToken)}>
-                                    {myToken.name}
+                                    {myToken?.user.name}
                                 </div>
                             </div>
                         </TransformComponent>
