@@ -1,0 +1,84 @@
+.player-token-wrapper {
+    position: absolute;
+    transition: all 0.5s ease-in-out;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.player-token {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease-in-out;
+    border-radius: 2px;
+    overflow: hidden;
+    z-index: 15;
+    pointer-events: all;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+.player-token-image {
+    height: 100%;
+    width: 100%;
+}
+
+.player-token:hover {
+    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.8);
+}
+
+.player-token-menu-div {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: fit-content;
+    /* background-color: var(--darker-green); */
+}
+
+.player-token-menu-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.player-token-bottom-info {
+    background: linear-gradient(to bottom, transparent 0%, var(--dark-green) 9%);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    margin-top: -35px;
+    padding: 35px 10px 10px;
+    gap: 10px;
+}
+
+.player-token-menu-names {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.player-token-menu-names :first-child {
+    font-size: 36px;
+    color: var(--light-yellow);
+}
+
+.player-token-menu-names :last-child {
+    font-size: 20px;
+    color: var(--dark-yellow);
+}
+
+.player-token-menu-stats {
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.player-token-menu-stats-title {
+    font-size: 22px;
+    color: white;
+}

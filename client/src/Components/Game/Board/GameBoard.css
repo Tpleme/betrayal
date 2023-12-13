@@ -43,21 +43,6 @@
     height: 100%;
 }
 
-.player-token-wrapper {
-    position: absolute;
-    transition: all 0.5s ease-in-out;
-    pointer-events: none;
-}
-
-.player-token {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: blue;
-    font-size: 12px;
-    transition: all 0.3s ease-in-out;
-}
-
 .react-transform-wrapper {
     height: 100%;
 }

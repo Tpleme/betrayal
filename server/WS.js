@@ -36,6 +36,9 @@ const handleWS = (socket, io) => {
     socket.on('kick-player', data => onKickPlayer(io, socket, data))
     socket.on('start-game', data => onStartGame(io, socket, data))
     socket.on('change-host', data => onChangeHost(socket, data))
+
+    socket.on('spawn_tile', data => onSpawnTile(io, socket, data))
+    socket.on('move_player', data => onPlayerMove(io, socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -327,6 +330,14 @@ const onChangeHost = async (socket, data) => {
 const onStartGame = async (io, socket, data) => {
     console.log(data);
     socket.nsp.to(data.roomSocket).emit('start-game-response', data.players)
+}
+
+const onSpawnTile = async (io, socket, data) => {
+    socket.to(data.roomSocket).emit('on_tile_spawn', data)
+}
+
+const onPlayerMove = async (io, socket, data) => {
+    socket.to(data.roomSocket).emit('on_player_move', data)
 }
 
 module.exports = {

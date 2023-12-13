@@ -47,6 +47,30 @@ const CharactersModel = database.define('characters', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
+    speed_range: {
+        type: DataTypes.STRING,
+    },
+    might_range: {
+        type: DataTypes.STRING,
+    },
+    sanity_range: {
+        type: DataTypes.STRING,
+    },
+    knowledge_range: {
+        type: DataTypes.STRING,
+    },
+    speed_value_index: {
+        type: DataTypes.INTEGER,
+    },
+    might_value_index: {
+        type: DataTypes.INTEGER,
+    },
+    sanity_value_index: {
+        type: DataTypes.INTEGER,
+    },
+    knowledge_value_index: {
+        type: DataTypes.INTEGER,
+    },
     image: {
         type: DataTypes.STRING,
     },

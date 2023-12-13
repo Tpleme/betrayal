@@ -1,5 +1,5 @@
 import React from 'react'
-import CustomTooltip from '../Misc/CustomTooltip'
+import CustomTooltip from '../../Misc/CustomTooltip'
 import { ZoomIn, ZoomOut, CenterFocusStrong, PanTool } from '@mui/icons-material'
 
 function BoardViewActions({mode, setMode, zoomIn, zoomOut, resetTransform}) {

@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import { RotateRight } from '@mui/icons-material'
-import { getEntity } from '../../API/requests'
+import { getEntity } from '../../../API/requests'
 import BoardViewActions from './BoardViewActions'
 import { getVisualPlayerPosition, getDoors } from './GameRoomUtils'
 
 import './GameBoard.css'
-import CustomTooltip from '../Misc/CustomTooltip'
+import CustomTooltip from '../../Misc/CustomTooltip'
+import PlayerToken from '../../Tokens/PlayerToken'
 
 const TILE_SIZE = 70
 const BOARD_SIZE = 2000
 
-function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode }) {
+function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode, movePlayer, socket, roomSocket }) {
     const [boardTiles, setBoardTiles] = useState([])
     const [board, setBoard] = useState({ basement: [], ground: [], upper: [] })
     const [viewMode, setViewMode] = useState('active')
     const [lastSpawnedTile, setLastSpawnedTile] = useState(null)
+
+    useEffect(() => {
+        socket.on('on_tile_spawn', onTileSpawned)
+
+        return () => {
+            socket.off('on_tile_spawn', onTileSpawned)
+        }
+    }, [])
+
 
     useEffect(() => {
         getEntity('roomTiles').then(res => {
@@ -28,6 +38,7 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode }) {
         }, err => {
             console.log(err)
         })
+
         document.addEventListener('keydown', (e) => onKeyDown(e))
         document.addEventListener('keyup', (e) => onKeyUp(e))
 
@@ -47,6 +58,12 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode }) {
         if (e.keyCode === 17) {
             setViewMode('active')
         }
+    }
+
+    const onTileSpawned = (data) => {
+        console.log(data)
+        setBoardTiles(data.boardTiles)
+        setBoard(data.board)
     }
 
     const buildBoard = (tiles) => {
@@ -169,10 +186,16 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode }) {
         usedTile.discarded = true
 
         const filteredTiles = boardTiles.filter(tiles => tiles.id !== usedTile.id)
+        const newBoardTIles = [...filteredTiles, usedTile]
+        const newBoard = { ...board, ground: boardData }
+
 
         setLastSpawnedTile(boardData[y][x])
-        setBoardTiles([...filteredTiles, usedTile])
-        setBoard({ ...board, ground: boardData })
+        setBoardTiles(newBoardTIles)
+        setBoard(newBoard)
+
+        socket.emit('spawn_tile', { boardTiles: newBoardTIles, board: newBoard, roomSocket })
+
         moveCharacter(boardData[y][x])
     }
 
@@ -210,11 +233,7 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode }) {
         }
 
         if (destinyTileDors.includes(directionTraveling.from) && startingTileDoors.includes(directionTraveling.to)) {
-            setMyToken(prev => ({
-                ...prev,
-                position: { x: roomTile.position.x, y: roomTile.position.y },
-                navigationHistory: [roomTile, ...prev.navigationHistory]
-            }))
+            movePlayer(roomTile)
         }
     }
 
@@ -338,35 +357,29 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode }) {
                                 })}
                             </div>
                             {players.map(player => (
-                                <div
+                                <PlayerToken
                                     key={player.id}
-                                    className='player-token-wrapper'
-                                    style={{
+                                    player={player}
+                                    tokenStyle={getPositionOfPlayer(player)}
+                                    wrapperStyle={{
                                         width: `${TILE_SIZE}px`,
                                         height: `${TILE_SIZE}px`,
                                         bottom: `${player.position.y * TILE_SIZE}px`,
                                         left: `${player.position.x * TILE_SIZE}px`,
                                     }}
-                                >
-                                    <div className='player-token' style={getPositionOfPlayer(player)}>
-                                        {player?.user.name}
-                                    </div>
-                                </div>
+                                />
                             ))}
-                            <div
+                            <PlayerToken
                                 key={myToken.id}
-                                className='player-token-wrapper'
-                                style={{
+                                player={myToken}
+                                tokenStyle={getPositionOfPlayer(myToken)}
+                                wrapperStyle={{
                                     width: `${TILE_SIZE}px`,
                                     height: `${TILE_SIZE}px`,
                                     bottom: `${myToken.position.y * TILE_SIZE}px`,
                                     left: `${myToken.position.x * TILE_SIZE}px`,
                                 }}
-                            >
-                                <div className='player-token' style={getPositionOfPlayer(myToken)}>
-                                    {myToken?.user.name}
-                                </div>
-                            </div>
+                            />
                         </TransformComponent>
                     </>
                 )}

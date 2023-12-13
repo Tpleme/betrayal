@@ -4,8 +4,8 @@ import { SocketContext } from '../Context/socket/socket'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getRoomUsers } from '../API/requests';
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar';
-import GameBoard from '../Components/GameRoom/GameBoard';
-import PlayerActions from '../Components/GameRoom/PlayerActions';
+import GameBoard from '../Components/Game/Board/GameBoard';
+import PlayerActions from '../Components/Game/Displays/PlayerActions';
 import { useUserInfo } from '../Hooks/useUser'
 
 import './css/Room.css'
@@ -27,31 +27,41 @@ function Room() {
     }, [state])
 
     useEffect(() => {
-        socket.on('user_connected_lobby', () => getUsersFromRoom())
-        socket.on('user_disconnected_lobby', () => getUsersFromRoom())
-        socket.on('hosting-now', () => getUsersFromRoom())
-        socket.on('kicked', () => onKicked())
+        // socket.on('user_connected_lobby', getUsersFromRoom)
+        // socket.on('user_disconnected_lobby', getUsersFromRoom)
+        socket.on('hosting-now', getUsersFromRoom)
+        socket.on('kicked', onKicked)
+        socket.on('on_player_move', onPlayerMove)
 
         return () => {
             socket.off('user_connected_lobby', getUsersFromRoom)
             socket.off('user_disconnected_lobby', getUsersFromRoom)
             socket.off('kicked', onKicked)
             socket.off('hosting-now', getUsersFromRoom)
+            socket.off('on_player_move', onPlayerMove)
         }
     }, [])
 
     const getUsersFromRoom = () => {
-        getRoomUsers(state.roomId).then(res => {
-            console.log(res.data)
-            const mappedPlayers = res.data.map(player => ({ ...player, position: { x: 0, y: 0 }, navigationHistory: [] }))
-            const otherPlayers = mappedPlayers.filter(player => player.userId !== userInfo.id)
-            const me = mappedPlayers.filter(player => player.userId === userInfo.id)[0]
+        if (players.length === 0) {
+            getRoomUsers(state.roomId).then(res => {
+                console.log(res.data)
+                const mappedPlayers = res.data.map(player => ({
+                    ...player,
+                    position: { x: 0, y: 0 },
+                    navigationHistory: [],
+                    modifiers: { speed: 1, might: 3, sanity: -2, knowledge: 4 }
+                }))
+                const otherPlayers = mappedPlayers.filter(player => player.userId !== userInfo.id)
+                const me = mappedPlayers.filter(player => player.userId === userInfo.id)[0]
+                console.log(me)
 
-            setPlayers(otherPlayers)
-            setMyToken(me)
-        }, err => {
-            console.log(err)
-        })
+                setPlayers(otherPlayers)
+                setMyToken(me)
+            }, err => {
+                console.log(err)
+            })
+        }
     }
 
     const onKicked = () => {
@@ -65,6 +75,28 @@ function Room() {
 
     const passTurn = () => {
         console.log('Passing Turn')
+    }
+
+    const movePlayer = roomTile => {
+        console.log(roomTile)
+        const newData = {
+            ...myToken,
+            position: { x: roomTile.position.x, y: roomTile.position.y },
+            navigationHistory: [roomTile, ...myToken.navigationHistory]
+        }
+
+        setMyToken(newData)
+
+        socket.emit('move_player', { player: newData, roomSocket: state.roomSocket })
+    }
+
+    const onPlayerMove = data => {
+        console.log(data)
+
+        setPlayers(prev => {
+            const newPlayersArray = prev.filter(player => player.id.toString() !== data.player.id.toString())
+            return [...newPlayersArray, data.player]
+        })
     }
 
 
@@ -88,7 +120,16 @@ function Room() {
                 Player turn indicator
             </div>
             {(players && myToken) &&
-                <GameBoard players={players} setPlayers={setPlayers} myToken={myToken} setMyToken={setMyToken} playerMode={playerMode} />
+                <GameBoard
+                    players={players}
+                    setPlayers={setPlayers}
+                    myToken={myToken}
+                    setMyToken={setMyToken}
+                    playerMode={playerMode}
+                    socket={socket}
+                    movePlayer={movePlayer}
+                    roomSocket={state.roomSocket}
+                />
             }
         </div>
     )

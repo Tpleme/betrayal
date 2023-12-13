@@ -12,9 +12,9 @@ import PassWordDialog from '../Components/Dialogs/PasswordDialog/PasswordDialog'
 import useGlobalSnackbar from '../Hooks/useGlobalSnackbar'
 import useDialog from '../Hooks/useDialog'
 import { useLocation } from 'react-router-dom'
+import { removeChat } from '../UserSettings/LobbyChat'
 
 import './css/Game.css'
-import { removeChat } from '../UserSettings/LobbyChat'
 
 function Game() {
 	const [openLoadingDialog, setOpenLoadingDialog] = useState(false)
@@ -43,12 +43,12 @@ function Game() {
 			handleJoinRoom(state.autoJoinRoom)
 		}
 
-		socket.on('room-created', data => handleRoomCreated(data))
-		socket.on('join-room-response', data => handleJoinRoomResponse(data))
-		socket.on('auto-connect-room', data => handleAutoConnect(data))
-		socket.on('auto-connect-response', data => reconnectToRoom(data))
-		socket.on('leave-room-response', data => onLeaveRoom(data))
-		socket.on('game-invite', data => onGameInvite(data))
+		socket.on('room-created', handleRoomCreated)
+		socket.on('join-room-response', handleJoinRoomResponse)
+		socket.on('auto-connect-room', handleAutoConnect)
+		socket.on('auto-connect-response', reconnectToRoom)
+		socket.on('leave-room-response', onLeaveRoom)
+		socket.on('game-invite', onGameInvite)
 
 
 		return () => {
@@ -63,7 +63,7 @@ function Game() {
 
 
 	const onGameInvite = data => {
-		const fullData = {...data, userId: userInfo.id}
+		const fullData = { ...data, userId: userInfo.id }
 		showSnackbar({ message: JSON.stringify(fullData), customComponent: 'game-invite', persist: true })
 	}
 

@@ -21,6 +21,8 @@ import LoadingDialog from '../Components/Dialogs/LoadingDialog'
 
 import './css/Lobby.css'
 
+const MIN_PLAYER_TO_START = 1;
+
 function Lobby() {
     const { state } = useLocation();
     const { userInfo } = useUserInfo()
@@ -153,11 +155,10 @@ function Lobby() {
 
     const checkIfCanStart = () => {
         const allReady = playersConnected.every(player => player.ready)
-        return allReady && playersConnected.length > 1
+        return allReady && playersConnected.length >= MIN_PLAYER_TO_START
     }
 
     const startGame = () => {
-        console.log(state)
         socket.emit('start-game', { players: playersConnected, roomSocket: state.roomSocket })
     }
 

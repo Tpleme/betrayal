@@ -1,0 +1,46 @@
+.character-stats-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.character-stat-main-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    user-select: none;
+}
+
+.character-stat-range-div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.character-stat-value {
+    font-size: 20px;
+}
+
+.character-stat-value.default {
+    color: var(--darker-green);
+}
+
+.character-stat-value.current {
+    color: var(--light-yellow);
+    font-size: 28px;
+}
+
+.character-stat-skull {
+    filter: invert(1);
+    height: 20px;
+}
+
+.character-stat-skull.active {
+    filter: brightness(0) saturate(100%) invert(76%) sepia(49%) saturate(590%) hue-rotate(14deg) brightness(100%) contrast(88%);
+    height: 20px;
+}

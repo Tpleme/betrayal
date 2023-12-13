@@ -1,10 +1,10 @@
 import React from 'react'
-import CustomTooltip from '../Misc/CustomTooltip'
+import CustomTooltip from '../../Misc/CustomTooltip'
 
-import AttackIcon from '../../Assets/Icons/attack.png'
-import InventoryIcon from '../../Assets/Icons/inventory.png'
-import MoveIcon from '../../Assets/Icons/move.png'
-import PassTurnIcon from '../../Assets/Icons/pass-turn.png'
+import AttackIcon from '../../../Assets/Icons/attack.png'
+import InventoryIcon from '../../../Assets/Icons/inventory.png'
+import MoveIcon from '../../../Assets/Icons/move.png'
+import PassTurnIcon from '../../../Assets/Icons/pass-turn.png'
 
 import './PlayerActions.css'
 
