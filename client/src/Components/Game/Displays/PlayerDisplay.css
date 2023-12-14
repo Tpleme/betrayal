@@ -1,0 +1,57 @@
+.player-display-div {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.player-display-image-text-wrapper {
+    display: flex;
+    height: 175px;
+    border-bottom: 1px solid var(--light-yellow);
+}
+
+.player-display-image {
+    width: 50%;
+    height: 100%;
+    object-fit: cover;
+    border-top-left-radius: 20px;
+}
+
+.player-display-names {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 5px;
+    margin-left: -45px;
+    border-radius: 20px;
+    background: linear-gradient(to right, transparent 0%, black 18%);
+}
+
+.player-display-names :first-child {
+    font-size: 36px;
+    color: var(--light-yellow);
+}
+
+.player-display-names :last-child {
+    font-size: 20px;
+    color: var(--dark-yellow);
+}
+
+.player-display-stats {
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+}
+
+.player-display-stats-title {
+    font-size: 22px;
+    color: white;
+}

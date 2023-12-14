@@ -39,8 +39,6 @@ const initializeModels = async () => {
     CharactersModel.hasOne(PlayerCharacter)
     PlayerCharacter.belongsTo(CharactersModel)
 
-    // GameRoomModel.belongsTo(PlayerCharacter)
-
     GameRoomModel.hasOne(UsersModel, { foreignKey: 'hosting' })
 
     RoomRulesModel.hasOne(RoomTilesModel, { foreignKey: 'rules' })

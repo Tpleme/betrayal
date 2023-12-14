@@ -328,8 +328,15 @@ const onChangeHost = async (socket, data) => {
 }
 
 const onStartGame = async (io, socket, data) => {
-    console.log(data);
-    socket.nsp.to(data.roomSocket).emit('start-game-response', data.players)
+    //shuffle player to set the turn order
+    const shuffledPlayersArray = [...data.players]
+
+    for (let i = shuffledPlayersArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledPlayersArray[i], shuffledPlayersArray[j]] = [shuffledPlayersArray[j], shuffledPlayersArray[i]];
+    }
+
+    socket.nsp.to(data.roomSocket).emit('start-game-response', { players: data.players, turnOrder: shuffledPlayersArray })
 }
 
 const onSpawnTile = async (io, socket, data) => {
@@ -337,6 +344,9 @@ const onSpawnTile = async (io, socket, data) => {
 }
 
 const onPlayerMove = async (io, socket, data) => {
+    //save new player position on database
+    models.player_character.update({ position: JSON.stringify(data.player.position) }, { where: { id: data.player.id } })
+
     socket.to(data.roomSocket).emit('on_player_move', data)
 }
 

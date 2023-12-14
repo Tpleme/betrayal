@@ -1,6 +1,6 @@
 import React from 'react'
 import CustomTooltip from '../../Misc/CustomTooltip'
-import { getCharacterStatValue } from './CharacterUtils'
+import { checkIfStatValueIsSameAsIndex, getCharacterStatValue } from './CharacterUtils'
 
 import MightIcon from '../../../Assets/Icons/might.png'
 import SpeedIcon from '../../../Assets/Icons/speed.png'
@@ -15,13 +15,11 @@ export function CharacterStatsForMenu({ player }) {
     const character = player.character
 
     const stats = [
-        { name: 'Speed', range: character.speed_range.split(','), valueIndex: character.speed_value_index, modifier: player.modifiers.speed, icon: SpeedIcon },
-        { name: 'Might', range: character.might_range.split(','), valueIndex: character.might_value_index, modifier: player.modifiers.might, icon: MightIcon },
-        { name: 'Sanity', range: character.sanity_range.split(','), valueIndex: character.sanity_value_index, modifier: player.modifiers.sanity, icon: SanityIcon },
-        { name: 'Knowledge', range: character.knowledge_range.split(','), valueIndex: character.knowledge_value_index, modifier: player.modifiers.knowledge, icon: KnowledgeIcon },
+        { name: 'Speed', range: character.speed_range.split(','), valueIndex: character.speed_value_index, modifier: player.speed_modifier, icon: SpeedIcon },
+        { name: 'Might', range: character.might_range.split(','), valueIndex: character.might_value_index, modifier: player.might_modifier, icon: MightIcon },
+        { name: 'Sanity', range: character.sanity_range.split(','), valueIndex: character.sanity_value_index, modifier: player.sanity_modifier, icon: SanityIcon },
+        { name: 'Knowledge', range: character.knowledge_range.split(','), valueIndex: character.knowledge_value_index, modifier: player.knowledge_modifier, icon: KnowledgeIcon },
     ]
-
-    console.log(getCharacterStatValue(stats[0].range, stats[0].valueIndex, 20))
 
     return (
         <div className='character-stats-wrapper'>
@@ -36,13 +34,13 @@ export function CharacterStatsForMenu({ player }) {
                                         key={index}
                                         alt={stat.name}
                                         src={SkullIcon}
-                                        className={`character-stat-skull${stat.valueIndex + stat.modifier === parseInt(index) ? ' active' : ''}`}
+                                        className={`character-stat-skull${checkIfStatValueIsSameAsIndex(stat.range, stat.valueIndex + stat.modifier, index) ? ' active' : ''}`}
                                     />
                                 }
                                 return (
                                     <p
                                         key={index}
-                                        className={`character-stat-value${stat.valueIndex + stat.modifier === parseInt(index) ? ' current' : ''}${stat.valueIndex === parseInt(index) ? ' default' : ''}`}
+                                        className={`character-stat-value${checkIfStatValueIsSameAsIndex(stat.range, stat.valueIndex + stat.modifier, index) ? ' current' : ''}${checkIfStatValueIsSameAsIndex(stat.range, stat.valueIndex, index) ? ' default' : ''}`}
                                     >
                                         {el}
                                     </p>

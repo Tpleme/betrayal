@@ -164,11 +164,11 @@ function Lobby() {
 
     const startGameResponse = data => {
         setShowLoadingDialog(true)
-
-        //fake loading
+        
+        // fake loading
         setTimeout(() => {
             setShowLoadingDialog(false)
-            navigate('/room', { replace: true, state })
+            navigate('/room', { replace: true, state: { ...state, ...data } })
         }, 2500)
     }
 

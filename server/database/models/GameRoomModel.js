@@ -16,7 +16,16 @@ const GameRoomModel = database.define('game_rooms', {
         type: DataTypes.INTEGER,
         defaultValue: 6,
         validate: { min: 2, max: 6 }
-    }
+    },
+    started: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    turn: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+
 })
 
 module.exports = GameRoomModel

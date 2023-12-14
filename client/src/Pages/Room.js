@@ -9,6 +9,8 @@ import PlayerActions from '../Components/Game/Displays/PlayerActions';
 import { useUserInfo } from '../Hooks/useUser'
 
 import './css/Room.css'
+import PlayerDisplay from '../Components/Game/Displays/PlayerDisplay';
+import TurnDisplay from '../Components/Game/Displays/TurnDisplay';
 
 function Room() {
     const { state } = useLocation();
@@ -20,10 +22,13 @@ function Room() {
     const [playerMode, setPlayerMode] = useState('free')
     const [players, setPlayers] = useState([])
     const [myToken, setMyToken] = useState()
+    const [turnOrder, setTurnOrder] = useState()
 
     useEffect(() => {
-        console.log(state)
-        if (state) getUsersFromRoom()
+        if (state) {
+            setTurnOrder(state.turnOrder)
+            getUsersFromRoom()
+        }
     }, [state])
 
     useEffect(() => {
@@ -43,21 +48,21 @@ function Room() {
     }, [])
 
     const getUsersFromRoom = () => {
+        //get room info from database for turn number
         if (players.length === 0) {
             getRoomUsers(state.roomId).then(res => {
-                console.log(res.data)
                 const mappedPlayers = res.data.map(player => ({
                     ...player,
-                    position: { x: 0, y: 0 },
+                    position: JSON.parse(player.position),
                     navigationHistory: [],
-                    modifiers: { speed: 1, might: 3, sanity: -2, knowledge: 4 }
                 }))
+
                 const otherPlayers = mappedPlayers.filter(player => player.userId !== userInfo.id)
                 const me = mappedPlayers.filter(player => player.userId === userInfo.id)[0]
-                console.log(me)
 
                 setPlayers(otherPlayers)
                 setMyToken(me)
+
             }, err => {
                 console.log(err)
             })
@@ -78,7 +83,6 @@ function Room() {
     }
 
     const movePlayer = roomTile => {
-        console.log(roomTile)
         const newData = {
             ...myToken,
             position: { x: roomTile.position.x, y: roomTile.position.y },
@@ -91,8 +95,6 @@ function Room() {
     }
 
     const onPlayerMove = data => {
-        console.log(data)
-
         setPlayers(prev => {
             const newPlayersArray = prev.filter(player => player.id.toString() !== data.player.id.toString())
             return [...newPlayersArray, data.player]
@@ -111,13 +113,13 @@ function Room() {
                 Players Display
             </div>
             <div className='game-room-player-display'>
-                Player display
+                {myToken && <PlayerDisplay player={myToken} />}
             </div>
             <div className='game-room-help-div'>
                 <p>Game help div</p>
             </div>
             <div className='game-room-top'>
-                Player turn indicator
+                <TurnDisplay turn={turnOrder} />
             </div>
             {(players && myToken) &&
                 <GameBoard
