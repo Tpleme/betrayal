@@ -159,7 +159,8 @@ function Lobby() {
     }
 
     const startGame = () => {
-        socket.emit('start-game', { players: playersConnected, roomSocket: state.roomSocket })
+        console.log(state)
+        socket.emit('start-game', { players: playersConnected, roomData: state })
     }
 
     const startGameResponse = data => {

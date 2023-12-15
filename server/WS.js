@@ -39,6 +39,7 @@ const handleWS = (socket, io) => {
 
     socket.on('spawn_tile', data => onSpawnTile(io, socket, data))
     socket.on('move_player', data => onPlayerMove(io, socket, data))
+    socket.on('pass_turn', data => onPassTurn(io, socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -328,6 +329,7 @@ const onChangeHost = async (socket, data) => {
 }
 
 const onStartGame = async (io, socket, data) => {
+
     //shuffle player to set the turn order
     const shuffledPlayersArray = [...data.players]
 
@@ -336,7 +338,11 @@ const onStartGame = async (io, socket, data) => {
         [shuffledPlayersArray[i], shuffledPlayersArray[j]] = [shuffledPlayersArray[j], shuffledPlayersArray[i]];
     }
 
-    socket.nsp.to(data.roomSocket).emit('start-game-response', { players: data.players, turnOrder: shuffledPlayersArray })
+    const mappedOrder = shuffledPlayersArray.map(el => el.id).join(',')
+
+    await models.game_rooms.update({ started: true, turn_order: mappedOrder }, { where: { id: data.roomData.roomId } })
+
+    socket.nsp.to(data.roomData.roomSocket).emit('start-game-response', { players: data.players })
 }
 
 const onSpawnTile = async (io, socket, data) => {
@@ -348,6 +354,18 @@ const onPlayerMove = async (io, socket, data) => {
     models.player_character.update({ position: JSON.stringify(data.player.position) }, { where: { id: data.player.id } })
 
     socket.to(data.roomSocket).emit('on_player_move', data)
+}
+
+const onPassTurn = async (io, socket, data) => {
+    const room = await models.game_rooms.findByPk(data.roomId)
+    const numberOfPlayers = room.turn_order.split(',');
+
+    let newTurn = room.turn + 1 > numberOfPlayers.length - 1 ? 0 : room.turn + 1
+
+    models.game_rooms.update({ turn: newTurn, total_turns: room.total_turns + 1 }, { where: { id: data.roomId } })
+
+    io.to(room.room_id).emit('turn_passed', { turn: newTurn })
+
 }
 
 module.exports = {

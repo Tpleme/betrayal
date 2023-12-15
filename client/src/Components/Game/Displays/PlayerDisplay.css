@@ -28,6 +28,7 @@
     text-align: center;
     gap: 5px;
     margin-left: -45px;
+    padding-left: 25px;
     border-radius: 20px;
     background: linear-gradient(to right, transparent 0%, black 18%);
 }

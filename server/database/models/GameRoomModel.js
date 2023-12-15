@@ -25,6 +25,13 @@ const GameRoomModel = database.define('game_rooms', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
+    total_turns: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    turn_order: {
+        type: DataTypes.STRING,
+    }
 
 })
 

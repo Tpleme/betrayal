@@ -1,0 +1,17 @@
+.turn-display-main-div {
+    display: flex;
+    height: 100%;
+    padding: 0 20px 0 3px;
+    align-items: center;
+    gap: 20px;
+}
+
+.turn-display-main-div > img {
+    height: 90%;
+    border-radius: 17px;
+}
+
+.turn-display-main-div > p {
+    font-size: 22px;
+    font-family: xerox;
+}
