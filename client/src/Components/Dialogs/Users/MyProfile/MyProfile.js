@@ -24,7 +24,7 @@ function MyProfile(props) {
     const { showSnackbar } = useGlobalSnackbar()
 
     const refresh = () => {
-        getEntity('users', userInfo.id).then(res => {
+        getEntity({ entity: 'users', id: userInfo.id }).then(res => {
             setUserInfo({ ...res.data, token: userInfo.token })
         }, err => {
             console.log(err)
@@ -126,7 +126,7 @@ function MyProfile(props) {
                 </div>
                 <div className={`my-profile-edit-div${showSideView ? ' show' : ' hide'}`}>
                     <Tabs
-                        sx={{ '& .MuiTabs-indicator': { backgroundColor: 'var(--light-yellow)' }, '& button': { color: 'var(--light-yellow)', fontFamily: 'xerox', fontSize:'16px' } }}
+                        sx={{ '& .MuiTabs-indicator': { backgroundColor: 'var(--light-yellow)' }, '& button': { color: 'var(--light-yellow)', fontFamily: 'xerox', fontSize: '16px' } }}
                         variant="fullWidth"
                         value={tab}
                         onChange={(e, value) => setTab(value)}

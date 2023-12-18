@@ -23,6 +23,18 @@
     width: 100%;
 }
 
+.player-token-image.disconnected {
+    filter: grayscale(1);
+}
+
+.disconnected-icon {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    filter: invert(15%) sepia(100%) saturate(6693%) hue-rotate(1deg) brightness(121%) contrast(118%) drop-shadow(1px 1px 1px black)
+}
+
 .player-token:hover {
     box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.8);
 }

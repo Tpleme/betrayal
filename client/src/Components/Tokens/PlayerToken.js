@@ -2,9 +2,11 @@ import React, { useState } from 'react'
 import CustomTooltip from '../Misc/CustomTooltip';
 import Menu from '@mui/material/Menu';
 import { CharacterStatsForMenu } from '../Game/Character/CharacterStats';
+import { Divider } from '@mui/material';
+
+import DisconnectedIcon from '../../Assets/Icons/unplugged.png'
 
 import './PlayerToken.css'
-import { Divider } from '@mui/material';
 
 function PlayerToken({ player, wrapperStyle, tokenStyle }) {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -13,15 +15,18 @@ function PlayerToken({ player, wrapperStyle, tokenStyle }) {
 
     return (
         <div className='player-token-wrapper' style={wrapperStyle}>
-            <CustomTooltip title={`${character.name} (${user.name})`} >
+            <CustomTooltip title={`${character.name} (${user.name}) ${!user.connected_to_room ? '(disconnected)' : ''}`} >
                 <div
                     className='player-token'
                     style={{ border: `1px solid ${character.color}`, ...tokenStyle }}
                     onClick={e => setAnchorEl(e.currentTarget)}
                 >
+                    {!user.connected_to_room &&
+                        <img alt='disconnected' src={DisconnectedIcon} className='disconnected-icon' />
+                    }
                     <img
                         alt={character.name}
-                        className='player-token-image'
+                        className={`player-token-image${!user.connected_to_room ? ' disconnected' : ''}`}
                         src={`${process.env.REACT_APP_SERVER_URL}/resources/images/characters/${character.image}`}
                     />
                 </div>

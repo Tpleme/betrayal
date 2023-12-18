@@ -28,7 +28,7 @@ function Chat(props) {
 
 
     useEffect(() => {
-        getEntity('users').then(res => {
+        getEntity({ entity: 'users' }).then(res => {
             organizeUsers(res.data)
         })
 

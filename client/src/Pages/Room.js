@@ -12,6 +12,10 @@ import './css/Room.css'
 import PlayerDisplay from '../Components/Game/Displays/PlayerDisplay';
 import TurnDisplay from '../Components/Game/Displays/TurnDisplay';
 
+//TODO: add function to when player disconnects and reconnects to update the token with a icon;
+//TODO: add player list to players display;
+//TODO: add itens, events and omens to database, link them to tiles
+
 function Room() {
     const { state } = useLocation();
     const { userInfo } = useUserInfo()
@@ -27,7 +31,7 @@ function Room() {
 
     useEffect(() => {
         // socket.on('user_connected_lobby', getUsersFromRoom)
-        // socket.on('user_disconnected_lobby', getUsersFromRoom)
+        socket.on('user_disconnected_lobby', onPlayerDisconnect)
         socket.on('hosting-now', getUsersFromRoom)
         socket.on('kicked', onKicked)
         socket.on('on_player_move', onPlayerMove)
@@ -35,7 +39,7 @@ function Room() {
 
         return () => {
             socket.off('user_connected_lobby', getUsersFromRoom)
-            socket.off('user_disconnected_lobby', getUsersFromRoom)
+            socket.off('user_disconnected_lobby', onPlayerDisconnect)
             socket.off('kicked', onKicked)
             socket.off('hosting-now', getUsersFromRoom)
             socket.off('on_player_move', onPlayerMove)
@@ -45,14 +49,13 @@ function Room() {
 
     useEffect(() => {
         if (state) {
-            console.log(state)
             getUsersFromRoom()
             getRoomInfo()
         }
     }, [state])
 
     const getRoomInfo = async () => {
-        getEntity('gameRoom', state.roomId).then(res => {
+        getEntity({ entity: 'gameRoom', id: state.roomId }).then(res => {
             setTurn(res.data.turn);
             setTurnOrder(res.data.turn_order.split(','))
         }, err => {
@@ -71,7 +74,7 @@ function Room() {
 
                 const otherPlayers = mappedPlayers.filter(player => player.userId !== userInfo.id)
                 const me = mappedPlayers.filter(player => player.userId === userInfo.id)[0]
-                console.log(me)
+
                 setPlayers(otherPlayers)
                 setMyToken(me)
 
@@ -114,10 +117,14 @@ function Room() {
     }
 
     const onTurnPassed = data => {
-        console.log(data)
         setTurn(data.turn)
     }
 
+    const onPlayerDisconnect = data => {
+        console.log(data)
+
+        //TODO: change "connected_to_room" to false from user object inside player
+    }
 
     return (
         <div className='game-room-main-div' >
@@ -156,6 +163,7 @@ function Room() {
                     socket={socket}
                     movePlayer={movePlayer}
                     roomSocket={state.roomSocket}
+                    roomId={state.roomId}
                 />
             }
         </div>

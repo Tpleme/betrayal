@@ -21,7 +21,7 @@ function LobbyInvitePeople(props) {
 
     useEffect(() => {
         if (props.open) {
-            getEntity('users').then(res => {
+            getEntity({ entity: 'users' }).then(res => {
                 setAllUsers(res.data.filter(user => user.loggedIn && user.id !== userInfo.id))
             }, err => {
                 console.log(err)

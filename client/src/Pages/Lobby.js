@@ -79,7 +79,7 @@ function Lobby() {
     useEffect(() => {
         if (state) {
 
-            getEntity('characters').then(res => {
+            getEntity({ entity: 'characters' }).then(res => {
                 setAllCharacters(res.data)
             }, err => {
                 console.log(err)
@@ -165,7 +165,7 @@ function Lobby() {
 
     const startGameResponse = data => {
         setShowLoadingDialog(true)
-        
+
         // fake loading
         setTimeout(() => {
             setShowLoadingDialog(false)

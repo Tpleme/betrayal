@@ -46,7 +46,7 @@ function App() {
 		timer = setTimeout(() => getUser(), 1000)
 	}
 
-	const getUser = () => getEntity('users', sessionStorage.getItem('id')).then(res => {
+	const getUser = () => getEntity({ entity: 'users', id: sessionStorage.getItem('id') }).then(res => {
 		setUserInfo({ ...res.data, token })
 		setReady(true)
 	}, err => {

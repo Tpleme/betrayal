@@ -12,7 +12,7 @@ import PlayerToken from '../../Tokens/PlayerToken'
 const TILE_SIZE = 70
 const BOARD_SIZE = 2000
 
-function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode, movePlayer, socket, roomSocket }) {
+function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode, movePlayer, socket, roomSocket, roomId }) {
     const [boardTiles, setBoardTiles] = useState([])
     const [board, setBoard] = useState({ basement: [], ground: [], upper: [] })
     const [viewMode, setViewMode] = useState('active')
@@ -20,15 +20,24 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode, moveP
 
     useEffect(() => {
         socket.on('on_tile_spawn', onTileSpawned)
+        socket.on('tile_rotated_response', onTileRotated)
 
         return () => {
             socket.off('on_tile_spawn', onTileSpawned)
+            socket.off('tile_rotated_response', onTileRotated)
         }
     }, [])
 
 
     useEffect(() => {
-        getEntity('roomTiles').then(res => {
+        getEntity({ entity: 'roomTiles', query: { roomId } }).then(res => {
+            if (res.data.board) {
+                setBoardTiles(res.data.restTiles)
+                setBoard(res.data.board);
+
+                return;
+            }
+
             const tiles = res.data.restTiles.map(tile => {
                 return { ...tile, discarded: false }
             })
@@ -61,10 +70,10 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode, moveP
     }
 
     const onTileSpawned = (data) => {
-        console.log(data)
         setBoardTiles(data.boardTiles)
         setBoard(data.board)
     }
+
 
     const buildBoard = (tiles) => {
         const tileCount = BOARD_SIZE / TILE_SIZE
@@ -186,15 +195,15 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode, moveP
         usedTile.discarded = true
 
         const filteredTiles = boardTiles.filter(tiles => tiles.id !== usedTile.id)
-        const newBoardTIles = [...filteredTiles, usedTile]
+        const newBoardTiles = [...filteredTiles, usedTile]
         const newBoard = { ...board, ground: boardData }
 
 
         setLastSpawnedTile(boardData[y][x])
-        setBoardTiles(newBoardTIles)
+        setBoardTiles(newBoardTiles)
         setBoard(newBoard)
 
-        socket.emit('spawn_tile', { boardTiles: newBoardTIles, board: newBoard, roomSocket })
+        socket.emit('spawn_tile', { boardTiles: newBoardTiles, board: newBoard, roomSocket, roomId })
 
         moveCharacter(boardData[y][x])
     }
@@ -283,6 +292,11 @@ function GameBoard({ players, setPlayers, myToken, setMyToken, playerMode, moveP
         groundTiles[[tile.position.y][tile.position.x]] = boardTile
 
         setBoard(prev => ({ ...prev, ground: groundTiles }))
+        socket.emit('tile_rotated', { board: { ...board, ground: groundTiles }, roomId, roomSocket })
+    }
+
+    const onTileRotated = data => {
+        setBoard(JSON.parse(data.board))
     }
 
     const getRotatingButton = (tile) => {

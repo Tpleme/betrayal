@@ -24,7 +24,7 @@ const PlayerCharacter = database.define('player_character', {
     },
     position: {
         type: DataTypes.STRING,
-        defaultValue: '{"x":1,"y":1}'
+        defaultValue: '{"x":14,"y":14}'
     }
 })
 

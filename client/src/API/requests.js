@@ -29,8 +29,11 @@ export const updatePassword = async (id, data) => {
     return await axios.post(`${SERVER_URL}/api/users/change-pass/${id}`, data, { headers: await getHeaders() })
 }
 
-export const getEntity = async (entity, id) => {
-    return await axios.get(`${SERVER_URL}/api/${entity}${id ? `/${id}` : ''}`, { headers: await getHeaders() })
+export const getEntity = async ({entity, id, query}) => {
+    const queryString = '?' + new URLSearchParams(query).toString();
+    const url = query ? id ? `/${id}${queryString}` : queryString : id ? `/${id}` : ''
+
+    return await axios.get(`${SERVER_URL}/api/${entity}${url}`, { headers: await getHeaders() })
 }
 
 export const editEntity = async (entity, id, data) => {

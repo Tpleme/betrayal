@@ -20,7 +20,7 @@ function LobbySettings(props) {
     const [min, setMin] = useState(2)
 
     useEffect(() => {
-        getEntity('gameRoom', props.lobby.roomId).then(res => {
+        getEntity({ entity: 'gameRoom', id: props.lobby.roomId }).then(res => {
             setRoomInfo(res.data)
             setMaxPlayers(res.data.max_players)
         }, err => {
@@ -60,7 +60,7 @@ function LobbySettings(props) {
                 <>
                     <ChangeLobbyPassword open={openChangePassword} close={() => setOpenChangePassword(false)} room={roomInfo} refresh={() => setRefresh(!refresh)} />
                     <LobbyInvitePeople open={openInvite} close={() => setOpenInvite(false)} room={roomInfo} />
-                    <ChangeHost open={openChangeHost} close={() => setOpenChangeHost(false)} players={props.players} room={roomInfo} socket={props.socket}/>
+                    <ChangeHost open={openChangeHost} close={() => setOpenChangeHost(false)} players={props.players} room={roomInfo} socket={props.socket} />
                 </>
             }
         </div>

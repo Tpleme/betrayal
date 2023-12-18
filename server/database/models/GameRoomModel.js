@@ -31,6 +31,12 @@ const GameRoomModel = database.define('game_rooms', {
     },
     turn_order: {
         type: DataTypes.STRING,
+    },
+    board: {
+        type: DataTypes.TEXT,
+    },
+    tiles: {
+        type: DataTypes.TEXT,
     }
 
 })

@@ -40,6 +40,7 @@ const handleWS = (socket, io) => {
     socket.on('spawn_tile', data => onSpawnTile(io, socket, data))
     socket.on('move_player', data => onPlayerMove(io, socket, data))
     socket.on('pass_turn', data => onPassTurn(io, socket, data))
+    socket.on('tile_rotated', data => onTileRotated(socket, data))
     // socket.onAny((event, ...args) => console.log(event, args));
 }
 
@@ -346,7 +347,12 @@ const onStartGame = async (io, socket, data) => {
 }
 
 const onSpawnTile = async (io, socket, data) => {
-    socket.to(data.roomSocket).emit('on_tile_spawn', data)
+    socket.to(data.roomSocket).emit('on_tile_spawn', data);
+
+    const board = JSON.stringify(data.board)
+    const tiles = JSON.stringify(data.boardTiles)
+
+    models.game_rooms.update({ board, tiles }, { where: { id: data.roomId } })
 }
 
 const onPlayerMove = async (io, socket, data) => {
@@ -366,6 +372,13 @@ const onPassTurn = async (io, socket, data) => {
 
     io.to(room.room_id).emit('turn_passed', { turn: newTurn })
 
+}
+
+const onTileRotated = async (socket, data) => {
+    const board = JSON.stringify(data.board)
+    models.game_rooms.update({ board }, { where: { id: data.roomId } })
+
+    socket.to(data.roomSocket).emit('tile_rotated_response', { board })
 }
 
 module.exports = {
