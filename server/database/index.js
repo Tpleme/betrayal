@@ -1,5 +1,5 @@
 const database = require('./sequelize_index')
-
+//TODO: dice roll = x(trait value)d3-x(trait value)
 const UsersModel = require('./models/Users')
 const KeysModel = require('./models/Keys')
 const GameRoomModel = require('./models/GameRoomModel')
@@ -8,6 +8,9 @@ const CharactersModel = require('./models/CharactersModel')
 const RoomTilesModel = require('./models/RoomTiles')
 const RoomRulesModel = require ('./models/RoomRules')
 const MainChatsModel = require('./models/MainChatModel')
+const ItemsModel = require('./models/Items')
+const OmensModel = require('./models/Omens')
+const EventsModel = require('./models/Events')
 
 const refreshDatabaseModels = false;
 
@@ -44,6 +47,9 @@ const initializeModels = async () => {
     RoomRulesModel.hasOne(RoomTilesModel, { foreignKey: 'rules' })
 
     MainChatsModel(database)
+    ItemsModel(database)
+    OmensModel(database)
+    EventsModel(database)
 
 }
 
